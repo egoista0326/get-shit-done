@@ -4912,7 +4912,7 @@ function reportLocalPatches(configDir, runtime = 'claude') {
         ? '$gsd-reapply-patches'
         : runtime === 'cursor'
           ? 'gsd-reapply-patches (mention the skill name)'
-          : '/gsd:reapply-patches';
+          : '/gsd-reapply-patches';
     console.log('');
     console.log('  ' + yellow + 'Local patches detected' + reset + ' (from v' + meta.from_version + '):');
     for (const f of meta.files) {
