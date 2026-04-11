@@ -1456,6 +1456,8 @@ function cmdInitRemoveWorkspace(cwd, name, raw) {
  */
 function buildAgentSkillsBlock(config, agentType, projectRoot) {
   const { validatePath } = require('./security.cjs');
+  const os = require('os');
+  const globalSkillsBase = path.join(os.homedir(), '.claude', 'skills');
 
   if (!config || !config.agent_skills || !agentType) return '';
 
@@ -1469,6 +1471,37 @@ function buildAgentSkillsBlock(config, agentType, projectRoot) {
   const validPaths = [];
   for (const skillPath of skillPaths) {
     if (typeof skillPath !== 'string') continue;
+
+    // Support global: prefix for skills installed at ~/.claude/skills/ (#1992)
+    if (skillPath.startsWith('global:')) {
+      const skillName = skillPath.slice(7);
+      // Explicit empty-name guard before regex for clearer error message
+      if (!skillName) {
+        process.stderr.write(`[agent-skills] WARNING: "global:" prefix with empty skill name — skipping\n`);
+        continue;
+      }
+      // Sanitize: skill name must be alphanumeric, hyphens, or underscores only
+      if (!/^[a-zA-Z0-9_-]+$/.test(skillName)) {
+        process.stderr.write(`[agent-skills] WARNING: Invalid global skill name "${skillName}" — skipping\n`);
+        continue;
+      }
+      const globalSkillDir = path.join(globalSkillsBase, skillName);
+      const globalSkillMd = path.join(globalSkillDir, 'SKILL.md');
+      if (!fs.existsSync(globalSkillMd)) {
+        process.stderr.write(`[agent-skills] WARNING: Global skill not found at "~/.claude/skills/${skillName}/SKILL.md" — skipping\n`);
+        continue;
+      }
+      // Symlink escape guard: validatePath resolves symlinks and enforces
+      // containment within globalSkillsBase. Prevents a skill directory
+      // symlinked to an arbitrary location from being injected (#1992).
+      const pathCheck = validatePath(globalSkillMd, globalSkillsBase, { allowAbsolute: true });
+      if (!pathCheck.safe) {
+        process.stderr.write(`[agent-skills] WARNING: Global skill "${skillName}" failed path check (symlink escape?) — skipping\n`);
+        continue;
+      }
+      validPaths.push({ ref: `${globalSkillDir}/SKILL.md`, display: `~/.claude/skills/${skillName}` });
+      continue;
+    }
 
     // Validate path safety — must resolve within project root
     const pathCheck = validatePath(skillPath, projectRoot);
@@ -1484,12 +1517,12 @@ function buildAgentSkillsBlock(config, agentType, projectRoot) {
       continue;
     }
 
-    validPaths.push(skillPath);
+    validPaths.push({ ref: `${skillPath}/SKILL.md`, display: skillPath });
   }
 
   if (validPaths.length === 0) return '';
 
-  const lines = validPaths.map(p => `- @${p}/SKILL.md`).join('\n');
+  const lines = validPaths.map(p => `- @${p.ref}`).join('\n');
   return `<agent_skills>\nRead these user-configured skills:\n${lines}\n</agent_skills>`;
 }
 
