@@ -15,9 +15,45 @@ const DISCOVERY_COMMAND_KEYS = [
 ];
 
 const INDEX_ARTIFACT = 'research/RESEARCH_INDEX.md';
+const SUPPORTED_SOURCES = ['zotero', 'obsidian', 'local', 'web', 'deepxiv', 'all'];
+const SOURCE_POLICY = {
+  semantic_scholar: 'web',
+  deepxiv: 'explicit-opt-in',
+  all_excludes: ['deepxiv'],
+};
 
 function withIndex(required) {
   return [INDEX_ARTIFACT, ...required.filter(item => item !== INDEX_ARTIFACT)];
+}
+
+function literatureParameters(overrides = {}) {
+  return {
+    sources: ['all'],
+    supported_sources: [...SUPPORTED_SOURCES],
+    source_policy: {
+      ...SOURCE_POLICY,
+      all_excludes: [...SOURCE_POLICY.all_excludes],
+    },
+    ...overrides,
+  };
+}
+
+function cloneParameterValue(value) {
+  if (Array.isArray(value)) {
+    return [...value];
+  }
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nested]) => [key, cloneParameterValue(nested)])
+    );
+  }
+  return value;
+}
+
+function cloneParameters(parameters = {}) {
+  return Object.fromEntries(
+    Object.entries(parameters).map(([key, value]) => [key, cloneParameterValue(value)])
+  );
 }
 
 const RESEARCH_COMMANDS = {
@@ -31,7 +67,7 @@ const RESEARCH_COMMANDS = {
     defaultPhaseGoal: 'Use Auto/ARIS literature-reading prompts inside an ordinary GSD phase while producing source-grounded reading evidence.',
     artifacts: { required: withIndex(['research/literature/LITERATURE_EVIDENCE.md']) },
     evidence: { required: ['literature'] },
-    parameters: { sources: ['local', 'web'], max_literature_items: 20 },
+    parameters: literatureParameters({ max_literature_items: 20 }),
     sideEffects: ['network-literature-search'],
   },
   'idea-discovery': {
@@ -48,7 +84,7 @@ const RESEARCH_COMMANDS = {
       'research/novelty/NOVELTY_REVIEW.md',
     ]) },
     evidence: { required: ['literature', 'ideas', 'novelty'] },
-    parameters: { sources: ['local', 'web'], max_literature_items: 20, require_literature_evidence: true },
+    parameters: literatureParameters({ max_literature_items: 20, require_literature_evidence: true }),
     sideEffects: ['network-literature-search'],
   },
   'idea-creator': {
@@ -61,7 +97,7 @@ const RESEARCH_COMMANDS = {
     defaultPhaseGoal: 'Generate research ideas through Auto/ARIS prompts compiled into ordinary GSD planning guidance.',
     artifacts: { required: withIndex(['research/literature/LITERATURE_EVIDENCE.md', 'research/ideas/IDEA_REPORT.md']) },
     evidence: { required: ['literature', 'ideas'] },
-    parameters: { sources: ['local', 'web'], max_literature_items: 20 },
+    parameters: literatureParameters({ max_literature_items: 20 }),
     sideEffects: ['network-literature-search'],
   },
   'novelty-check': {
@@ -74,7 +110,7 @@ const RESEARCH_COMMANDS = {
     defaultPhaseGoal: 'Check novelty through literature-grounded comparison inside ordinary GSD phase execution.',
     artifacts: { required: withIndex(['research/literature/LITERATURE_EVIDENCE.md', 'research/novelty/NOVELTY_REVIEW.md']) },
     evidence: { required: ['literature', 'novelty'] },
-    parameters: { sources: ['local', 'web'], novelty_threshold: 0.8 },
+    parameters: literatureParameters({ novelty_threshold: 0.8 }),
     sideEffects: ['network-literature-search'],
   },
   'research-review': {
@@ -122,7 +158,7 @@ const RESEARCH_COMMANDS = {
       'research/refine/FINAL_PROPOSAL.md',
     ]) },
     evidence: { required: ['literature', 'review', 'refinement'] },
-    parameters: { sources: ['local', 'web'], max_review_rounds: 5, score_threshold: 9 },
+    parameters: literatureParameters({ max_review_rounds: 5, score_threshold: 9 }),
     sideEffects: ['network-literature-search', 'external-reviewer-optional'],
   },
   'research-pipeline': {
@@ -139,7 +175,7 @@ const RESEARCH_COMMANDS = {
       'research/review/REVIEW_REPORT.md',
     ]) },
     evidence: { required: ['literature', 'ideas', 'review'] },
-    parameters: { sources: ['local', 'web'], max_literature_items: 20, max_review_rounds: 3 },
+    parameters: literatureParameters({ max_literature_items: 20, max_review_rounds: 3 }),
     sideEffects: ['network-literature-search', 'external-reviewer-optional'],
   },
 };
@@ -154,7 +190,7 @@ function getResearchCommand(command) {
     ...entry,
     artifacts: { required: [...entry.artifacts.required] },
     evidence: { required: [...entry.evidence.required] },
-    parameters: { ...(entry.parameters || {}) },
+    parameters: cloneParameters(entry.parameters),
     sideEffects: [...(entry.sideEffects || [])],
   };
 }

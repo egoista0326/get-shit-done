@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const { output } = require('./core.cjs');
-const { requireSafePath, sanitizeForPrompt } = require('./security.cjs');
+const { requireSafePath, sanitizeForPrompt, scanForInjection } = require('./security.cjs');
 const { loadResearchConfig } = require('./research-config.cjs');
 const { getResearchCommand } = require('./research-command-map.cjs');
 const { getPromptPack } = require('./research-prompt-packs.cjs');
@@ -16,6 +16,7 @@ function compileResearchCommand(cwd, commandKey, options = {}) {
   const config = loadResearchConfig(cwd, { preset: options.preset });
   const mode = options.mode || command.defaultMode || 'insert';
   const intent = sanitizeForPrompt(options.intent || '');
+  const intentSafety = scanForInjection(intent, { strict: true });
   const promptPack = getPromptPack(command.promptPack);
   const commandConfig = config.commands[command.key] && typeof config.commands[command.key] === 'object'
     ? config.commands[command.key]
@@ -25,7 +26,7 @@ function compileResearchCommand(cwd, commandKey, options = {}) {
     ...commandConfig,
     ...(options.parameters || {}),
   };
-  const phase = renderResearchPhase({ command, intent, mode });
+  const phase = renderResearchPhase({ command, intent, mode, intentSafety });
   const researchFirst = mode === 'research-first';
 
   return {
@@ -36,6 +37,7 @@ function compileResearchCommand(cwd, commandKey, options = {}) {
     depth: config.depth,
     mode,
     intent,
+    intentSafety,
     phase,
     promptPack,
     parameters,

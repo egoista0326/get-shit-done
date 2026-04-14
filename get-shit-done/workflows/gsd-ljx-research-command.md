@@ -20,7 +20,8 @@ Do not place raw user arguments directly into a shell command. Store them as ine
 
 ```bash
 mkdir -p .planning/.tmp
-INTENT_FILE=".planning/.tmp/gsd-ljx-research-intent.txt"
+INTENT_FILE="$(mktemp .planning/.tmp/gsd-ljx-research-intent.XXXXXX)"
+trap 'rm -f "$INTENT_FILE"' EXIT
 cat > "$INTENT_FILE" <<'GSD_RESEARCH_INTENT'
 $ARGUMENTS
 GSD_RESEARCH_INTENT
@@ -33,6 +34,7 @@ Run the bounded research compiler with the intent file:
 ```bash
 node get-shit-done/bin/gsd-tools.cjs research compile "$RESEARCH_COMMAND_KEY" --intent-file "$INTENT_FILE" --dry-run
 rm -f "$INTENT_FILE"
+trap - EXIT
 ```
 
 If the user selected a preset, pass it with `--preset safe`, `--preset auto`, or `--preset danger-auto`.
