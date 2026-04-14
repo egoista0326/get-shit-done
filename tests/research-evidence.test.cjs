@@ -155,6 +155,30 @@ describe('research evidence completeness', () => {
     }
   });
 
+  test('CLI research evidence-check --preset safe suppresses danger-auto audit artifacts', () => {
+    const tmp = createTempProject('gsd-research-evidence-');
+    const phaseDir = createPhase(tmp);
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      default_preset: 'danger-auto',
+    }, null, 2)}\n`);
+
+    try {
+      initResearchIndex(tmp, '01', 'idea-discovery', { preset: 'safe' });
+      writeArtifact(phaseDir, 'research/literature/LITERATURE_EVIDENCE.md', 'sources and reading notes');
+      writeArtifact(phaseDir, 'research/ideas/IDEA_REPORT.md', 'candidate ideas');
+      writeArtifact(phaseDir, 'research/novelty/NOVELTY_REVIEW.md', 'novelty review');
+
+      const result = runGsdTools(['research', 'evidence-check', '01', '--command', 'idea-discovery', '--preset', 'safe'], tmp);
+
+      assert.equal(result.success, true, result.error);
+      const parsed = JSON.parse(result.output);
+      assert.equal(parsed.status, 'clean');
+      assert.equal(parsed.missing.includes('research/RESEARCH_RUN_LOG.md'), false);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('danger-auto evidence is incomplete without phase-local audit artifacts', () => {
     const tmp = createTempProject('gsd-research-evidence-');
     const phaseDir = createPhase(tmp);
@@ -176,6 +200,22 @@ describe('research evidence completeness', () => {
       assert.equal(result.missing.includes('research/AUTHORIZATION_ACTIONS.json'), true);
       assert.equal(result.missing.includes('research/DANGER_AUTO_OVERRIDES.md'), true);
       assert.equal(result.missing.includes('research/SIDE_EFFECTS.md'), true);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
+  test('missing phase is reported before invalid research config in evidence helper', () => {
+    const tmp = createTempProject('gsd-research-evidence-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      preset: 'fast',
+    }, null, 2)}\n`);
+
+    try {
+      assert.throws(
+        () => checkResearchEvidence(tmp, '99', 'idea-discovery'),
+        /Phase not found: 99/
+      );
     } finally {
       cleanup(tmp);
     }

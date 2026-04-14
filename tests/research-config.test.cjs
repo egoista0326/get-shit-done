@@ -117,6 +117,35 @@ describe('research config defaults and preset policy', () => {
     }
   });
 
+  test('danger-auto preset overrides cannot downgrade hard safety invariants', () => {
+    const tmp = createTempProject('gsd-research-config-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      preset: 'danger-auto',
+      presets: {
+        'danger-auto': {
+          auto_proceed: false,
+          human_checkpoint: true,
+          external_side_effects: 'confirm-required',
+          allow_quality_gate_override: false,
+          require_audit_artifacts: false,
+        },
+      },
+    }, null, 2)}\n`);
+
+    try {
+      const resolved = loadResearchConfig(tmp);
+
+      assert.equal(resolved.preset, 'danger-auto');
+      assert.equal(resolved.autoProceed, true);
+      assert.equal(resolved.humanCheckpoint, false);
+      assert.equal(resolved.externalSideEffects, 'danger-auto-available');
+      assert.equal(resolved.allowQualityGateOverride, true);
+      assert.equal(resolved.requireAuditArtifacts, true);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('rejects unsupported presets before compiling research context', () => {
     assert.throws(
       () => resolveResearchPreset('fast'),
@@ -142,6 +171,29 @@ describe('research config defaults and preset policy', () => {
       );
       assert.equal(Object.hasOwn(resolved, 'gpu'), false);
       assert.equal(Object.hasOwn(resolved, 'unexpected_key'), false);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
+  test('warns and ignores unknown nested command config keys by default', () => {
+    const tmp = createTempProject('gsd-research-config-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      preset: 'safe',
+      commands: {
+        'idea-discovery': {
+          max_literature_items: 5,
+          unexpected_key: true,
+        },
+      },
+    }, null, 2)}\n`);
+
+    try {
+      const resolved = loadResearchConfig(tmp);
+
+      assert.equal(resolved.commands['idea-discovery'].max_literature_items, 5);
+      assert.equal(Object.hasOwn(resolved.commands['idea-discovery'], 'unexpected_key'), false);
+      assert.equal(resolved.warnings.some(warning => warning.key === 'commands.idea-discovery.unexpected_key'), true);
     } finally {
       cleanup(tmp);
     }

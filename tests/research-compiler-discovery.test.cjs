@@ -298,6 +298,30 @@ describe('research discovery compiler contract', () => {
     }
   });
 
+  test('command parameter merge ignores unknown nested command config keys', () => {
+    const tmp = createTempProject('gsd-research-compiler-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      commands: {
+        'idea-discovery': {
+          max_literature_items: 5,
+          unexpected_key: 'must not become effective',
+        },
+      },
+    }, null, 2)}\n`);
+
+    try {
+      const compiled = compileResearchCommand(tmp, 'idea-discovery', {
+        intent: 'safe topic',
+      });
+
+      assert.equal(compiled.parameters.max_literature_items, 5);
+      assert.equal(Object.hasOwn(compiled.parameters, 'unexpected_key'), false);
+      assert.equal(compiled.configWarnings.some(warning => warning.key === 'commands.idea-discovery.unexpected_key'), true);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('CLI dry-run compile emits deterministic JSON and does not create canonical state changes', () => {
     const tmp = createTempProject('gsd-research-cli-');
     const statePath = path.join(tmp, '.planning', 'STATE.md');

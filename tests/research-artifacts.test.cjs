@@ -92,6 +92,25 @@ describe('research artifact index', () => {
     }
   });
 
+  test('CLI research index --preset safe suppresses danger-auto audit artifacts', () => {
+    const tmp = createTempProject('gsd-research-artifacts-');
+    createPhase(tmp);
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      default_preset: 'danger-auto',
+    }, null, 2)}\n`);
+
+    try {
+      const result = runGsdTools(['research', 'index', '01', '--command', 'idea-discovery', '--preset', 'safe', '--dry-run'], tmp);
+
+      assert.equal(result.success, true, result.error);
+      const parsed = JSON.parse(result.output);
+      assert.equal(parsed.artifacts.includes('research/RESEARCH_RUN_LOG.md'), false);
+      assert.doesNotMatch(parsed.content, /research\/RESEARCH_RUN_LOG\.md/);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('rejects missing phase instead of writing research artifacts at planning root', () => {
     const tmp = createTempProject('gsd-research-artifacts-');
     try {
@@ -100,6 +119,22 @@ describe('research artifact index', () => {
         /Phase not found: 99/
       );
       assert.equal(fs.existsSync(path.join(tmp, '.planning', 'research')), false);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
+  test('missing phase is reported before invalid research config in index helper', () => {
+    const tmp = createTempProject('gsd-research-artifacts-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      preset: 'fast',
+    }, null, 2)}\n`);
+
+    try {
+      assert.throws(
+        () => initResearchIndex(tmp, '99', 'idea-discovery'),
+        /Phase not found: 99/
+      );
     } finally {
       cleanup(tmp);
     }
