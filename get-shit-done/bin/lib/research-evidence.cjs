@@ -46,8 +46,8 @@ function missingContentMarkers(status, markers = []) {
 
 function checkResearchEvidence(cwd, phaseId, commandKey, options = {}) {
   const command = getResearchCommand(commandKey || 'research-lit');
-  const config = loadResearchConfig(cwd, { preset: options.preset });
   const phaseDir = resolvePhaseDir(cwd, phaseId);
+  const config = loadResearchConfig(cwd, { preset: options.preset });
   const requiredArtifacts = artifactsForConfig(command, config);
   const statuses = requiredArtifacts.map(relativePath => artifactStatus(phaseDir, relativePath));
   const incompleteContent = statuses

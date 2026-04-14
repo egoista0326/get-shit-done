@@ -87,9 +87,9 @@ function resolvePhaseResearchDir(cwd, phaseId) {
 
 function initResearchIndex(cwd, phaseId, commandKey, options = {}) {
   const command = getResearchCommand(commandKey || 'research-lit');
+  const { phaseDir, researchDir } = resolvePhaseResearchDir(cwd, phaseId);
   const config = loadResearchConfig(cwd, { preset: options.preset });
   const requiredArtifacts = artifactsForConfig(command, config);
-  const { phaseDir, researchDir } = resolvePhaseResearchDir(cwd, phaseId);
   const indexPath = requireSafePath(path.join(researchDir, 'RESEARCH_INDEX.md'), phaseDir, 'Research index', { allowAbsolute: true });
   const content = renderResearchIndex(command.key, requiredArtifacts);
 

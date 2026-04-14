@@ -200,6 +200,38 @@ function collectStrictUnknownKeys(raw, topLevelWarnings) {
   return unknown.sort();
 }
 
+function collectNestedUnknownWarnings(raw) {
+  return collectStrictUnknownKeys(raw, []).map(key => ({
+    key,
+    action: 'ignored',
+    reason: 'unknown nested research config key',
+  }));
+}
+
+function normalizeCommandConfigs(commands) {
+  if (!isPlainObject(commands)) return {};
+  const normalized = {};
+  for (const [commandName, commandConfig] of Object.entries(commands)) {
+    if (!SUPPORTED_RESEARCH_COMMAND_KEYS.includes(commandName) || !isPlainObject(commandConfig)) {
+      continue;
+    }
+    normalized[commandName] = normalizePresetParameterOverrides(commandConfig);
+  }
+  return normalized;
+}
+
+function enforceDangerAutoInvariants(preset) {
+  if (preset.preset !== 'danger-auto') return preset;
+  return {
+    ...preset,
+    autoProceed: true,
+    humanCheckpoint: false,
+    externalSideEffects: 'danger-auto-available',
+    allowQualityGateOverride: true,
+    requireAuditArtifacts: true,
+  };
+}
+
 function readResearchConfigFile(configPath) {
   if (!fs.existsSync(configPath)) {
     return { exists: false, raw: {}, warnings: [] };
@@ -225,6 +257,8 @@ function readResearchConfigFile(configPath) {
     if (strictUnknownKeys.length > 0) {
       throw new Error(`Unknown research config keys in strict mode: ${strictUnknownKeys.join(', ')}`);
     }
+  } else {
+    warnings.push(...collectNestedUnknownWarnings(parsed.value));
   }
 
   return { exists: true, raw: parsed.value, warnings };
@@ -242,11 +276,11 @@ function loadResearchConfig(cwd, overrides = {}) {
     : {};
   const presetOverrides = normalizePresetOverrides(selectedPresetConfig);
   const presetParameters = normalizePresetParameterOverrides(selectedPresetConfig);
-  const resolvedPreset = {
+  const resolvedPreset = enforceDangerAutoInvariants({
     ...preset,
     ...presetOverrides,
     preset: preset.preset,
-  };
+  });
 
   return {
     ...resolvedPreset,
@@ -254,9 +288,7 @@ function loadResearchConfig(cwd, overrides = {}) {
     exists: loaded.exists,
     effective,
     configPath,
-    commands: effective && raw.commands && typeof raw.commands === 'object' && !Array.isArray(raw.commands)
-      ? raw.commands
-      : {},
+    commands: effective ? normalizeCommandConfigs(raw.commands) : {},
     presetParameters,
     sideEffects: effective && raw.side_effects && typeof raw.side_effects === 'object' && !Array.isArray(raw.side_effects)
       ? raw.side_effects
