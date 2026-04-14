@@ -13,6 +13,16 @@ const { planningDir } = require('./core.cjs');
 const { safeJsonParse } = require('./security.cjs');
 
 const SUPPORTED_RESEARCH_PRESETS = ['safe', 'auto', 'danger-auto'];
+const SUPPORTED_RESEARCH_COMMAND_KEYS = [
+  'research-lit',
+  'idea-discovery',
+  'idea-creator',
+  'novelty-check',
+  'research-review',
+  'research-refine',
+  'research-refine-pipeline',
+  'research-pipeline',
+];
 
 const PRESET_DEFAULTS = {
   safe: {
@@ -154,6 +164,50 @@ function normalizePresetParameterOverrides(overrides) {
   return normalized;
 }
 
+function isKnownPresetNestedKey(key) {
+  return Object.hasOwn(PRESET_OVERRIDE_KEYS, key) || Object.hasOwn(PRESET_PARAMETER_KEYS, key);
+}
+
+function isKnownCommandNestedKey(key) {
+  return Object.hasOwn(PRESET_PARAMETER_KEYS, key);
+}
+
+function collectStrictUnknownKeys(raw, topLevelWarnings) {
+  const unknown = topLevelWarnings.map(warning => warning.key);
+
+  if (isPlainObject(raw.presets)) {
+    for (const [presetName, presetConfig] of Object.entries(raw.presets)) {
+      if (!SUPPORTED_RESEARCH_PRESETS.includes(presetName)) {
+        unknown.push(`presets.${presetName}`);
+        continue;
+      }
+      if (!isPlainObject(presetConfig)) continue;
+      for (const key of Object.keys(presetConfig)) {
+        if (!isKnownPresetNestedKey(key)) {
+          unknown.push(`presets.${presetName}.${key}`);
+        }
+      }
+    }
+  }
+
+  if (isPlainObject(raw.commands)) {
+    for (const [commandName, commandConfig] of Object.entries(raw.commands)) {
+      if (!SUPPORTED_RESEARCH_COMMAND_KEYS.includes(commandName)) {
+        unknown.push(`commands.${commandName}`);
+        continue;
+      }
+      if (!isPlainObject(commandConfig)) continue;
+      for (const key of Object.keys(commandConfig)) {
+        if (!isKnownCommandNestedKey(key)) {
+          unknown.push(`commands.${commandName}.${key}`);
+        }
+      }
+    }
+  }
+
+  return unknown.sort();
+}
+
 function readResearchConfigFile(configPath) {
   if (!fs.existsSync(configPath)) {
     return { exists: false, raw: {}, warnings: [] };
@@ -174,8 +228,11 @@ function readResearchConfigFile(configPath) {
       warnings.push({ key, action: 'ignored', reason: 'unknown top-level research config key' });
     }
   }
-  if (parsed.value.strict === true && warnings.length > 0) {
-    throw new Error(`Unknown research config keys in strict mode: ${warnings.map(warning => warning.key).sort().join(', ')}`);
+  if (parsed.value.strict === true) {
+    const strictUnknownKeys = collectStrictUnknownKeys(parsed.value, warnings);
+    if (strictUnknownKeys.length > 0) {
+      throw new Error(`Unknown research config keys in strict mode: ${strictUnknownKeys.join(', ')}`);
+    }
   }
 
   return { exists: true, raw: parsed.value, warnings };
