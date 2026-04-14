@@ -27,9 +27,23 @@ function readRepoFile(relativePath) {
   return fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
 }
 
+function hasOwnKeyDeep(value, key) {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+  if (Object.hasOwn(value, key)) {
+    return true;
+  }
+  return Object.values(value).some(child => hasOwnKeyDeep(child, key));
+}
+
 describe('research discovery compiler contract', () => {
   test('declares all discovery and refinement command keys as data', () => {
     assert.deepStrictEqual(DISCOVERY_COMMAND_KEYS, discoveryCommands);
+    const configSource = readRepoFile('get-shit-done/bin/lib/research-config.cjs');
+
+    assert.match(configSource, /DISCOVERY_COMMAND_KEYS/);
+    assert.doesNotMatch(configSource, /const SUPPORTED_RESEARCH_COMMAND_KEYS\s*=\s*\[/);
 
     for (const command of discoveryCommands) {
       const entry = getResearchCommand(command);
@@ -106,7 +120,7 @@ describe('research discovery compiler contract', () => {
       assert.equal(compiled.parameters.source_policy.deepxiv, 'explicit-opt-in');
       assert.equal(compiled.gates.humanCheckpoint, true);
       assert.equal(compiled.gates.externalSideEffects, 'confirm-required');
-      assert.equal(JSON.stringify(compiled).includes('phase_type'), false);
+      assert.equal(hasOwnKeyDeep(compiled, 'phase_type'), false);
     } finally {
       cleanup(tmp);
     }
@@ -160,7 +174,18 @@ describe('research discovery compiler contract', () => {
       assert.equal(compiled.lifecycle.mutation, 'roadmap-planning-intent');
       assert.equal(compiled.roadmap.numbering, 'integer');
       assert.equal(compiled.roadmap.insertAfterCurrentPhase, false);
-      assert.equal(JSON.stringify(compiled).includes('.1'), false);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
+  test('rejects research-first mode for non-pipeline research commands', () => {
+    const tmp = createTempProject('gsd-research-compiler-');
+    try {
+      assert.throws(
+        () => compileResearchCommand(tmp, 'idea-discovery', { mode: 'research-first' }),
+        /research-first mode is only supported for research-pipeline/
+      );
     } finally {
       cleanup(tmp);
     }

@@ -221,6 +221,34 @@ describe('research evidence completeness', () => {
     }
   });
 
+  test('research-refine-pipeline is incomplete when review evidence lacks required refinement markers', () => {
+    const tmp = createTempProject('gsd-research-evidence-');
+    const phaseDir = createPhase(tmp);
+
+    try {
+      initResearchIndex(tmp, '01', 'research-refine-pipeline');
+      writeArtifact(phaseDir, 'research/literature/LITERATURE_EVIDENCE.md', 'sources and reading notes');
+      writeArtifact(phaseDir, 'research/ideas/IDEA_REPORT.md', 'candidate idea');
+      writeArtifact(phaseDir, 'research/refine/REVIEW_EVIDENCE.md', 'generic review notes only');
+      writeArtifact(phaseDir, 'research/refine/REFINE_STATE.json', '{"round":1}');
+      writeArtifact(phaseDir, 'research/refine/FINAL_PROPOSAL.md', 'refined proposal');
+      writeArtifact(phaseDir, 'research/refine/EXPERIMENT_HANDOFF.md', 'experiment metrics and protocol');
+
+      const result = checkResearchEvidence(tmp, '01', 'research-refine-pipeline');
+
+      assert.equal(result.status, 'incomplete');
+      assert.equal(result.clean, false);
+      assert.deepStrictEqual(result.incompleteContent, [
+        {
+          path: 'research/refine/REVIEW_EVIDENCE.md',
+          missingMarkers: ['problem anchor', 'round logs', 'reviewer responses', 'score', 'verdict', 'stop predicate'],
+        },
+      ]);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('research-refine is clean when review evidence contains refinement completion markers', () => {
     const tmp = createTempProject('gsd-research-evidence-');
     const phaseDir = createPhase(tmp);
