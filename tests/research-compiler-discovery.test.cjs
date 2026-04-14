@@ -115,6 +115,9 @@ describe('research discovery compiler contract', () => {
       commands: {
         'idea-discovery': {
           sources: ['local'],
+          source_policy: {
+            user_note: 'prefer curated local library first',
+          },
           max_literature_items: 5,
         },
       },
@@ -132,6 +135,8 @@ describe('research discovery compiler contract', () => {
       assert.deepStrictEqual(compiled.parameters.sources, ['local']);
       assert.ok(compiled.parameters.supported_sources.includes('deepxiv'));
       assert.equal(compiled.parameters.source_policy.deepxiv, 'explicit-opt-in');
+      assert.deepStrictEqual(compiled.parameters.source_policy.all_excludes, ['deepxiv']);
+      assert.equal(compiled.parameters.source_policy.user_note, 'prefer curated local library first');
       assert.equal(compiled.parameters.max_literature_items, 5);
     } finally {
       cleanup(tmp);
@@ -152,6 +157,25 @@ describe('research discovery compiler contract', () => {
       assert.equal(compiled.roadmap.numbering, 'integer');
       assert.equal(compiled.roadmap.insertAfterCurrentPhase, false);
       assert.equal(JSON.stringify(compiled).includes('.1'), false);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
+  test('propagates danger-auto audit and quality-gate policy into compiled gates', () => {
+    const tmp = createTempProject('gsd-research-compiler-');
+    try {
+      const compiled = compileResearchCommand(tmp, 'idea-discovery', {
+        intent: 'fully autonomous discovery',
+        preset: 'danger-auto',
+      });
+
+      assert.equal(compiled.preset, 'danger-auto');
+      assert.equal(compiled.gates.autoProceed, true);
+      assert.equal(compiled.gates.humanCheckpoint, false);
+      assert.equal(compiled.gates.externalSideEffects, 'danger-auto-available');
+      assert.equal(compiled.gates.allowQualityGateOverride, true);
+      assert.equal(compiled.gates.requireAuditArtifacts, true);
     } finally {
       cleanup(tmp);
     }
