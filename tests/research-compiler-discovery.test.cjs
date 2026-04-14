@@ -181,6 +181,46 @@ describe('research discovery compiler contract', () => {
     }
   });
 
+  test('rejects unsupported research compile modes instead of silently falling back', () => {
+    const tmp = createTempProject('gsd-research-compiler-');
+    try {
+      assert.throws(
+        () => compileResearchCommand(tmp, 'idea-discovery', { mode: 'bogus' }),
+        /Unsupported research mode: bogus/
+      );
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
+  test('command parameter merge ignores prototype pollution keys from research config', () => {
+    const tmp = createTempProject('gsd-research-compiler-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), [
+      '{',
+      '  "commands": {',
+      '    "idea-discovery": {',
+      '      "__proto__": { "polluted": "yes" },',
+      '      "source_policy": { "__proto__": { "nestedPolluted": "yes" } }',
+      '    }',
+      '  }',
+      '}',
+      '',
+    ].join('\n'));
+
+    try {
+      const compiled = compileResearchCommand(tmp, 'idea-discovery', {
+        intent: 'safe topic',
+      });
+
+      assert.equal(Object.prototype.polluted, undefined);
+      assert.equal(Object.getPrototypeOf(compiled.parameters).polluted, undefined);
+      assert.equal(Object.getPrototypeOf(compiled.parameters.source_policy).nestedPolluted, undefined);
+      assert.equal(compiled.parameters.source_policy.deepxiv, 'explicit-opt-in');
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('CLI dry-run compile emits deterministic JSON and does not create canonical state changes', () => {
     const tmp = createTempProject('gsd-research-cli-');
     const statePath = path.join(tmp, '.planning', 'STATE.md');

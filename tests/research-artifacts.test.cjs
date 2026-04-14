@@ -73,6 +73,25 @@ describe('research artifact index', () => {
     }
   });
 
+  test('CLI research index dry-run returns preview content without writing the file', () => {
+    const tmp = createTempProject('gsd-research-artifacts-');
+    createPhase(tmp);
+
+    try {
+      const result = runGsdTools(['research', 'index', '01', '--command', 'idea-discovery', '--dry-run'], tmp);
+
+      assert.equal(result.success, true, result.error);
+      const parsed = JSON.parse(result.output);
+      assert.equal(parsed.command, 'idea-discovery');
+      assert.equal(parsed.written, false);
+      assert.match(parsed.content, /# Research Index/);
+      assert.match(parsed.content, /## Required Evidence/);
+      assert.equal(fs.existsSync(parsed.indexPath), false);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('rejects missing phase instead of writing research artifacts at planning root', () => {
     const tmp = createTempProject('gsd-research-artifacts-');
     try {

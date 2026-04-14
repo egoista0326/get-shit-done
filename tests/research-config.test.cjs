@@ -86,6 +86,31 @@ describe('research config defaults and preset policy', () => {
     }
   });
 
+  test('applies selected preset overrides from research.config.json presets block', () => {
+    const tmp = createTempProject('gsd-research-config-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      preset: 'auto',
+      presets: {
+        auto: {
+          external_side_effects: 'confirm-required',
+          allow_quality_gate_override: true,
+          require_audit_artifacts: true,
+        },
+      },
+    }, null, 2)}\n`);
+
+    try {
+      const resolved = loadResearchConfig(tmp);
+
+      assert.equal(resolved.preset, 'auto');
+      assert.equal(resolved.externalSideEffects, 'confirm-required');
+      assert.equal(resolved.allowQualityGateOverride, true);
+      assert.equal(resolved.requireAuditArtifacts, true);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('rejects unsupported presets before compiling research context', () => {
     assert.throws(
       () => resolveResearchPreset('fast'),
