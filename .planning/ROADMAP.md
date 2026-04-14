@@ -160,7 +160,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 08-01: Implement discovery/literature/novelty/refinement command family
+- [x] 08-01: Implement discovery/literature/novelty/refinement command family
 - [ ] 08-02: Implement experiment/audit/result/claim command family
 - [ ] 08-03: Implement paper/rebuttal/ablation command family
 - [ ] 08-04: Run research command parity and lifecycle integration review

@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 current_phase: 08
-current_plan: Not started
+current_plan: 2
 status: executing
-stopped_at: Phase 08 planned with 4 plans; ready to execute 08-01
-last_updated: "2026-04-14T14:18:36.862Z"
-last_activity: 2026-04-14 -- Phase 08 planning complete
+stopped_at: Phase 08 08-01 complete at review cap; ready to execute 08-02
+last_updated: "2026-04-14T17:22:47.000+02:00"
+last_activity: 2026-04-14 -- Phase 08 08-01 completed at review cap
 progress:
   total_phases: 10
   completed_phases: 7
   total_plans: 26
-  completed_plans: 22
-  percent: 85
+  completed_plans: 23
+  percent: 88
 ---
 
 # Project State
@@ -23,19 +23,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-13)
 
 **Core value:** GSD should remain a reliable phase/milestone control plane while gaining research-native commands that produce evidence, artifacts, reviews, and papers without creating a second workflow system or changing the core phase schema.
-**Current focus:** Phase 08 - Standalone Research Command Integration is planned and ready to execute. Phase 07 is complete with security verified and 3 skipped UAT checks recorded as verification debt.
+**Current focus:** Phase 08 — standalone-research-command-integration
 
 ## Current Position
 
-Phase: 08 (Standalone Research Command Integration) - READY TO EXECUTE
-Plan: Not started
+Phase: 08 (standalone-research-command-integration) — EXECUTING
+Plan: 2 of 4
 **Current Phase:** 08
-**Current Plan:** Not started
+**Current Plan:** 2
 **Total Plans in Phase:** 4
-Status: Ready to execute
-Last activity: 2026-04-14 -- Phase 08 planning complete
+Status: Executing Phase 08
+Last activity: 2026-04-14 -- Phase 08 08-01 completed at review cap
 
-Progress: [████████████████████] 7/10 phases complete | Phase 08 planned with 4 plans | 22/26 plans completed
+Progress: [████████████████████] 7/10 phases complete | Phase 08 executing plan 2/4 | 23/26 plans completed
 
 ## Accumulated Context
 
@@ -105,6 +105,7 @@ Progress: [████████████████████] 7/10 ph
 - Phase 07 was transitioned complete on 2026-04-14. Current work is Phase 08 standalone research command integration.
 - Auto/ARIS research skill implementation has not started yet. Upstream GSD `research-phase` remains baseline upstream lifecycle behavior, not new Auto/ARIS research command integration.
 - [Phase 08]: Phase 08 discussion locked the /gsd-ljx thin research compiler approach, bridge-only external side effects, RESEARCH_INDEX.md-first evidence ledger, separate research.config.json presets, and frequent multi-subagent review with main-agent confirmation.
+- [Phase 08-01]: Discovery/literature/novelty/refinement `/gsd-ljx-*` command family is implemented as a thin research compiler under GSD lifecycle ownership. The 10-round subagent review cap was reached; final accepted P0/P1/P2 findings were fixed and tests are green, but no post-final-fix Round 11 clean confirmation was run.
 
 ### Archive Locations
 
@@ -117,7 +118,7 @@ Progress: [████████████████████] 7/10 ph
 
 ### Pending Todos
 
-- Execute Phase 08 plan 08-01 before implementing later research command families.
+- Execute Phase 08 plan 08-02 for experiment/audit/result/claim command family.
 - Preserve ordinary GSD lifecycle behavior while implementing standalone research commands.
 - Keep Auto/ARIS preservation framed as prompt obligations compiled into GSD, not as preservation of Auto/ARIS as a second framework.
 - Keep canonical `PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md`, and `STATE.md` writes serialized.
@@ -143,9 +144,10 @@ Progress: [████████████████████] 7/10 ph
 | Phase 07 P01 | 20 min | 2 tasks | 1 files |
 | Phase 07 P02 | 15 min | 2 tasks | 1 files |
 | Phase 07 P03 | 30 min | 2 tasks | 3 files |
+| Phase 08 P01 | review-cap execution | 4 tasks + 10 review rounds | research overlay modules, commands, workflow, tests |
 
 ## Session Continuity
 
-Last session: 2026-04-14T14:01:57.556Z
-Stopped at: Phase 08 context captured; ready to plan Phase 08
-Resume file: .planning/phases/08-standalone-research-command-integration/08-CONTEXT.md
+Last session: 2026-04-14T17:22:47.000+02:00
+Stopped at: Phase 08 08-01 complete; ready to execute 08-02
+Resume file: .planning/phases/08-standalone-research-command-integration/08-01-SUMMARY.md
