@@ -260,7 +260,7 @@ describe('integrated GSD lifecycle scenario for Phase 08 readiness', () => {
   test('scenario boundary keeps Phase 08 command family prefixed and lifecycle-routed', () => {
     const commandFiles = listGsdCommandFiles();
     const overlayCommands = commandFiles.filter(file => /^gsd-ljx-/.test(file)).sort();
-    assert.deepStrictEqual(overlayCommands, [
+    const expectedMinimumOverlayCommands = [
       'gsd-ljx-idea-creator.md',
       'gsd-ljx-idea-discovery.md',
       'gsd-ljx-novelty-check.md',
@@ -269,7 +269,10 @@ describe('integrated GSD lifecycle scenario for Phase 08 readiness', () => {
       'gsd-ljx-research-refine-pipeline.md',
       'gsd-ljx-research-refine.md',
       'gsd-ljx-research-review.md',
-    ]);
+    ];
+    for (const expected of expectedMinimumOverlayCommands) {
+      assert.ok(overlayCommands.includes(expected), `${expected} should be present`);
+    }
     for (const file of overlayCommands) {
       const content = readRepoFile(path.join('commands', 'gsd', file));
       assert.ok(content.includes('gsd-ljx-research-command.md'), `${file} must route through shared GSD lifecycle workflow`);

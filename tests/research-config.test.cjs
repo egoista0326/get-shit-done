@@ -165,6 +165,33 @@ describe('research config defaults and preset policy', () => {
     }
   });
 
+  test('strict mode fails closed on unknown nested preset and command keys', () => {
+    const tmp = createTempProject('gsd-research-config-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      preset: 'safe',
+      strict: true,
+      presets: {
+        safe: {
+          typo_nested: true,
+        },
+      },
+      commands: {
+        'idea-discovery': {
+          typo_command: true,
+        },
+      },
+    }, null, 2)}\n`);
+
+    try {
+      assert.throws(
+        () => loadResearchConfig(tmp),
+        /Unknown research config keys in strict mode: commands\.idea-discovery\.typo_command, presets\.safe\.typo_nested/
+      );
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('treats quarantined legacy research config metadata as non-effective provenance', () => {
     const tmp = createTempProject('gsd-research-config-');
     fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
