@@ -1,9 +1,9 @@
 /**
  * Core lifecycle/planning parity probes for Phase 07.
  *
- * These checks protect the future Auto/ARIS overlay path without implementing
- * that overlay. Research commands must later call ordinary GSD lifecycle
- * helpers such as phase insert instead of becoming a second control plane.
+ * These checks protect the Auto/ARIS overlay path. Research commands must call
+ * ordinary GSD lifecycle helpers such as phase insert instead of becoming a
+ * second control plane.
  */
 
 const { test, describe, beforeEach, afterEach } = require('node:test');
@@ -30,8 +30,7 @@ const workflowBackedCommands = [
   ['analyze-dependencies', 'analyze-dependencies.md'],
 ];
 
-const forbiddenResearchCommandPatterns = [
-  /^gsd-ljx-/,
+const forbiddenUnprefixedResearchCommandPatterns = [
   /^idea-discovery/,
   /^literature/,
   /^novelty/,
@@ -145,17 +144,24 @@ describe('core lifecycle command surface', () => {
     }
   });
 
-  test('Phase 07 has not introduced Auto/ARIS research command families', () => {
+  test('Auto/ARIS research command families remain prefixed and lifecycle-routed', () => {
     const commandFiles = listCommandFiles();
-    const unexpected = commandFiles.filter(file => {
+    const unexpectedUnprefixed = commandFiles.filter(file => {
       if (file === 'research-phase.md') {
         return false;
       }
-      return forbiddenResearchCommandPatterns.some(pattern => pattern.test(file));
+      return forbiddenUnprefixedResearchCommandPatterns.some(pattern => pattern.test(file));
     });
+    const ljxCommands = commandFiles.filter(file => file.startsWith('gsd-ljx-'));
 
-    assert.deepStrictEqual(unexpected, []);
+    assert.deepStrictEqual(unexpectedUnprefixed, []);
     assert.ok(commandFiles.includes('research-phase.md'), 'upstream GSD research-phase remains allowed baseline behavior');
+
+    for (const file of ljxCommands) {
+      const command = readUtf8(`commands/gsd/${file}`);
+      assert.match(command, /gsd-ljx-research-command\.md/, `${file} should route to shared research workflow`);
+      assertNoPhase08ControlPlane(command, file);
+    }
   });
 
   test('dispatcher exposes GSD lifecycle helper routes without typed research routing', () => {
