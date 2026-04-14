@@ -182,6 +182,7 @@ const profileOutput = require('./lib/profile-output.cjs');
 const workstream = require('./lib/workstream.cjs');
 const docs = require('./lib/docs.cjs');
 const learnings = require('./lib/learnings.cjs');
+const researchCompiler = require('./lib/research-compiler.cjs');
 
 // ─── Arg parsing helpers ──────────────────────────────────────────────────────
 
@@ -733,6 +734,16 @@ async function runCommand(command, args, cwd, raw, defaultValue) {
         phase.cmdPhaseComplete(cwd, args[2], raw);
       } else {
         error('Unknown phase subcommand. Available: next-decimal, add, add-batch, insert, remove, complete');
+      }
+      break;
+    }
+
+    case 'research': {
+      const subcommand = args[1];
+      if (subcommand === 'compile') {
+        researchCompiler.cmdResearchCompile(cwd, args, raw);
+      } else {
+        error('Unknown research subcommand. Available: compile');
       }
       break;
     }

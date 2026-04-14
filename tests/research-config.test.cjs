@@ -115,4 +115,36 @@ describe('research config defaults and preset policy', () => {
       cleanup(tmp);
     }
   });
+
+  test('treats quarantined legacy research config metadata as non-effective provenance', () => {
+    const tmp = createTempProject('gsd-research-config-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      schema: 'research-config-quarantine-v1',
+      status: 'quarantined-legacy-config',
+      effective: false,
+      source: '.planning/config.json#research',
+      migrated_at: '2026-04-14T02:02:18+02:00',
+      reason: 'legacy quarantine record',
+      activation_rule: 'non-effective until adopted by loader contract',
+      legacy_research: {
+        defaults: {
+          auto_proceed: true,
+          human_checkpoint: false,
+        },
+      },
+    }, null, 2)}\n`);
+
+    try {
+      const resolved = loadResearchConfig(tmp);
+
+      assert.equal(resolved.exists, true);
+      assert.equal(resolved.effective, false);
+      assert.equal(resolved.preset, 'safe');
+      assert.equal(resolved.autoProceed, false);
+      assert.equal(resolved.humanCheckpoint, true);
+      assert.deepStrictEqual(resolved.warnings, []);
+    } finally {
+      cleanup(tmp);
+    }
+  });
 });
