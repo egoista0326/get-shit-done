@@ -2,18 +2,18 @@
 
 ## Result
 
-Status: capped after 10 review rounds.
+Status: clean after 16 review rounds.
 
-The requested multi-subagent review loop ran through the 10-round cap. It did not achieve two consecutive clean rounds because Round 10 produced confirmed P2 findings. The confirmed Round 10 findings were fixed immediately after the cap and verified with focused and full test runs, but no Round 11 was run.
+The requested multi-subagent review loop was extended from 10 to 20 rounds. It stopped early after Round 15 and Round 16 both returned clean across all review lanes.
 
-Final known blocker state after fixes: no accepted P0/P1/P2 findings remain open.
+Final blocker state after fixes: no accepted P0/P1/P2 findings remain open.
 
 ## Review Protocol
 
 - Review lanes per round: lifecycle/GSD boundary, Auto/ARIS semantic preservation, security/path safety/side-effect policy, tests/maintainability/CLI contract.
 - Main-agent rule: subagent candidate findings were second-pass confirmed before fixes.
-- Stop rule: stop at two consecutive clean rounds or at 10 review rounds.
-- Actual stop reason: 10-round cap reached.
+- Stop rule: stop at two consecutive clean rounds or at 20 review rounds.
+- Actual stop reason: two consecutive clean rounds in Round 15 and Round 16.
 
 ## Round Accounting
 
@@ -29,6 +29,12 @@ Final known blocker state after fixes: no accepted P0/P1/P2 findings remain open
 | 8 | not clean | Evidence check flattened blocked status into incomplete | `a7bd1a7`, `d236bb6` |
 | 9 | not clean | Plan security contract gaps, stale Phase 07 scenario assertion, symlink/path escape blocked semantics, strict mode, refine-pipeline experiment handoff | `a09bca7`, `e0055e1` |
 | 10 | not clean | Nested strict-mode config keys, brittle exact overlay command list test | `b408ff2`, `2df3a8b` |
+| 11 | not clean | Refinement evidence marker contract, refine-pipeline prompt-pack experiment handoff consistency | `bf76ebb`, `26bfd46` |
+| 12 | not clean | Non-pipeline `research-first` mode leak, refine-pipeline marker coverage, production command-key source drift, brittle serialized-object assertions | `0047c82`, `674ff7f` |
+| 13 | not clean | Refine-pipeline stop predicate prompt obligation, `danger-auto` audit artifact evidence requirement | `504d541`, `d49af45` |
+| 14 | not clean | `danger-auto` invariant downgrade via config override, unknown command nested keys becoming effective, phase lookup order and CLI preset coverage | `93312e8`, `ca6a617` |
+| 15 | clean | none | none |
+| 16 | clean | none | none |
 
 ## Confirmed Fix Themes
 
@@ -40,16 +46,21 @@ Final known blocker state after fixes: no accepted P0/P1/P2 findings remain open
 - Preserved source selector semantics including `zotero`, `obsidian`, `local`, `web`, `deepxiv`, and `all`; Semantic Scholar is folded into `web` and `deepxiv` remains explicit policy.
 - Added phase-local `research/RESEARCH_INDEX.md` ledger scaffolding and evidence checks with `clean`, `incomplete`, and `blocked` statuses.
 - Added raw review evidence, refinement upstream context, and refinement-pipeline experiment handoff artifact requirements.
+- Added refinement completion markers for problem anchor, round logs, reviewer responses, score, verdict, and stop predicate.
+- Enforced `research-first` as `research-pipeline`-only; non-pipeline research commands remain phase-insert intent.
+- Added `danger-auto` phase-local audit artifact requirements without executing external side effects.
+- Clamped `danger-auto` hard invariants so config overrides cannot disable audit artifacts or downgrade side-effect policy.
+- Normalized command-specific research config so unknown nested keys warn and remain non-effective by default.
 - Hardened parameter merge against prototype pollution and invalid mode fallback.
 - Updated Phase 07 parity scenario expectations so `/gsd-ljx-*` wrappers are allowed only when prefixed and routed through the shared GSD lifecycle workflow.
 
 ## Verification After Final Fix
 
-Commands passed after the Round 10 fix:
+Commands passed after the Round 14 fix and before the Round 15/Round 16 clean reviews:
 
 ```text
 node --test tests/research-config.test.cjs tests/research-compiler-discovery.test.cjs tests/research-artifacts.test.cjs tests/research-evidence.test.cjs
-35 tests, 35 pass, 0 fail
+48 tests, 48 pass, 0 fail
 ```
 
 ```text
@@ -79,5 +90,4 @@ healthy; only expected info about missing Phase 08 summaries before this summary
 
 ## Residual Risk
 
-The loop stopped because the 10-round cap was reached, not because two consecutive clean rounds were achieved after the final fix. The final accepted findings were fixed and tests are green, but there was no post-fix Round 11 subagent review.
-
+08-01 now has two consecutive clean multi-subagent review rounds after the final accepted fix. Residual scope is limited to later Phase 08 plans: experiment/audit/result/claim commands, paper/rebuttal command families, and any future live external side-effect execution. 08-01 remains bridge-only for external side effects.

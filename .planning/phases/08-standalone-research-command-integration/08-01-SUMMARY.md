@@ -11,7 +11,7 @@ provides:
   - Thin research compiler under GSD lifecycle ownership
   - Phase-local research index and evidence checks
   - Safe/auto/danger-auto research config loading
-  - Ten-round review accounting and fixes
+  - Sixteen-round review accounting with two consecutive clean rounds
 affects: [phase-08, research-commands, gsd-lifecycle-boundary]
 tech-stack:
   added: []
@@ -57,10 +57,10 @@ key-decisions:
   - Phase 08 external side effects remain policy/bridge/evidence only; no GPU, W&B, SSH, paid compute, push, PR, or publication action is executed by 08-01.
 requirements-addressed: [RSCH-01, RSCH-02, RSCH-05, RSCH-06, RSCH-07, RSCH-08, RSCH-09]
 requirements-completed: []
-review_rounds: 10
-review_cap_reached: true
-final_clean_streak: 0
-completed: 2026-04-14T17:22:47+02:00
+review_rounds: 16
+review_cap_reached: false
+final_clean_streak: 2
+completed: 2026-04-14T18:08:41+02:00
 ---
 
 # 08-01 Summary: Discovery/Literature/Novelty/Refinement Command Family
@@ -93,30 +93,33 @@ All wrappers route to `get-shit-done/workflows/gsd-ljx-research-command.md`.
 ## Core Behavior
 
 - `research compile` returns deterministic JSON with command metadata, prompt packs, artifact requirements, evidence requirements, gate policy, lifecycle owner, and insertion/research-first intent.
-- `research index` initializes or previews phase-local `research/RESEARCH_INDEX.md` as a human-readable evidence ledger, not lifecycle state.
+- `research index` initializes or previews the phase-local research index as a human-readable evidence ledger, not lifecycle state.
 - `research evidence-check` distinguishes `clean`, `incomplete`, and `blocked` evidence states.
-- `.planning/research.config.json` is separate from `.planning/config.json`, supports `safe`, `auto`, and `danger-auto`, and defaults to deep effort/review depth.
+- The research config file is separate from the GSD config file, supports `safe`, `auto`, and `danger-auto`, and defaults to deep effort/review depth.
 - Strict research config mode fails closed on unknown top-level and nested preset/command keys.
+- `danger-auto` requires phase-local audit artifacts and cannot disable its audit/side-effect invariants through preset overrides.
+- Unknown nested command config keys are ignored with warnings in default mode and cannot become effective compiler parameters.
+- `research-first` mode is accepted only for `/gsd-ljx-research-pipeline`; other research commands compile to phase-insert intent.
 
 ## Review Accounting
 
-The user requested a 10-round review cap and multi-subagent review with main-agent confirmation. The loop reached the cap.
+The user increased the review cap to 20 rounds and requested multi-subagent review with main-agent confirmation. The loop stopped early after two consecutive clean rounds.
 
-- Rounds executed: 10
-- Consecutive clean rounds achieved after final fix: 0
-- Cap reached: yes
+- Rounds executed: 16
+- Consecutive clean rounds achieved after final fix: 2
+- Cap reached: no
 - Known accepted P0/P1/P2 findings after final fixes: none
-- Important caveat: final Round 10 findings were fixed after the cap, so there was no Round 11 subagent clean confirmation.
+- Clean confirmation: Round 15 and Round 16 both returned clean across lifecycle, research semantics, security, and maintainability lanes.
 
 Detailed accounting is in `08-01-REVIEW.md`.
 
-## Verification
+## Test Evidence
 
 Final commands passed:
 
 ```text
 node --test tests/research-config.test.cjs tests/research-compiler-discovery.test.cjs tests/research-artifacts.test.cjs tests/research-evidence.test.cjs
-35 tests, 35 pass, 0 fail
+48 tests, 48 pass, 0 fail
 ```
 
 ```text
@@ -141,7 +144,6 @@ valid true
 
 ## Residual Risks
 
-- The cap was reached before a post-final-fix two-clean-round subagent confirmation could occur.
 - Experiment/audit/result/claim commands remain 08-02 scope.
 - Paper/rebuttal/ablation command families remain later Phase 08 scope per plan.
 - External side-effect execution remains intentionally unimplemented in 08-01.
@@ -150,3 +152,6 @@ valid true
 
 Proceed to 08-02: experiment/audit/result/claim command family.
 
+## Self-Check
+
+All automated checks passed.
