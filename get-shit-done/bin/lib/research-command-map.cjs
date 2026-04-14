@@ -98,7 +98,11 @@ const RESEARCH_COMMANDS = {
     defaultMode: 'insert',
     defaultPhaseTitle: 'Research refinement',
     defaultPhaseGoal: 'Refine a research idea through bounded review iterations compiled into ordinary GSD tasks and evidence artifacts.',
-    artifacts: { required: withIndex(['research/refine/REFINE_STATE.json', 'research/refine/FINAL_PROPOSAL.md']) },
+    artifacts: { required: withIndex([
+      'research/refine/REVIEW_EVIDENCE.md',
+      'research/refine/REFINE_STATE.json',
+      'research/refine/FINAL_PROPOSAL.md',
+    ]) },
     evidence: { required: ['review', 'refinement'] },
     parameters: { max_review_rounds: 5, score_threshold: 9 },
     sideEffects: ['external-reviewer-optional'],
@@ -113,6 +117,7 @@ const RESEARCH_COMMANDS = {
     defaultPhaseGoal: 'Run literature, review, and refinement prompt packs as one ordinary GSD phase with plan-level decomposition.',
     artifacts: { required: withIndex([
       'research/literature/LITERATURE_EVIDENCE.md',
+      'research/refine/REVIEW_EVIDENCE.md',
       'research/refine/REFINE_STATE.json',
       'research/refine/FINAL_PROPOSAL.md',
     ]) },
@@ -128,7 +133,11 @@ const RESEARCH_COMMANDS = {
     defaultMode: 'research-first',
     defaultPhaseTitle: 'Research pipeline',
     defaultPhaseGoal: 'Create a research-first GSD roadmap using integer phases and Auto/ARIS prompt obligations.',
-    artifacts: { required: withIndex(['research/literature/LITERATURE_EVIDENCE.md', 'research/ideas/IDEA_REPORT.md']) },
+    artifacts: { required: withIndex([
+      'research/literature/LITERATURE_EVIDENCE.md',
+      'research/ideas/IDEA_REPORT.md',
+      'research/review/REVIEW_REPORT.md',
+    ]) },
     evidence: { required: ['literature', 'ideas', 'review'] },
     parameters: { sources: ['local', 'web'], max_literature_items: 20, max_review_rounds: 3 },
     sideEffects: ['network-literature-search', 'external-reviewer-optional'],

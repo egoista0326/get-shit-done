@@ -23,6 +23,9 @@ function artifactStatus(phaseDir, relativePath) {
     return { relativePath, filePath, present: false, empty: false };
   }
   const stat = fs.statSync(filePath);
+  if (!stat.isFile()) {
+    return { relativePath, filePath, present: false, empty: false, invalidType: 'not-file' };
+  }
   const empty = stat.isFile() && fs.readFileSync(filePath, 'utf8').trim().length === 0;
   return { relativePath, filePath, present: true, empty };
 }
@@ -50,6 +53,7 @@ function checkResearchEvidence(cwd, phaseId, commandKey) {
       path: status.relativePath,
       present: status.present,
       empty: status.empty,
+      invalidType: status.invalidType || null,
     })),
     reason: clean
       ? 'All required phase-local research evidence artifacts are present.'

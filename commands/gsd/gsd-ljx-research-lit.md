@@ -18,7 +18,6 @@ GSD LJX literature reading. This is an Auto/ARIS research overlay command that c
 <context>
 research command key: research-lit
 public command: /gsd-ljx-research-lit
-Arguments: $ARGUMENTS
 </context>
 
 <process>

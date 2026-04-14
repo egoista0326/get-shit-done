@@ -106,7 +106,7 @@ function loadResearchConfig(cwd, overrides = {}) {
   const loaded = readResearchConfigFile(configPath);
   const raw = loaded.raw;
   const effective = raw.effective === false ? false : true;
-  const presetName = overrides.preset || raw.preset || raw.default_preset || 'safe';
+  const presetName = overrides.preset || (effective ? raw.preset || raw.default_preset : null) || 'safe';
   const preset = resolveResearchPreset(presetName);
 
   return {

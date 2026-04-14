@@ -18,7 +18,6 @@ GSD LJX research-first pipeline. This is an Auto/ARIS research overlay command t
 <context>
 research command key: research-pipeline
 public command: /gsd-ljx-research-pipeline
-Arguments: $ARGUMENTS
 </context>
 
 <process>

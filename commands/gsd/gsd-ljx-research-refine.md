@@ -18,7 +18,6 @@ GSD LJX research refinement. This is an Auto/ARIS research overlay command that 
 <context>
 research command key: research-refine
 public command: /gsd-ljx-research-refine
-Arguments: $ARGUMENTS
 </context>
 
 <process>

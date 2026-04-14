@@ -14,25 +14,38 @@ research command key: <command-key>
 
 The key must be one of the supported `/gsd-ljx-*` research command keys.
 
-## Step 2: Compile Research Intent
+## Step 2: Capture Intent Safely
 
-Run the bounded research compiler:
+Do not place raw user arguments directly into a shell command. Store them as inert text first, then pass the file path to the compiler.
 
 ```bash
-node get-shit-done/bin/gsd-tools.cjs research compile "${RESEARCH_COMMAND_KEY}" ${ARGUMENTS} --dry-run
+mkdir -p .planning/.tmp
+INTENT_FILE=".planning/.tmp/gsd-ljx-research-intent.txt"
+cat > "$INTENT_FILE" <<'GSD_RESEARCH_INTENT'
+$ARGUMENTS
+GSD_RESEARCH_INTENT
+```
+
+## Step 3: Compile Research Intent
+
+Run the bounded research compiler with the intent file:
+
+```bash
+node get-shit-done/bin/gsd-tools.cjs research compile "$RESEARCH_COMMAND_KEY" --intent-file "$INTENT_FILE" --dry-run
+rm -f "$INTENT_FILE"
 ```
 
 If the user selected a preset, pass it with `--preset safe`, `--preset auto`, or `--preset danger-auto`.
 If the command is a research-first pipeline, pass `--mode research-first`; otherwise use `--mode insert`.
 
-## Step 3: Route Through GSD Lifecycle
+## Step 4: Route Through GSD Lifecycle
 
 Use the compiled phase title, goal, prompt pack, required artifacts, evidence requirements, and gate policy as ordinary GSD phase/context/plan guidance.
 
 For an existing roadmap, use GSD insert phase semantics:
 
 ```bash
-node get-shit-done/bin/gsd-tools.cjs phase insert "${CURRENT_PHASE}" "${COMPILED_PHASE_TITLE}"
+node get-shit-done/bin/gsd-tools.cjs phase insert "$CURRENT_PHASE" "$COMPILED_PHASE_TITLE"
 ```
 
 For a research-first pipeline, create ordinary integer GSD roadmap phases during the normal GSD project or milestone planning flow.

@@ -18,7 +18,6 @@ GSD LJX idea discovery. This is an Auto/ARIS research overlay command that compi
 <context>
 research command key: idea-discovery
 public command: /gsd-ljx-idea-discovery
-Arguments: $ARGUMENTS
 </context>
 
 <process>

@@ -18,7 +18,6 @@ GSD LJX idea creator. This is an Auto/ARIS research overlay command that compile
 <context>
 research command key: idea-creator
 public command: /gsd-ljx-idea-creator
-Arguments: $ARGUMENTS
 </context>
 
 <process>

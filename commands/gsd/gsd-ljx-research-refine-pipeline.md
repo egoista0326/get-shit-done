@@ -18,7 +18,6 @@ GSD LJX research refinement pipeline. This is an Auto/ARIS research overlay comm
 <context>
 research command key: research-refine-pipeline
 public command: /gsd-ljx-research-refine-pipeline
-Arguments: $ARGUMENTS
 </context>
 
 <process>

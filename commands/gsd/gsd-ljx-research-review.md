@@ -18,7 +18,6 @@ GSD LJX research review. This is an Auto/ARIS research overlay command that comp
 <context>
 research command key: research-review
 public command: /gsd-ljx-research-review
-Arguments: $ARGUMENTS
 </context>
 
 <process>

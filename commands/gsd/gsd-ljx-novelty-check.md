@@ -18,7 +18,6 @@ GSD LJX novelty check. This is an Auto/ARIS research overlay command that compil
 <context>
 research command key: novelty-check
 public command: /gsd-ljx-novelty-check
-Arguments: $ARGUMENTS
 </context>
 
 <process>

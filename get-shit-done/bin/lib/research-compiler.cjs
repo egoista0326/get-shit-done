@@ -3,8 +3,9 @@
  */
 'use strict';
 
+const fs = require('fs');
 const { output } = require('./core.cjs');
-const { sanitizeForPrompt } = require('./security.cjs');
+const { requireSafePath, sanitizeForPrompt } = require('./security.cjs');
 const { loadResearchConfig } = require('./research-config.cjs');
 const { getResearchCommand } = require('./research-command-map.cjs');
 const { getPromptPack } = require('./research-prompt-packs.cjs');
@@ -81,6 +82,7 @@ function parseResearchCompileArgs(args) {
     preset: valueFor('preset'),
     mode: valueFor('mode'),
     phase: valueFor('phase'),
+    intentFile: valueFor('intent-file'),
     dryRun: flagArgs.includes('--dry-run'),
   };
 }
@@ -88,7 +90,11 @@ function parseResearchCompileArgs(args) {
 function cmdResearchCompile(cwd, args, raw) {
   const options = parseResearchCompileArgs(args);
   if (!options.command) {
-    throw new Error('Usage: gsd-tools research compile <command> [intent...] [--preset safe|auto|danger-auto] [--mode insert|research-first] [--dry-run]');
+    throw new Error('Usage: gsd-tools research compile <command> [intent...] [--intent-file path] [--preset safe|auto|danger-auto] [--mode insert|research-first] [--dry-run]');
+  }
+  if (options.intentFile) {
+    const intentPath = requireSafePath(options.intentFile, cwd, 'Research intent file', { allowAbsolute: true });
+    options.intent = fs.readFileSync(intentPath, 'utf8').replace(/\r?\n$/, '');
   }
   const compiled = compileResearchCommand(cwd, options.command, options);
   output(compiled, raw);
