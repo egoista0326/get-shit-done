@@ -113,6 +113,32 @@ describe('research evidence completeness', () => {
     }
   });
 
+  test('symlinks escaping the phase directory return blocked evidence status', () => {
+    const tmp = createTempProject('gsd-research-evidence-');
+    const phaseDir = createPhase(tmp);
+    const outsidePath = path.join(tmp, 'outside-evidence.md');
+    const artifactPath = path.join(phaseDir, 'research', 'literature', 'LITERATURE_EVIDENCE.md');
+
+    try {
+      fs.writeFileSync(outsidePath, 'outside evidence\n');
+      initResearchIndex(tmp, '01', 'research-lit');
+      fs.mkdirSync(path.dirname(artifactPath), { recursive: true });
+      fs.symlinkSync(outsidePath, artifactPath);
+
+      const result = checkResearchEvidence(tmp, '01', 'research-lit');
+
+      assert.equal(result.status, 'blocked');
+      assert.equal(result.clean, false);
+      assert.equal(result.blocked.includes('research/literature/LITERATURE_EVIDENCE.md'), true);
+      assert.equal(
+        result.checked.find(item => item.path === 'research/literature/LITERATURE_EVIDENCE.md').invalidType,
+        'path-escape'
+      );
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('CLI research evidence-check returns incomplete status for missing idea-discovery evidence', () => {
     const tmp = createTempProject('gsd-research-evidence-');
     createPhase(tmp);

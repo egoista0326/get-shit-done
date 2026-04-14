@@ -61,6 +61,10 @@ describe('research discovery compiler contract', () => {
       getResearchCommand('research-refine').artifacts.required.includes('research/ideas/IDEA_REPORT.md'),
       'research-refine must keep upstream idea context in the refinement evidence chain'
     );
+    assert.ok(
+      getResearchCommand('research-refine-pipeline').artifacts.required.includes('research/refine/EXPERIMENT_HANDOFF.md'),
+      'research-refine-pipeline must preserve experiment-planning handoff evidence'
+    );
   });
 
   test('compiles idea-discovery into ordinary GSD phase guidance with literature and novelty evidence', () => {
