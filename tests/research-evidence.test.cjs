@@ -81,7 +81,7 @@ describe('research evidence completeness', () => {
     }
   });
 
-  test('directories at required artifact paths do not count as evidence files', () => {
+  test('directories at required artifact paths block evidence completion', () => {
     const tmp = createTempProject('gsd-research-evidence-');
     const phaseDir = createPhase(tmp);
 
@@ -93,9 +93,15 @@ describe('research evidence completeness', () => {
 
       const result = checkResearchEvidence(tmp, '01', 'idea-discovery');
 
-      assert.equal(result.status, 'incomplete');
+      assert.equal(result.status, 'blocked');
       assert.equal(result.clean, false);
       assert.deepStrictEqual(result.present, []);
+      assert.deepStrictEqual(result.blocked.sort(), [
+        'research/RESEARCH_INDEX.md',
+        'research/ideas/IDEA_REPORT.md',
+        'research/literature/LITERATURE_EVIDENCE.md',
+        'research/novelty/NOVELTY_REVIEW.md',
+      ].sort());
       assert.deepStrictEqual(result.missing.sort(), [
         'research/RESEARCH_INDEX.md',
         'research/ideas/IDEA_REPORT.md',
