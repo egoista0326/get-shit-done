@@ -1,0 +1,21 @@
+{
+  "phase_id": "21",
+  "name": "Two-Stage Scenario Review",
+  "phase_type": "analysis",
+  "status": "in_progress",
+  "directory": ".planning/phases/21-two-stage-scenario-review",
+  "depends_on": ["20"],
+  "lifecycle": {
+    "discuss": {
+      "status": "complete",
+      "artifact": ".planning/phases/21-two-stage-scenario-review/21-CONTEXT.md"
+    },
+    "plan": {
+      "status": "complete",
+      "artifact": ".planning/phases/21-two-stage-scenario-review/21-01-PLAN.md"
+    },
+    "execute": {
+      "status": "in_progress"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "phase_id": "13",
+  "phase_type": "engineering",
+  "name": "Workstream And Roadmap Mutation Admin",
+  "status": "completed",
+  "lifecycle": {
+    "status": "completed",
+    "discuss": {
+      "status": "completed",
+      "artifact_path": ".planning/phases/13-complete-workstream-and-roadmap-mutation-admin/13-CONTEXT.md"
+    },
+    "plan": {
+      "status": "completed",
+      "evidence_artifacts": [
+        ".planning/phases/13-complete-workstream-and-roadmap-mutation-admin/13-01-PLAN.md",
+        ".planning/phases/13-complete-workstream-and-roadmap-mutation-admin/13-02-PLAN.md",
+        ".planning/phases/13-complete-workstream-and-roadmap-mutation-admin/13-03-PLAN.md"
+      ]
+    },
+    "execute": {
+      "status": "completed",
+      "evidence_artifacts": [
+        ".planning/phases/13-complete-workstream-and-roadmap-mutation-admin/13-01-SUMMARY.md",
+        ".planning/phases/13-complete-workstream-and-roadmap-mutation-admin/13-02-SUMMARY.md",
+        ".planning/phases/13-complete-workstream-and-roadmap-mutation-admin/13-03-SUMMARY.md"
+      ]
+    }
+  },
+  "paths": {
+    "directory": ".planning/phases/13-complete-workstream-and-roadmap-mutation-admin",
+    "roadmap": ".planning/ROADMAP.md"
+  },
+  "created_at": "2026-04-11T00:00:00Z",
+  "updated_at": "2026-04-11T22:19:08Z"
+}

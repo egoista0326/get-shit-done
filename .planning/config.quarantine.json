@@ -1,0 +1,18 @@
+{
+  "schema": "planning-config-quarantine-v1",
+  "status": "quarantined-legacy-config",
+  "effective": false,
+  "migrated_at": "2026-04-14T02:02:18+02:00",
+  "reason": "Phase 05 Round 06 accepted typed-routing-like config sanitation: legacy config keys must not remain active in upstream GSD .planning/config.json for the implementation handoff.",
+  "activation_rule": "Future implementation may reintroduce a reviewed config key only if it is proven non-routing, non-lifecycle, and compatible with the no-phase-type contract.",
+  "legacy_workflow": {
+    "code_review_requirements_by_phase_type": {
+      "engineering": "always_after_execute",
+      "experiment": "always_after_execute",
+      "analysis": "material_code_change",
+      "paper": "material_code_or_tooling_change",
+      "refine": "material_code_change",
+      "discovery": "material_code_or_pilot_tooling_change"
+    }
+  }
+}

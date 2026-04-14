@@ -1,0 +1,39 @@
+{
+  "phase_id": "16",
+  "phase_type": "analysis",
+  "name": "ljx-GSD Implementation Index",
+  "status": "completed",
+  "lifecycle": {
+    "status": "completed",
+    "discuss": {
+      "status": "completed",
+      "artifact_path": ".planning/phases/16-ljx-gsd-implementation-index/16-CONTEXT.md"
+    },
+    "plan": {
+      "status": "completed",
+      "evidence_artifacts": [
+        ".planning/phases/16-ljx-gsd-implementation-index/16-01-PLAN.md",
+        ".planning/phases/16-ljx-gsd-implementation-index/16-02-PLAN.md",
+        ".planning/phases/16-ljx-gsd-implementation-index/16-03-PLAN.md"
+      ]
+    },
+    "execute": {
+      "status": "completed",
+      "evidence_artifacts": [
+        ".planning/phases/16-ljx-gsd-implementation-index/16-01-SUMMARY.md",
+        ".planning/phases/16-ljx-gsd-implementation-index/16-02-SUMMARY.md",
+        ".planning/phases/16-ljx-gsd-implementation-index/16-03-SUMMARY.md",
+        ".planning/review/v1.1/LJX-GSD-IMPLEMENTATION-INDEX.md"
+      ]
+    }
+  },
+  "depends_on": [
+    "15"
+  ],
+  "paths": {
+    "directory": ".planning/phases/16-ljx-gsd-implementation-index",
+    "roadmap": ".planning/ROADMAP.md"
+  },
+  "created_at": "2026-04-12T12:00:00Z",
+  "updated_at": "2026-04-12T12:30:00Z"
+}

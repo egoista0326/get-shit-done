@@ -1,0 +1,95 @@
+{
+  "automation_profile": "safe",
+  "workflow": {
+    "auto_advance_policy": "guided",
+    "confirm_phase_chain_changes": true,
+    "allow_auto_phase_creation": true,
+    "plan_check": true,
+    "verifier": true,
+    "nyquist_validation": true,
+    "ai_integration_phase": true,
+    "code_review": true,
+    "code_review_depth": "standard",
+    "code_review_multi_agent": "always",
+    "code_review_dimensions": {
+      "correctness": true,
+      "security": true,
+      "simplicity": true,
+      "efficiency": "adaptive"
+    },
+    "code_review_rerun_after_fix": "recommend",
+    "code_review_freshness_policy": "latest-material-scope",
+    "code_review_block_policy": {
+      "blocking_classes": [
+        "correctness_error",
+        "security_risk",
+        "obvious_redundancy",
+        "wheel_reinvention"
+      ],
+      "non_blocking_classes": [
+        "minor_style",
+        "minor_nonimpact_efficiency"
+      ],
+      "severity_fallback": "high",
+      "allow_warning_pass": true
+    },
+    "code_review_deep_policy": {
+      "whole_project_context": true,
+      "extra_reviewers": [
+        "repo_redundancy_and_reuse",
+        "architecture_fit_and_integration",
+        "cross_phase_regression_and_side_effects"
+      ],
+      "repo_scope_mode": "implementation-first",
+      "exclude_generated_and_vendor": true,
+      "compare_against_existing_utilities": true
+    },
+    "parallel_plan_execution": true,
+    "confirm_experiment_launch": true,
+    "experiment_launch_confirmation_granularity": "batch",
+    "_auto_chain_active": false
+  },
+  "discussion": {
+    "mode": "focused",
+    "noncritical_style": "suggest",
+    "max_live_questions_per_round": 3,
+    "research_before_questions": false,
+    "skip": false
+  },
+  "models": {
+    "profile": "quality",
+    "reviewer": "gpt-5.4",
+    "overrides": {}
+  },
+  "runtime": {
+    "response_language": "zh-CN",
+    "text_mode": false,
+    "subagent_timeout_ms": 300000
+  },
+  "planning": {
+    "commit_docs": false,
+    "search_gitignored": false
+  },
+  "workspace": {
+    "use_worktrees": true,
+    "sub_repos": []
+  },
+  "project": {
+    "type": "research-orchestration-rewrite",
+    "phase_naming": "sequential",
+    "code": null
+  },
+  "safety": {
+    "always_confirm_destructive": true,
+    "always_confirm_external_services": true
+  },
+  "hooks": {
+    "context_warnings": true,
+    "workflow_guard": false
+  },
+  "features": {
+    "thinking_partner": true,
+    "global_learnings": false,
+    "intel_enabled": false
+  }
+}

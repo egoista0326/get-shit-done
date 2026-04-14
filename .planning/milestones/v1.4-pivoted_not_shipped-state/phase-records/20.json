@@ -1,0 +1,76 @@
+{
+  "phase_id": "20",
+  "phase_type": "engineering",
+  "name": "Expanded Strict Review",
+  "status": "capped_not_clean",
+  "lifecycle": {
+    "status": "capped_not_clean",
+    "discuss": {
+      "status": "completed",
+      "artifact_path": ".planning/phases/20-expanded-strict-review/20-CONTEXT.md"
+    },
+    "plan": {
+      "status": "completed",
+      "evidence_artifacts": [
+        ".planning/phases/20-expanded-strict-review/20-01-PLAN.md",
+        ".planning/phases/20-expanded-strict-review/20-02-PLAN.md",
+        ".planning/phases/20-expanded-strict-review/20-03-PLAN.md",
+        ".planning/phases/20-expanded-strict-review/20-04-PLAN.md"
+      ]
+    },
+    "execute": {
+      "status": "completed",
+      "evidence_artifacts": [
+        ".planning/phases/20-expanded-strict-review/20-01-SUMMARY.md",
+        ".planning/phases/20-expanded-strict-review/20-02-SUMMARY.md",
+        ".planning/phases/20-expanded-strict-review/20-03-SUMMARY.md",
+        ".planning/phases/20-expanded-strict-review/20-04-SUMMARY.md",
+        ".planning/review/v1.1/STRICT-SCENARIO-MATRIX.md",
+        ".planning/review/v1.1/ROUND-04-STRICT-REVIEW.md",
+        ".planning/review/v1.1/ROUND-05-REVIEW.md",
+        ".planning/review/v1.1/ROUND-06-EXPANDED-REVIEW.md",
+        ".planning/review/v1.1/ROUND-07-EXPANDED-REVIEW.md",
+        ".planning/review/v1.1/ROUND-08-EXPANDED-REVIEW.md",
+        ".planning/review/v1.1/ROUND-09-EXPANDED-REVIEW.md",
+        ".planning/review/v1.1/ROUND-10-EXPANDED-REVIEW.md",
+        ".planning/review/v1.1/ROUND-11-FINAL-REVIEW.md",
+        ".planning/review/v1.1/BUG-LEDGER.md"
+      ]
+    }
+  },
+  "quality_gates": {
+    "code_review": {
+      "status": "capped_not_clean",
+      "artifact_path": ".planning/phases/20-expanded-strict-review/20-CODE_REVIEW.md",
+      "reviewed_at": "2026-04-12T15:53:00Z",
+      "blocking_findings": 5,
+      "warning_findings": 0,
+      "clean_rounds_required": 2,
+      "clean_rounds_current": 0,
+      "max_rounds": 11,
+      "rounds_completed": 11,
+      "final_success": false
+    },
+    "verify_work": {
+      "status": "capped_not_clean",
+      "artifact_path": ".planning/phases/20-expanded-strict-review/20-VERIFICATION.md",
+      "verified_at": "2026-04-12T15:53:00Z",
+      "verdict": "bounded_review_cap_reached",
+      "blocking_reasons": [
+        "Round 10 and Round 11 both found confirmed issues, so the strict addendum did not achieve two consecutive clean rounds before the 11-round cap."
+      ],
+      "warning_reasons": [
+        "Historical Phase 12 review/verify debt and global production skill replacement remain out of Phase 20 scope."
+      ]
+    }
+  },
+  "depends_on": [
+    "19"
+  ],
+  "paths": {
+    "directory": ".planning/phases/20-expanded-strict-review",
+    "roadmap": ".planning/ROADMAP.md"
+  },
+  "created_at": "2026-04-12T11:00:00Z",
+  "updated_at": "2026-04-12T15:53:00Z"
+}

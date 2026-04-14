@@ -1,0 +1,25 @@
+{
+  "phase_id": "22",
+  "name": "Self-Contained Runtime And Scenario Review",
+  "phase_type": "analysis",
+  "status": "in_progress",
+  "directory": ".planning/phases/22-self-contained-runtime-and-scenario-review",
+  "depends_on": ["21"],
+  "lifecycle": {
+    "discuss": {
+      "status": "complete",
+      "artifact": ".planning/phases/22-self-contained-runtime-and-scenario-review/22-CONTEXT.md"
+    },
+    "plan": {
+      "status": "complete",
+      "artifact": ".planning/phases/22-self-contained-runtime-and-scenario-review/22-01-PLAN.md"
+    },
+    "execute": {
+      "status": "in_progress",
+      "latest_round": "stage_a_round_2",
+      "latest_round_status": "fixed_not_clean",
+      "latest_round_artifact": ".planning/review/v1.4/ROUND-02-REVIEW.md",
+      "clean_streak": 0
+    }
+  }
+}

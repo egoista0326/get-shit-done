@@ -1,0 +1,127 @@
+{
+  "phase": "01",
+  "name": "Source Framework Extraction",
+  "milestone": "v2.0",
+  "status": "completed",
+  "process_model": {
+    "build_rounds": 1,
+    "subagent_review_rounds": 3,
+    "main_agent_final_checks": 1,
+    "main_agent_substitutes_missing_subagent_lanes": false,
+    "batch_when_subagent_capacity_is_insufficient": true
+  },
+  "lifecycle": {
+    "discuss": {
+      "status": "completed",
+      "context_path": ".planning/phases/01-source-framework-extraction/01-CONTEXT.md",
+      "updated_at": "2026-04-13T00:00:00+02:00"
+    },
+    "plan": {
+      "status": "completed",
+      "plans": [
+        ".planning/phases/01-source-framework-extraction/01-01-PLAN.md",
+        ".planning/phases/01-source-framework-extraction/01-02-PLAN.md",
+        ".planning/phases/01-source-framework-extraction/01-03-PLAN.md",
+        ".planning/phases/01-source-framework-extraction/01-04-PLAN.md",
+        ".planning/phases/01-source-framework-extraction/01-05-PLAN.md"
+      ],
+      "updated_at": "2026-04-13T00:00:00+02:00"
+    },
+    "execute": {
+      "status": "completed",
+      "started_at": "2026-04-13T00:00:00+02:00",
+      "completed_at": "2026-04-13T00:00:00+02:00",
+      "current_stage": "accepted",
+      "completed_build_lanes": [
+        "upstream-gsd-lifecycle",
+        "upstream-gsd-runtime",
+        "ljx-implementation",
+        "ljx-history-failures",
+        "auto-front-half",
+        "auto-experiment-claim",
+        "auto-paper-rebuttal-tooling"
+      ],
+      "active_lanes": [],
+      "pending_build_lanes": [],
+      "initial_framework_artifacts_written": true,
+      "review_rounds_completed": [
+        "source-coverage-and-index-completeness",
+        "cross-framework-consistency-and-minimal-interference",
+        "historical-bug-regression-and-context-hygiene"
+      ],
+      "r1_fixes_applied": true,
+      "r2_fixes_applied": true,
+      "r3_fixes_applied": true,
+      "completed_review_artifacts": [
+        ".planning/phases/01-source-framework-extraction/01-REVIEW-R1-SOURCE-COVERAGE.md",
+        ".planning/phases/01-source-framework-extraction/01-REVIEW-R1-FIXES.md",
+        ".planning/phases/01-source-framework-extraction/01-REVIEW-R2-CONSISTENCY.md",
+        ".planning/phases/01-source-framework-extraction/01-REVIEW-R2-FIXES.md",
+        ".planning/phases/01-source-framework-extraction/01-REVIEW-R3-HISTORICAL-REGRESSION.md",
+        ".planning/phases/01-source-framework-extraction/01-REVIEW-R3-FIXES.md"
+      ],
+      "completed_summaries": [
+        ".planning/phases/01-source-framework-extraction/01-01-SUMMARY.md",
+        ".planning/phases/01-source-framework-extraction/01-02-SUMMARY.md",
+        ".planning/phases/01-source-framework-extraction/01-03-SUMMARY.md",
+        ".planning/phases/01-source-framework-extraction/01-04-SUMMARY.md",
+        ".planning/phases/01-source-framework-extraction/01-05-SUMMARY.md"
+      ],
+      "final_check_completed": true,
+      "final_artifacts": [
+        ".planning/phases/01-source-framework-extraction/01-FRAMEWORK-SYNTHESIS.md",
+        ".planning/phases/01-source-framework-extraction/01-CROSS-FRAMEWORK-GAP-MAP.md",
+        ".planning/phases/01-source-framework-extraction/01-FINAL-CHECK.md"
+      ],
+      "review_rounds_required_before_acceptance": [
+        "source-coverage-and-index-completeness",
+        "cross-framework-consistency-and-minimal-interference",
+        "historical-bug-regression-and-context-hygiene"
+      ],
+      "local_main_agent_source_scans_count_as_evidence": false
+    }
+  },
+  "quality_gates": {
+    "code_review": {
+      "status": "not_applicable_until_implementation"
+    },
+    "verify_work": {
+      "status": "completed_by_final_check"
+    }
+  },
+  "constraints": {
+    "no_phase_type": true,
+    "no_typed_phase_routing": true,
+    "canonical_writes_serialized": true,
+    "implementation_allowed": false,
+    "main_agent_must_not_take_subagent_duties": true
+  },
+  "expected_outputs": [
+    ".planning/phases/01-source-framework-extraction/01-GSD-FRAMEWORK.md",
+    ".planning/phases/01-source-framework-extraction/01-GSD-SOURCE-INDEX.md",
+    ".planning/phases/01-source-framework-extraction/01-GSD-UPGRADE-BOUNDARIES.md",
+    ".planning/phases/01-source-framework-extraction/01-LJX-FRAMEWORK.md",
+    ".planning/phases/01-source-framework-extraction/01-LJX-HISTORY-FAILURE-TAXONOMY.md",
+    ".planning/phases/01-source-framework-extraction/01-LJX-REUSE-OR-DISCARD-MATRIX.md",
+    ".planning/phases/01-source-framework-extraction/01-AUTO-FRAMEWORK.md",
+    ".planning/phases/01-source-framework-extraction/01-AUTO-ARTIFACT-CONTRACTS.md",
+    ".planning/phases/01-source-framework-extraction/01-AUTO-PARAMETER-MAP.md",
+    ".planning/phases/01-source-framework-extraction/01-AUTO-CAPABILITY-PRESERVATION-CHECKLIST.md",
+    ".planning/phases/01-source-framework-extraction/01-FRAMEWORK-SYNTHESIS-DRAFT.md",
+    ".planning/phases/01-source-framework-extraction/01-REVIEW-R1-SOURCE-COVERAGE.md",
+    ".planning/phases/01-source-framework-extraction/01-REVIEW-R1-FIXES.md",
+    ".planning/phases/01-source-framework-extraction/01-REVIEW-R2-CONSISTENCY.md",
+    ".planning/phases/01-source-framework-extraction/01-REVIEW-R2-FIXES.md",
+    ".planning/phases/01-source-framework-extraction/01-REVIEW-R3-HISTORICAL-REGRESSION.md",
+    ".planning/phases/01-source-framework-extraction/01-REVIEW-R3-FIXES.md",
+    ".planning/phases/01-source-framework-extraction/01-FRAMEWORK-SYNTHESIS.md",
+    ".planning/phases/01-source-framework-extraction/01-CROSS-FRAMEWORK-GAP-MAP.md",
+    ".planning/phases/01-source-framework-extraction/01-CONTEXT-HYGIENE-LOG.md",
+    ".planning/phases/01-source-framework-extraction/01-FINAL-CHECK.md",
+    ".planning/phases/01-source-framework-extraction/01-01-SUMMARY.md",
+    ".planning/phases/01-source-framework-extraction/01-02-SUMMARY.md",
+    ".planning/phases/01-source-framework-extraction/01-03-SUMMARY.md",
+    ".planning/phases/01-source-framework-extraction/01-04-SUMMARY.md",
+    ".planning/phases/01-source-framework-extraction/01-05-SUMMARY.md"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "phase_id": "14",
+  "phase_type": "engineering",
+  "name": "Migration Cutover And Parity Verification",
+  "status": "completed",
+  "lifecycle": {
+    "status": "completed",
+    "discuss": {
+      "status": "completed",
+      "artifact_path": ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-CONTEXT.md"
+    },
+    "plan": {
+      "status": "completed",
+      "evidence_artifacts": [
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-01-PLAN.md",
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-02-PLAN.md",
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-03-PLAN.md",
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-04-PLAN.md"
+      ]
+    },
+    "execute": {
+      "status": "completed",
+      "evidence_artifacts": [
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-01-SUMMARY.md",
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-02-SUMMARY.md",
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-03-SUMMARY.md",
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-04-SUMMARY.md"
+      ]
+    }
+  },
+  "depends_on": [
+    "13"
+  ],
+  "paths": {
+    "directory": ".planning/phases/14-complete-migration-cutover-and-parity-verification",
+    "roadmap": ".planning/ROADMAP.md"
+  },
+  "created_at": "2026-04-11T00:00:00Z",
+  "updated_at": "2026-04-12T01:10:00Z",
+  "quality_gates": {
+    "code_review": {
+      "gate": "code_review",
+      "status": "fresh",
+      "gate_status": "ready",
+      "overall_verdict": "clean",
+      "artifact_path": ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-CODE_REVIEW.md",
+      "requirement_rule": "always_after_execute",
+      "required_before_verify": true,
+      "freshness_policy": "latest-material-scope",
+      "rerun_after_fix": "recommend",
+      "allow_warning_pass": true,
+      "reviewed_scope": [
+        "LJX-GSD-ARCHITECTURE.md",
+        "LJX-GSD-DESIGN-DECISION-LOG.md",
+        "LJX-GSD-EXTENDED-PUBLIC-COMMAND-SPECS.md",
+        "LJX-GSD-INTERFACES.md",
+        "LJX-GSD-USER-SKILL-GUIDE.md",
+        "bin/lib/ljx-quality-gates-tools.cjs",
+        "tests/docs-contract.test.cjs",
+        "tests/runtime-shell.test.cjs",
+        "tests/verify-work-bridge.test.cjs"
+      ],
+      "blocking_findings_count": 0,
+      "warning_findings_count": 0,
+      "recommended_action": "ljx-GSD-verify-work 14",
+      "last_fix_report_path": ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-CODE_REVIEW_FIX.md",
+      "updated_at": "2026-04-12T01:03:18.552Z"
+    },
+    "verify_work": {
+      "gate": "verify_work",
+      "status": "fresh",
+      "gate_status": "passed",
+      "verdict": "ready_to_continue",
+      "artifact_path": ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-VERIFICATION.md",
+      "evidence_artifacts": [
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-01-SUMMARY.md",
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-02-SUMMARY.md",
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-03-SUMMARY.md",
+        ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-04-SUMMARY.md"
+      ],
+      "blocking_reasons": [],
+      "warning_reasons": [],
+      "recommended_action": "ljx-GSD-next",
+      "uat_mirror_path": ".planning/phases/14-complete-migration-cutover-and-parity-verification/14-UAT.md",
+      "updated_at": "2026-04-12T01:08:17.986Z"
+    }
+  }
+}

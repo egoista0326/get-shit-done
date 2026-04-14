@@ -1,0 +1,372 @@
+{
+  // High-level autonomy preset.
+  // Options:
+  // - "safe": prefer discussion, checkpoints, and explicit human confirmation
+  // - "autonomous": allow unattended progression when policy gates permit
+  "automation_profile": "safe",
+
+  "workflow": {
+    // Controls phase-to-phase progression.
+    // Options:
+    // - "manual": recommend only
+    // - "guided": recommend + let `ljx-GSD-next` choose the top handoff, but only execute inline-safe actions
+    // - "autonomous": allow broader automatic continuation
+    "auto_advance_policy": "guided",
+
+    // When true, high-level orchestrators such as `new-project` and
+    // `research-pipeline` may create or repair missing phases.
+    "allow_auto_phase_creation": true,
+
+    // Require human confirmation before creating, reusing, or repairing
+    // the formal phase chain.
+    "confirm_phase_chain_changes": true,
+
+    // Enable pre-execution plan validation.
+    "plan_check": true,
+
+    // Enable post-execution verification.
+    "verifier": true,
+
+    // Enable the distinct code-review quality gate for code-bearing phases.
+    "code_review": true,
+
+    // Default code-review depth.
+    // Options:
+    // - "quick": one lightweight combined reviewer
+    // - "standard": balanced default with mandatory lanes plus conditional fan-out
+    // - "deep": widest review coverage with all lanes enabled
+    "code_review_depth": "standard",
+
+    // Currently planned:
+    // - "off": keep review single-lane only
+    // - "adaptive": fan out to specialized lanes when scope/depth justify it
+    // - "always": always use specialized lane fan-out
+    // Accepted default:
+    // - "always"
+    "code_review_multi_agent": "always",
+
+    "code_review_dimensions": {
+      // Always-on or default-on implementation correctness review.
+      "correctness": true,
+
+      // `standard` default:
+      // always on
+      "security": true,
+
+      // `standard` default:
+      // always on
+      "simplicity": true,
+
+      // Currently planned options:
+      // - false
+      // - true
+      // - "adaptive"
+      // `standard` default:
+      // - "adaptive"
+      // `deep` expectation:
+      // - true
+      "efficiency": "adaptive"
+    },
+
+    // After a fix pass, what should the workflow do next?
+    // Options:
+    // - "recommend": require a manual review rerun before verify-work may continue
+    // - "required": require a manual review rerun before verify-work may continue
+    // - "automatic": rerun review automatically when the command flow supports it
+    "code_review_rerun_after_fix": "recommend",
+
+    // Review freshness policy.
+    // Accepted default:
+    // - "latest-material-scope": only the latest review can be fresh, and it
+    //   becomes stale when relevant implementation/supporting files change
+    // Possible future variants:
+    // - "latest-only"
+    // - "any-change"
+    "code_review_freshness_policy": "latest-material-scope",
+
+    // Blocking policy for `verify-work` and `next` after code review.
+    // Recommended design:
+    // - first decide by finding class
+    // - then use severity only as fallback for uncategorized findings
+    "code_review_block_policy": {
+      // Any finding in these classes blocks continuation.
+      "blocking_classes": [
+        "correctness_error",
+        "security_risk",
+        "obvious_redundancy",
+        "wheel_reinvention"
+      ],
+
+      // Findings in these classes warn but do not block by default.
+      "non_blocking_classes": [
+        "minor_style",
+        "minor_nonimpact_efficiency"
+      ],
+
+      // Used only when a finding is not covered by explicit class lists.
+      // Options currently planned:
+      // - "critical"
+      // - "high"
+      // - "medium"
+      "severity_fallback": "high",
+
+      // If true, warning-only review results may still pass `verify-work`.
+      "allow_warning_pass": true
+    },
+
+    // Phase-type-specific code-review requirement policy.
+    // Recommended meanings:
+    // - "always_after_execute"
+    // - "material_code_change"
+    // - "material_code_or_tooling_change"
+    // - "material_code_or_pilot_tooling_change"
+    "code_review_requirements_by_phase_type": {
+      "engineering": "always_after_execute",
+      "experiment": "always_after_execute",
+      "analysis": "material_code_change",
+      "paper": "material_code_or_tooling_change",
+      "refine": "material_code_change",
+      "discovery": "material_code_or_pilot_tooling_change"
+    },
+
+    // Extra whole-project analysis behavior for `deep` review.
+    "code_review_deep_policy": {
+      // Use repository-wide implementation context in addition to phase-local scope.
+      "whole_project_context": true,
+
+      // Additional reviewers beyond the base four lanes.
+      "extra_reviewers": [
+        "repo_redundancy_and_reuse",
+        "architecture_fit_and_integration",
+        "cross_phase_regression_and_side_effects"
+      ],
+
+      // Recommended options:
+      // - "implementation-first"
+      // - "full-repo"
+      "repo_scope_mode": "implementation-first",
+
+      // Keep generated/vendor/build artifacts out of whole-project review by default.
+      "exclude_generated_and_vendor": true,
+
+      // Explicitly compare new phase code against existing helpers/utilities.
+      "compare_against_existing_utilities": true
+    },
+
+    // Allow GSD-style wave / plan-level parallel execution.
+    "parallel_plan_execution": true,
+
+    // Require approval before launching expensive experiment batches.
+    "confirm_experiment_launch": true,
+
+    // Options:
+    // - "batch": confirm one launch wave at a time
+    // - "run": confirm every single run
+    "experiment_launch_confirmation_granularity": "batch"
+  },
+
+  "discussion": {
+    // Options:
+    // - "focused": ask only a few high-value questions live
+    // - "broad": ask more areas explicitly
+    "mode": "focused",
+
+    // How lower-priority open questions should be handled.
+    // Options:
+    // - "suggest": provide recommended defaults for quick confirmation
+    // - "ask": ask separately
+    "noncritical_style": "suggest",
+
+    // Max number of live questions to ask before bundling defaults.
+    "max_live_questions_per_round": 3,
+
+    // If true, do lightweight research before asking discussion questions.
+    "research_before_questions": false,
+
+    // If true, skip discuss-phase in explicit high-autonomy paths.
+    "skip": false
+  },
+
+  "models": {
+    // Broad quality/cost preset.
+    // Options currently planned:
+    // - "quality"
+    // - "balanced"
+    // - "budget"
+    // - "inherit"
+    "profile": "quality",
+
+    // Default reviewer model for review-like workflows.
+    "reviewer": "gpt-5.4",
+
+    // Optional per-role override map.
+    // Example:
+    // "overrides": {
+    //   "reviewer": "gpt-5.4",
+    //   "planner": "gpt-5.4-mini"
+    // }
+    "overrides": {
+      // Optional code-review model override hierarchy.
+      // Fallback order:
+      // 1. lane-specific override
+      // 2. code_reviewer.default
+      // 3. models.reviewer
+      // 4. models.profile-resolved default
+      // Example:
+      // "code_reviewer": {
+      //   "default": "gpt-5.4",
+      //   "correctness": "gpt-5.4",
+      //   "security": "gpt-5.4",
+      //   "simplicity": "gpt-5.4-mini",
+      //   "efficiency": "gpt-5.4",
+      //   "repo_redundancy_and_reuse": "gpt-5.4",
+      //   "architecture_fit_and_integration": "gpt-5.4",
+      //   "cross_phase_regression_and_side_effects": "gpt-5.4"
+      // }
+    }
+  },
+
+  "runtime": {
+    // User-facing output language. Leave null to inherit conversation language.
+    "response_language": "zh-CN",
+
+    // Text-only mode for reduced-interaction environments.
+    "text_mode": false,
+
+    // Default wait time for subagent jobs.
+    "subagent_timeout_ms": 300000
+  },
+
+  "planning": {
+    // Whether `.planning/` artifacts should be committed into git.
+    "commit_docs": false,
+
+    // Whether broad searches should include gitignored files.
+    "search_gitignored": false
+  },
+
+  "workspace": {
+    // Keep git worktree-based isolation available for heavier parallel work.
+    "use_worktrees": true,
+
+    // Optional list of additional repos participating in the workspace.
+    "sub_repos": []
+  },
+
+  "project": {
+    // How phases are named.
+    // Options:
+    // - "sequential"
+    // - "custom"
+    "phase_naming": "sequential",
+
+    // Optional short code for project-specific prefixing.
+    "code": null
+  },
+
+  "research": {
+    "defaults": {
+      // Stage-level continuation policy inside workflows.
+      "auto_proceed": false,
+
+      // Whether review/refine/paper-improvement loops pause between rounds.
+      "human_checkpoint": true,
+
+      // Auto Research effort budget. Options: "lite", "balanced", "max", "beast".
+      "effort": "balanced"
+    },
+
+    "literature": {
+      "download_pdfs": false,
+      "max_downloads": 5,
+      "max_local_papers": 20,
+      "sources": ["all"]
+    },
+
+    "discovery": {
+      "max_pilot_ideas": 3,
+      "max_total_gpu_hours": 8,
+      "pilot_max_hours": 2,
+      "pilot_timeout_hours": 3,
+      "reference_paper": null
+    },
+
+    "recovery": {
+      // Carries the old `COMPACT` idea, but scoped and renamed.
+      "compact_mode": false
+    },
+
+    "refine": {
+      "max_rounds": 5,
+      "score_threshold": 9,
+      "max_core_experiments": 3,
+      "max_primary_claims": 2,
+      "max_new_trainable_components": 2
+    },
+
+    "review_loop": {
+      "max_rounds": 4,
+      "score_threshold": 6,
+      "human_checkpoint": true,
+      "difficulty": "medium",
+      // Options: "score_threshold_or_max_rounds", "positive_review_or_round_cap"
+      "stop_condition": "score_threshold_or_max_rounds"
+    },
+
+    "claim": {
+      "max_primary_claims": 2,
+      "score_scale": "0-10"
+    },
+
+    "execution": {
+      "auto_deploy": true,
+      "sanity_first": true,
+      "max_parallel_runs": 4,
+      "max_baseline_families": 3,
+      "compute_budget_hours": null,
+      "base_repo": null,
+      "default_seeds": 3,
+      // Options currently planned: "rsync", "git", "archive"
+      "code_sync_method": "rsync",
+      // Options: true, false, "auto"
+      "wandb_enabled": "auto"
+    },
+
+    "paper": {
+      "default_venue": "neurips",
+      "max_pages": 9,
+      "improvement_rounds": 2,
+      "auto_proceed": false,
+      "human_checkpoint": true
+    },
+
+    "rebuttal": {
+      // Options currently planned:
+      // - "TEXT_ONLY"
+      "response_mode": "TEXT_ONLY",
+      "max_internal_draft_rounds": 2,
+      "max_stress_test_rounds": 1,
+      "max_followup_rounds": 3,
+      "auto_experiment": false,
+      "character_limit": null,
+      "quick_mode": false
+    }
+  },
+
+  "safety": {
+    "always_confirm_destructive": true,
+    "always_confirm_external_services": true
+  },
+
+  "hooks": {
+    "context_warnings": true,
+    "workflow_guard": false
+  },
+
+  "features": {
+    // When true, discuss/planning may surface explicit strategic suggestions.
+    "thinking_partner": true,
+    "global_learnings": false,
+    "intel_enabled": false
+  }
+}
