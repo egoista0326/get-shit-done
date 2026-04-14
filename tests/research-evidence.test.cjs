@@ -155,6 +155,32 @@ describe('research evidence completeness', () => {
     }
   });
 
+  test('danger-auto evidence is incomplete without phase-local audit artifacts', () => {
+    const tmp = createTempProject('gsd-research-evidence-');
+    const phaseDir = createPhase(tmp);
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      default_preset: 'danger-auto',
+    }, null, 2)}\n`);
+
+    try {
+      initResearchIndex(tmp, '01', 'idea-discovery');
+      writeArtifact(phaseDir, 'research/literature/LITERATURE_EVIDENCE.md', 'sources and reading notes');
+      writeArtifact(phaseDir, 'research/ideas/IDEA_REPORT.md', 'candidate ideas');
+      writeArtifact(phaseDir, 'research/novelty/NOVELTY_REVIEW.md', 'novelty review');
+
+      const result = checkResearchEvidence(tmp, '01', 'idea-discovery');
+
+      assert.equal(result.status, 'incomplete');
+      assert.equal(result.clean, false);
+      assert.equal(result.missing.includes('research/RESEARCH_RUN_LOG.md'), true);
+      assert.equal(result.missing.includes('research/AUTHORIZATION_ACTIONS.json'), true);
+      assert.equal(result.missing.includes('research/DANGER_AUTO_OVERRIDES.md'), true);
+      assert.equal(result.missing.includes('research/SIDE_EFFECTS.md'), true);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('research-review is incomplete without raw reviewer responses', () => {
     const tmp = createTempProject('gsd-research-evidence-');
     const phaseDir = createPhase(tmp);

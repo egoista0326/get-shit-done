@@ -199,6 +199,7 @@ describe('research discovery compiler contract', () => {
       });
 
       assert.ok(compiled.promptPack.sections.includes('experiment-planning handoff'));
+      assert.ok(compiled.promptPack.sections.includes('stop predicate'));
       assert.ok(compiled.artifacts.required.includes('research/refine/EXPERIMENT_HANDOFF.md'));
       assert.ok(compiled.evidence.required.includes('experiment-handoff'));
     } finally {
@@ -220,6 +221,10 @@ describe('research discovery compiler contract', () => {
       assert.equal(compiled.gates.externalSideEffects, 'danger-auto-available');
       assert.equal(compiled.gates.allowQualityGateOverride, true);
       assert.equal(compiled.gates.requireAuditArtifacts, true);
+      assert.ok(compiled.artifacts.required.includes('research/RESEARCH_RUN_LOG.md'));
+      assert.ok(compiled.artifacts.required.includes('research/AUTHORIZATION_ACTIONS.json'));
+      assert.ok(compiled.artifacts.required.includes('research/DANGER_AUTO_OVERRIDES.md'));
+      assert.ok(compiled.artifacts.required.includes('research/SIDE_EFFECTS.md'));
     } finally {
       cleanup(tmp);
     }
