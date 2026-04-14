@@ -166,6 +166,21 @@ describe('research discovery compiler contract', () => {
     }
   });
 
+  test('refinement pipeline prompt pack includes experiment handoff obligation', () => {
+    const tmp = createTempProject('gsd-research-compiler-');
+    try {
+      const compiled = compileResearchCommand(tmp, 'research-refine-pipeline', {
+        intent: 'refine proposal into experiment plan',
+      });
+
+      assert.ok(compiled.promptPack.sections.includes('experiment-planning handoff'));
+      assert.ok(compiled.artifacts.required.includes('research/refine/EXPERIMENT_HANDOFF.md'));
+      assert.ok(compiled.evidence.required.includes('experiment-handoff'));
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('propagates danger-auto audit and quality-gate policy into compiled gates', () => {
     const tmp = createTempProject('gsd-research-compiler-');
     try {
