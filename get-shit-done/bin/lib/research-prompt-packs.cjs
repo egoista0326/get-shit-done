@@ -30,7 +30,7 @@ const PACKS = {
   },
   researchRefinePipelineDeep: {
     key: 'researchRefinePipelineDeep',
-    sections: ['literature retrieval', 'review loop', 'proposal refinement', 'final proposal'],
+    sections: ['literature retrieval', 'review loop', 'proposal refinement', 'final proposal', 'experiment-planning handoff'],
   },
   researchPipelineDeep: {
     key: 'researchPipelineDeep',

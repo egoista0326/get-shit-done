@@ -26,6 +26,22 @@ function withIndex(required) {
   return [INDEX_ARTIFACT, ...required.filter(item => item !== INDEX_ARTIFACT)];
 }
 
+function refinementArtifactContract(required) {
+  return {
+    required: withIndex(required),
+    content: {
+      'research/refine/REVIEW_EVIDENCE.md': [
+        'problem anchor',
+        'round logs',
+        'reviewer responses',
+        'score',
+        'verdict',
+        'stop predicate',
+      ],
+    },
+  };
+}
+
 function literatureParameters(overrides = {}) {
   return {
     sources: ['all'],
@@ -137,13 +153,13 @@ const RESEARCH_COMMANDS = {
     defaultMode: 'insert',
     defaultPhaseTitle: 'Research refinement',
     defaultPhaseGoal: 'Refine a research idea through bounded review iterations compiled into ordinary GSD tasks and evidence artifacts.',
-    artifacts: { required: withIndex([
+    artifacts: refinementArtifactContract([
       'research/literature/LITERATURE_EVIDENCE.md',
       'research/ideas/IDEA_REPORT.md',
       'research/refine/REVIEW_EVIDENCE.md',
       'research/refine/REFINE_STATE.json',
       'research/refine/FINAL_PROPOSAL.md',
-    ]) },
+    ]),
     evidence: { required: ['review', 'refinement'] },
     parameters: { max_review_rounds: 5, score_threshold: 9 },
     sideEffects: ['external-reviewer-optional'],
@@ -156,14 +172,14 @@ const RESEARCH_COMMANDS = {
     defaultMode: 'insert',
     defaultPhaseTitle: 'Research refinement pipeline',
     defaultPhaseGoal: 'Run literature, review, and refinement prompt packs as one ordinary GSD phase with plan-level decomposition.',
-    artifacts: { required: withIndex([
+    artifacts: refinementArtifactContract([
       'research/literature/LITERATURE_EVIDENCE.md',
       'research/ideas/IDEA_REPORT.md',
       'research/refine/REVIEW_EVIDENCE.md',
       'research/refine/REFINE_STATE.json',
       'research/refine/FINAL_PROPOSAL.md',
       'research/refine/EXPERIMENT_HANDOFF.md',
-    ]) },
+    ]),
     evidence: { required: ['literature', 'review', 'refinement', 'experiment-handoff'] },
     parameters: literatureParameters({ max_review_rounds: 5, score_threshold: 9 }),
     sideEffects: ['network-literature-search', 'external-reviewer-optional'],
@@ -196,7 +212,10 @@ function getResearchCommand(command) {
   }
   return {
     ...entry,
-    artifacts: { required: [...entry.artifacts.required] },
+    artifacts: {
+      required: [...entry.artifacts.required],
+      content: cloneParameters(entry.artifacts.content),
+    },
     evidence: { required: [...entry.evidence.required] },
     parameters: cloneParameters(entry.parameters),
     sideEffects: [...(entry.sideEffects || [])],
