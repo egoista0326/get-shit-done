@@ -141,7 +141,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: Preserve core lifecycle and planning commands
+- [x] 07-01: Preserve core lifecycle and planning commands
 - [ ] 07-02: Preserve code-review/code-review-fix/verify/workstream/workspace/git behavior
 - [ ] 07-03: Run core GSD parity review and scenario probe
 
@@ -207,7 +207,7 @@ Plans:
 | 04. Implementation Feasibility, Boundaries, And Repo Copy Strategy | 3/3 | Completed | 2026-04-14 |
 | 05. Final Target Framework Review Loop | 3/3 | Completed | 2026-04-14 |
 | 06. Foundation From Upstream GSD | 3/3 | Completed | 2026-04-14 |
-| 07. Core GSD Lifecycle Parity | 0/3 | Planned | - |
+| 07. Core GSD Lifecycle Parity | 1/3 | In Progress | - |
 | 08. Standalone Research Command Integration | 0/4 | Planned | - |
 | 09. Scenario And Regression Harness | 0/3 | Planned | - |
 | 10. Cutover, Packaging, And Final Verification | 0/3 | Planned | - |
