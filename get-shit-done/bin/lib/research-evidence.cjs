@@ -34,21 +34,26 @@ function checkResearchEvidence(cwd, phaseId, commandKey) {
   const command = getResearchCommand(commandKey || 'research-lit');
   const phaseDir = resolvePhaseDir(cwd, phaseId);
   const statuses = command.artifacts.required.map(relativePath => artifactStatus(phaseDir, relativePath));
+  const blocked = statuses
+    .filter(status => status.invalidType)
+    .map(status => status.relativePath);
   const missing = statuses
     .filter(status => !status.present || status.empty)
     .map(status => status.relativePath);
   const present = statuses
     .filter(status => status.present && !status.empty)
     .map(status => status.relativePath);
-  const clean = missing.length === 0;
+  const clean = missing.length === 0 && blocked.length === 0;
+  const status = blocked.length > 0 ? 'blocked' : clean ? 'clean' : 'incomplete';
 
   return {
     command: command.key,
     phase: phaseId,
-    status: clean ? 'clean' : 'incomplete',
+    status,
     clean,
     present,
     missing,
+    blocked,
     checked: statuses.map(status => ({
       path: status.relativePath,
       present: status.present,
@@ -57,7 +62,9 @@ function checkResearchEvidence(cwd, phaseId, commandKey) {
     })),
     reason: clean
       ? 'All required phase-local research evidence artifacts are present.'
-      : 'Missing required research evidence artifacts; summaries, skeleton indexes, and lifecycle state are not sufficient.',
+      : blocked.length > 0
+        ? 'Blocked by invalid research evidence artifact paths; required evidence must be phase-local files.'
+        : 'Missing required research evidence artifacts; summaries, skeleton indexes, and lifecycle state are not sufficient.',
   };
 }
 
