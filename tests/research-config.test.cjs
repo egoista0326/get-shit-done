@@ -147,4 +147,25 @@ describe('research config defaults and preset policy', () => {
       cleanup(tmp);
     }
   });
+
+  test('ignores preset fields when research config is explicitly non-effective', () => {
+    const tmp = createTempProject('gsd-research-config-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      effective: false,
+      preset: 'danger-auto',
+      default_preset: 'danger-auto',
+    }, null, 2)}\n`);
+
+    try {
+      const resolved = loadResearchConfig(tmp);
+
+      assert.equal(resolved.effective, false);
+      assert.equal(resolved.preset, 'safe');
+      assert.equal(resolved.autoProceed, false);
+      assert.equal(resolved.humanCheckpoint, true);
+      assert.equal(resolved.externalSideEffects, 'confirm-required');
+    } finally {
+      cleanup(tmp);
+    }
+  });
 });

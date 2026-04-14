@@ -81,6 +81,32 @@ describe('research evidence completeness', () => {
     }
   });
 
+  test('directories at required artifact paths do not count as evidence files', () => {
+    const tmp = createTempProject('gsd-research-evidence-');
+    const phaseDir = createPhase(tmp);
+
+    try {
+      fs.mkdirSync(path.join(phaseDir, 'research', 'RESEARCH_INDEX.md'), { recursive: true });
+      fs.mkdirSync(path.join(phaseDir, 'research', 'literature', 'LITERATURE_EVIDENCE.md'), { recursive: true });
+      fs.mkdirSync(path.join(phaseDir, 'research', 'ideas', 'IDEA_REPORT.md'), { recursive: true });
+      fs.mkdirSync(path.join(phaseDir, 'research', 'novelty', 'NOVELTY_REVIEW.md'), { recursive: true });
+
+      const result = checkResearchEvidence(tmp, '01', 'idea-discovery');
+
+      assert.equal(result.status, 'incomplete');
+      assert.equal(result.clean, false);
+      assert.deepStrictEqual(result.present, []);
+      assert.deepStrictEqual(result.missing.sort(), [
+        'research/RESEARCH_INDEX.md',
+        'research/ideas/IDEA_REPORT.md',
+        'research/literature/LITERATURE_EVIDENCE.md',
+        'research/novelty/NOVELTY_REVIEW.md',
+      ].sort());
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('CLI research evidence-check returns incomplete status for missing idea-discovery evidence', () => {
     const tmp = createTempProject('gsd-research-evidence-');
     createPhase(tmp);

@@ -40,6 +40,15 @@ describe('research discovery compiler contract', () => {
       assert.ok(Array.isArray(entry.artifacts.required), `${command} should declare required artifacts`);
       assert.ok(entry.artifacts.required.includes('research/RESEARCH_INDEX.md'), `${command} should use research index`);
     }
+
+    assert.ok(
+      getResearchCommand('research-refine').artifacts.required.includes('research/refine/REVIEW_EVIDENCE.md'),
+      'research-refine must require raw review/refinement evidence artifact'
+    );
+    assert.ok(
+      getResearchCommand('research-pipeline').artifacts.required.includes('research/review/REVIEW_REPORT.md'),
+      'research-pipeline must require review evidence artifact'
+    );
   });
 
   test('compiles idea-discovery into ordinary GSD phase guidance with literature and novelty evidence', () => {
@@ -151,6 +160,31 @@ describe('research discovery compiler contract', () => {
     }
   });
 
+  test('CLI compile can read intent from an intent file without shell evaluation', () => {
+    const tmp = createTempProject('gsd-research-cli-');
+    const tmpDir = path.join(tmp, '.planning', '.tmp');
+    fs.mkdirSync(tmpDir, { recursive: true });
+    const intentPath = path.join(tmpDir, 'intent.txt');
+    fs.writeFileSync(intentPath, 'discover $(touch SHOULD_NOT_RUN) graph ideas\n');
+
+    try {
+      const result = runGsdTools([
+        'research', 'compile', 'idea-discovery',
+        '--intent-file', '.planning/.tmp/intent.txt',
+        '--preset', 'safe',
+        '--mode', 'insert',
+        '--dry-run',
+      ], tmp);
+
+      assert.equal(result.success, true, result.error);
+      const compiled = JSON.parse(result.output);
+      assert.equal(compiled.intent, 'discover $(touch SHOULD_NOT_RUN) graph ideas');
+      assert.equal(fs.existsSync(path.join(tmp, 'SHOULD_NOT_RUN')), false);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('discovery wrappers use /gsd-ljx-* names and route through shared workflow', () => {
     for (const command of discoveryCommands) {
       const entry = getResearchCommand(command);
@@ -161,6 +195,7 @@ describe('research discovery compiler contract', () => {
       assert.match(content, new RegExp(`research command key:\\s*${command}`, 'i'));
       assert.match(content, /gsd-ljx-research-command\.md/);
       assert.match(content, /\/gsd-ljx-/);
+      assert.doesNotMatch(content, /Arguments:\s*\$ARGUMENTS/);
       assert.doesNotMatch(content, /phase_type/);
     }
   });
@@ -169,10 +204,12 @@ describe('research discovery compiler contract', () => {
     const content = readRepoFile('get-shit-done/workflows/gsd-ljx-research-command.md');
 
     assert.match(content, /research compile/i);
+    assert.match(content, /--intent-file/);
     assert.match(content, /gsd insert phase|gsd-insert-phase|phase insert/i);
     assert.match(content, /Do not directly write `?ROADMAP\.md`?/i);
     assert.match(content, /Do not directly write `?STATE\.md`?/i);
     assert.match(content, /do not execute external side effects/i);
+    assert.doesNotMatch(content, /\$\{ARGUMENTS\}/);
     assert.doesNotMatch(content, /phase_type/);
   });
 });
