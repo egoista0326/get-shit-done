@@ -122,4 +122,43 @@ describe('research evidence completeness', () => {
       cleanup(tmp);
     }
   });
+
+  test('research-review is incomplete without raw reviewer responses', () => {
+    const tmp = createTempProject('gsd-research-evidence-');
+    const phaseDir = createPhase(tmp);
+
+    try {
+      initResearchIndex(tmp, '01', 'research-review');
+      writeArtifact(phaseDir, 'research/review/REVIEW_REPORT.md', 'summary of reviewer findings');
+
+      const result = checkResearchEvidence(tmp, '01', 'research-review');
+
+      assert.equal(result.status, 'incomplete');
+      assert.equal(result.clean, false);
+      assert.equal(result.missing.includes('research/review/REVIEWS_RAW.md'), true);
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
+  test('research-refine is incomplete without upstream literature and idea context', () => {
+    const tmp = createTempProject('gsd-research-evidence-');
+    const phaseDir = createPhase(tmp);
+
+    try {
+      initResearchIndex(tmp, '01', 'research-refine');
+      writeArtifact(phaseDir, 'research/refine/REVIEW_EVIDENCE.md', 'raw reviewer response and score');
+      writeArtifact(phaseDir, 'research/refine/REFINE_STATE.json', '{"round":1}');
+      writeArtifact(phaseDir, 'research/refine/FINAL_PROPOSAL.md', 'refined proposal');
+
+      const result = checkResearchEvidence(tmp, '01', 'research-refine');
+
+      assert.equal(result.status, 'incomplete');
+      assert.equal(result.clean, false);
+      assert.equal(result.missing.includes('research/literature/LITERATURE_EVIDENCE.md'), true);
+      assert.equal(result.missing.includes('research/ideas/IDEA_REPORT.md'), true);
+    } finally {
+      cleanup(tmp);
+    }
+  });
 });

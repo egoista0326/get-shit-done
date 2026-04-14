@@ -49,6 +49,18 @@ describe('research discovery compiler contract', () => {
       getResearchCommand('research-pipeline').artifacts.required.includes('research/review/REVIEW_REPORT.md'),
       'research-pipeline must require review evidence artifact'
     );
+    assert.ok(
+      getResearchCommand('research-review').artifacts.required.includes('research/review/REVIEWS_RAW.md'),
+      'research-review must preserve raw reviewer responses as primary evidence'
+    );
+    assert.ok(
+      getResearchCommand('research-refine').artifacts.required.includes('research/literature/LITERATURE_EVIDENCE.md'),
+      'research-refine must keep literature evidence in the refinement evidence chain'
+    );
+    assert.ok(
+      getResearchCommand('research-refine').artifacts.required.includes('research/ideas/IDEA_REPORT.md'),
+      'research-refine must keep upstream idea context in the refinement evidence chain'
+    );
   });
 
   test('compiles idea-discovery into ordinary GSD phase guidance with literature and novelty evidence', () => {
@@ -239,6 +251,8 @@ describe('research discovery compiler contract', () => {
     assert.match(content, /mktemp/);
     assert.match(content, /trap .*rm -f/);
     assert.doesNotMatch(content, /INTENT_FILE="\.planning\/\.tmp\/gsd-ljx-research-intent\.txt"/);
+    assert.doesNotMatch(content, /<<['"]?GSD_RESEARCH_INTENT/);
+    assert.doesNotMatch(content, /\n\$ARGUMENTS\n/);
     assert.match(content, /gsd insert phase|gsd-insert-phase|phase insert/i);
     assert.match(content, /Do not directly write `?ROADMAP\.md`?/i);
     assert.match(content, /Do not directly write `?STATE\.md`?/i);

@@ -38,6 +38,17 @@ describe('research artifact index', () => {
       assert.match(content, /research\/literature\/LITERATURE_EVIDENCE\.md/);
       assert.match(content, /research\/ideas\/IDEA_REPORT\.md/);
       assert.match(content, /research\/novelty\/NOVELTY_REVIEW\.md/);
+      assert.match(content, /## Required Evidence/);
+      assert.match(content, /## Raw Records/);
+      assert.match(content, /## Summaries/);
+      assert.match(content, /## Reviews/);
+      assert.match(content, /## Audits/);
+      assert.match(content, /## Side Effect Records/);
+      assert.match(content, /## Imports/);
+      assert.match(content, /## Exports/);
+      assert.match(content, /## Missing Evidence/);
+      assert.match(content, /## Taint And Degraded Status/);
+      assert.match(content, /## Completion Labels/);
       assert.equal(fs.readFileSync(statePath, 'utf8'), stateBefore);
       assert.equal(fs.readFileSync(roadmapPath, 'utf8'), roadmapBefore);
     } finally {
