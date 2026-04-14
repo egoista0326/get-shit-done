@@ -18,7 +18,12 @@ function resolvePhaseDir(cwd, phaseId) {
 }
 
 function artifactStatus(phaseDir, relativePath) {
-  const filePath = requireSafePath(path.join(phaseDir, relativePath), phaseDir, 'Research artifact', { allowAbsolute: true });
+  let filePath;
+  try {
+    filePath = requireSafePath(path.join(phaseDir, relativePath), phaseDir, 'Research artifact', { allowAbsolute: true });
+  } catch (error) {
+    return { relativePath, filePath: null, present: false, empty: false, invalidType: 'path-escape', error: error.message };
+  }
   if (!fs.existsSync(filePath)) {
     return { relativePath, filePath, present: false, empty: false };
   }
@@ -59,6 +64,7 @@ function checkResearchEvidence(cwd, phaseId, commandKey) {
       present: status.present,
       empty: status.empty,
       invalidType: status.invalidType || null,
+      error: status.error || null,
     })),
     reason: clean
       ? 'All required phase-local research evidence artifacts are present.'

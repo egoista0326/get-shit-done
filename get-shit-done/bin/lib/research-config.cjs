@@ -174,6 +174,9 @@ function readResearchConfigFile(configPath) {
       warnings.push({ key, action: 'ignored', reason: 'unknown top-level research config key' });
     }
   }
+  if (parsed.value.strict === true && warnings.length > 0) {
+    throw new Error(`Unknown research config keys in strict mode: ${warnings.map(warning => warning.key).sort().join(', ')}`);
+  }
 
   return { exists: true, raw: parsed.value, warnings };
 }
