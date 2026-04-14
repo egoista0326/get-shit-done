@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 08
 current_plan: Not started
 status: planning
-stopped_at: Phase 07 complete; ready to discuss/plan Phase 08
-last_updated: "2026-04-14T13:37:58.214Z"
+stopped_at: Phase 08 context captured; ready to plan Phase 08
+last_updated: "2026-04-14T14:01:57.799Z"
 last_activity: 2026-04-14
 progress:
   total_phases: 10
@@ -104,6 +104,7 @@ Progress: [████████████████████] 7/10 ph
 - Phase 07 security verification closed all 12 planned threats in `07-SECURITY.md` with `threats_open: 0`.
 - Phase 07 was transitioned complete on 2026-04-14. Current work is Phase 08 standalone research command integration.
 - Auto/ARIS research skill implementation has not started yet. Upstream GSD `research-phase` remains baseline upstream lifecycle behavior, not new Auto/ARIS research command integration.
+- [Phase 08]: Phase 08 discussion locked the /gsd-ljx thin research compiler approach, bridge-only external side effects, RESEARCH_INDEX.md-first evidence ledger, separate research.config.json presets, and frequent multi-subagent review with main-agent confirmation.
 
 ### Archive Locations
 
@@ -145,6 +146,6 @@ Progress: [████████████████████] 7/10 ph
 
 ## Session Continuity
 
-Last session: 2026-04-14T13:38:00Z
-Stopped at: Phase 07 complete; ready to discuss/plan Phase 08
-Resume file: None
+Last session: 2026-04-14T14:01:57.556Z
+Stopped at: Phase 08 context captured; ready to plan Phase 08
+Resume file: .planning/phases/08-standalone-research-command-integration/08-CONTEXT.md
