@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { atomicWriteFileSync, findPhaseInternal } = require('./core.cjs');
+const { atomicWriteFileSync, findPhaseInternal, output } = require('./core.cjs');
 const { requireSafePath } = require('./security.cjs');
 const { getResearchCommand } = require('./research-command-map.cjs');
 
@@ -58,7 +58,23 @@ function initResearchIndex(cwd, phaseId, commandKey, options = {}) {
   };
 }
 
+function parseCommandFlag(args, defaultCommand) {
+  const idx = args.indexOf('--command');
+  return idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('--') ? args[idx + 1] : defaultCommand;
+}
+
+function cmdResearchIndex(cwd, args, raw) {
+  const phaseId = args[2];
+  if (!phaseId) throw new Error('Usage: gsd-tools research index <phase-id> [--command <command>] [--dry-run]');
+  const command = parseCommandFlag(args, 'research-lit');
+  const dryRun = args.includes('--dry-run');
+  const result = initResearchIndex(cwd, phaseId, command, { dryRun });
+  const { content, ...json } = result;
+  output(json, raw);
+}
+
 module.exports = {
   renderResearchIndex,
   initResearchIndex,
+  cmdResearchIndex,
 };

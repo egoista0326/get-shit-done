@@ -183,6 +183,8 @@ const workstream = require('./lib/workstream.cjs');
 const docs = require('./lib/docs.cjs');
 const learnings = require('./lib/learnings.cjs');
 const researchCompiler = require('./lib/research-compiler.cjs');
+const researchIndex = require('./lib/research-index.cjs');
+const researchEvidence = require('./lib/research-evidence.cjs');
 
 // ─── Arg parsing helpers ──────────────────────────────────────────────────────
 
@@ -742,8 +744,12 @@ async function runCommand(command, args, cwd, raw, defaultValue) {
       const subcommand = args[1];
       if (subcommand === 'compile') {
         researchCompiler.cmdResearchCompile(cwd, args, raw);
+      } else if (subcommand === 'index') {
+        researchIndex.cmdResearchIndex(cwd, args, raw);
+      } else if (subcommand === 'evidence-check') {
+        researchEvidence.cmdResearchEvidenceCheck(cwd, args, raw);
       } else {
-        error('Unknown research subcommand. Available: compile');
+        error('Unknown research subcommand. Available: compile, index, evidence-check');
       }
       break;
     }
