@@ -11,18 +11,10 @@ const fs = require('fs');
 const path = require('path');
 const { planningDir } = require('./core.cjs');
 const { safeJsonParse } = require('./security.cjs');
+const { DISCOVERY_COMMAND_KEYS } = require('./research-command-map.cjs');
 
 const SUPPORTED_RESEARCH_PRESETS = ['safe', 'auto', 'danger-auto'];
-const SUPPORTED_RESEARCH_COMMAND_KEYS = [
-  'research-lit',
-  'idea-discovery',
-  'idea-creator',
-  'novelty-check',
-  'research-review',
-  'research-refine',
-  'research-refine-pipeline',
-  'research-pipeline',
-];
+const SUPPORTED_RESEARCH_COMMAND_KEYS = DISCOVERY_COMMAND_KEYS;
 
 const PRESET_DEFAULTS = {
   safe: {

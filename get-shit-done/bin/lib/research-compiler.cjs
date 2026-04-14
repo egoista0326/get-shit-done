@@ -47,10 +47,13 @@ function mergeParameterObjects(...sources) {
   return merged;
 }
 
-function resolveResearchMode(mode) {
+function resolveResearchMode(command, mode) {
   const normalized = String(mode || 'insert').trim();
   if (!SUPPORTED_RESEARCH_MODES.includes(normalized)) {
     throw new Error(`Unsupported research mode: ${normalized}`);
+  }
+  if (normalized === 'research-first' && command.key !== 'research-pipeline') {
+    throw new Error('research-first mode is only supported for research-pipeline');
   }
   return normalized;
 }
@@ -58,7 +61,7 @@ function resolveResearchMode(mode) {
 function compileResearchCommand(cwd, commandKey, options = {}) {
   const command = getResearchCommand(commandKey);
   const config = loadResearchConfig(cwd, { preset: options.preset });
-  const mode = resolveResearchMode(options.mode || command.defaultMode || 'insert');
+  const mode = resolveResearchMode(command, options.mode || command.defaultMode || 'insert');
   const intent = sanitizeForPrompt(options.intent || '');
   const intentSafety = scanForInjection(intent, { strict: true });
   const promptPack = getPromptPack(command.promptPack);
