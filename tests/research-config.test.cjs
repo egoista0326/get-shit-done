@@ -95,6 +95,10 @@ describe('research config defaults and preset policy', () => {
           external_side_effects: 'confirm-required',
           allow_quality_gate_override: true,
           require_audit_artifacts: true,
+          sources: ['local', 'web'],
+          source_policy: {
+            deepxiv: false,
+          },
         },
       },
     }, null, 2)}\n`);
@@ -106,6 +110,8 @@ describe('research config defaults and preset policy', () => {
       assert.equal(resolved.externalSideEffects, 'confirm-required');
       assert.equal(resolved.allowQualityGateOverride, true);
       assert.equal(resolved.requireAuditArtifacts, true);
+      assert.deepStrictEqual(resolved.presetParameters.sources, ['local', 'web']);
+      assert.equal(resolved.presetParameters.source_policy.deepxiv, false);
     } finally {
       cleanup(tmp);
     }

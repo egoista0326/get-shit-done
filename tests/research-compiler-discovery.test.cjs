@@ -181,6 +181,34 @@ describe('research discovery compiler contract', () => {
     }
   });
 
+  test('applies preset-level source parameter overrides before command overrides', () => {
+    const tmp = createTempProject('gsd-research-compiler-');
+    fs.writeFileSync(path.join(tmp, '.planning', 'research.config.json'), `${JSON.stringify({
+      preset: 'auto',
+      presets: {
+        auto: {
+          sources: ['local', 'web'],
+          source_policy: {
+            deepxiv: false,
+          },
+        },
+      },
+    }, null, 2)}\n`);
+
+    try {
+      const compiled = compileResearchCommand(tmp, 'idea-discovery', {
+        intent: 'configured source scope',
+      });
+
+      assert.deepStrictEqual(compiled.parameters.sources, ['local', 'web']);
+      assert.equal(compiled.parameters.source_policy.deepxiv, false);
+      assert.deepStrictEqual(compiled.parameters.source_policy.all_excludes, ['deepxiv']);
+      assert.equal(compiled.parameters.source_policy.semantic_scholar, 'web');
+    } finally {
+      cleanup(tmp);
+    }
+  });
+
   test('rejects unsupported research compile modes instead of silently falling back', () => {
     const tmp = createTempProject('gsd-research-compiler-');
     try {
