@@ -7,7 +7,7 @@ const fs = require('fs');
 const { output } = require('./core.cjs');
 const { requireSafePath, sanitizeForPrompt, scanForInjection } = require('./security.cjs');
 const { loadResearchConfig } = require('./research-config.cjs');
-const { getResearchCommand } = require('./research-command-map.cjs');
+const { artifactsForConfig, getResearchCommand } = require('./research-command-map.cjs');
 const { getPromptPack } = require('./research-prompt-packs.cjs');
 const { renderResearchPhase } = require('./research-phase-render.cjs');
 
@@ -91,7 +91,7 @@ function compileResearchCommand(cwd, commandKey, options = {}) {
     parameters,
     artifacts: {
       index: 'research/RESEARCH_INDEX.md',
-      required: [...command.artifacts.required],
+      required: artifactsForConfig(command, config),
     },
     evidence: {
       required: [...command.evidence.required],

@@ -7,7 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const { atomicWriteFileSync, findPhaseInternal, output } = require('./core.cjs');
 const { requireSafePath } = require('./security.cjs');
-const { getResearchCommand } = require('./research-command-map.cjs');
+const { loadResearchConfig } = require('./research-config.cjs');
+const { artifactsForConfig, getResearchCommand } = require('./research-command-map.cjs');
 
 function renderResearchIndex(commandKey, artifacts) {
   const requiredRows = artifacts.map(artifact => `| ${artifact} | missing | Required for ${commandKey} completion evidence. |`);
@@ -86,9 +87,11 @@ function resolvePhaseResearchDir(cwd, phaseId) {
 
 function initResearchIndex(cwd, phaseId, commandKey, options = {}) {
   const command = getResearchCommand(commandKey || 'research-lit');
+  const config = loadResearchConfig(cwd, { preset: options.preset });
+  const requiredArtifacts = artifactsForConfig(command, config);
   const { phaseDir, researchDir } = resolvePhaseResearchDir(cwd, phaseId);
   const indexPath = requireSafePath(path.join(researchDir, 'RESEARCH_INDEX.md'), phaseDir, 'Research index', { allowAbsolute: true });
-  const content = renderResearchIndex(command.key, command.artifacts.required);
+  const content = renderResearchIndex(command.key, requiredArtifacts);
 
   if (!options.dryRun) {
     fs.mkdirSync(researchDir, { recursive: true });
@@ -99,7 +102,7 @@ function initResearchIndex(cwd, phaseId, commandKey, options = {}) {
     phaseDir,
     indexPath,
     command: command.key,
-    artifacts: command.artifacts.required,
+    artifacts: requiredArtifacts,
     written: !options.dryRun,
     content,
   };
@@ -110,12 +113,18 @@ function parseCommandFlag(args, defaultCommand) {
   return idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('--') ? args[idx + 1] : defaultCommand;
 }
 
+function parsePresetFlag(args) {
+  const idx = args.indexOf('--preset');
+  return idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('--') ? args[idx + 1] : null;
+}
+
 function cmdResearchIndex(cwd, args, raw) {
   const phaseId = args[2];
-  if (!phaseId) throw new Error('Usage: gsd-tools research index <phase-id> [--command <command>] [--dry-run]');
+  if (!phaseId) throw new Error('Usage: gsd-tools research index <phase-id> [--command <command>] [--preset safe|auto|danger-auto] [--dry-run]');
   const command = parseCommandFlag(args, 'research-lit');
+  const preset = parsePresetFlag(args);
   const dryRun = args.includes('--dry-run');
-  const result = initResearchIndex(cwd, phaseId, command, { dryRun });
+  const result = initResearchIndex(cwd, phaseId, command, { preset, dryRun });
   const { content, ...json } = result;
   output(dryRun ? result : json, raw);
 }

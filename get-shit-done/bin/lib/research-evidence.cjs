@@ -7,7 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const { findPhaseInternal, output } = require('./core.cjs');
 const { requireSafePath } = require('./security.cjs');
-const { getResearchCommand } = require('./research-command-map.cjs');
+const { loadResearchConfig } = require('./research-config.cjs');
+const { artifactsForConfig, getResearchCommand } = require('./research-command-map.cjs');
 
 function resolvePhaseDir(cwd, phaseId) {
   const phaseInfo = findPhaseInternal(cwd, phaseId);
@@ -43,10 +44,12 @@ function missingContentMarkers(status, markers = []) {
   return markers.filter(marker => !content.includes(marker.toLowerCase()));
 }
 
-function checkResearchEvidence(cwd, phaseId, commandKey) {
+function checkResearchEvidence(cwd, phaseId, commandKey, options = {}) {
   const command = getResearchCommand(commandKey || 'research-lit');
+  const config = loadResearchConfig(cwd, { preset: options.preset });
   const phaseDir = resolvePhaseDir(cwd, phaseId);
-  const statuses = command.artifacts.required.map(relativePath => artifactStatus(phaseDir, relativePath));
+  const requiredArtifacts = artifactsForConfig(command, config);
+  const statuses = requiredArtifacts.map(relativePath => artifactStatus(phaseDir, relativePath));
   const incompleteContent = statuses
     .map(status => ({
       path: status.relativePath,
@@ -96,11 +99,17 @@ function parseCommandFlag(args, defaultCommand) {
   return idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('--') ? args[idx + 1] : defaultCommand;
 }
 
+function parsePresetFlag(args) {
+  const idx = args.indexOf('--preset');
+  return idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('--') ? args[idx + 1] : null;
+}
+
 function cmdResearchEvidenceCheck(cwd, args, raw) {
   const phaseId = args[2];
-  if (!phaseId) throw new Error('Usage: gsd-tools research evidence-check <phase-id> [--command <command>]');
+  if (!phaseId) throw new Error('Usage: gsd-tools research evidence-check <phase-id> [--command <command>] [--preset safe|auto|danger-auto]');
   const command = parseCommandFlag(args, 'research-lit');
-  output(checkResearchEvidence(cwd, phaseId, command), raw);
+  const preset = parsePresetFlag(args);
+  output(checkResearchEvidence(cwd, phaseId, command, { preset }), raw);
 }
 
 module.exports = {

@@ -15,6 +15,12 @@ const DISCOVERY_COMMAND_KEYS = [
 ];
 
 const INDEX_ARTIFACT = 'research/RESEARCH_INDEX.md';
+const DANGER_AUTO_AUDIT_ARTIFACTS = [
+  'research/RESEARCH_RUN_LOG.md',
+  'research/AUTHORIZATION_ACTIONS.json',
+  'research/DANGER_AUTO_OVERRIDES.md',
+  'research/SIDE_EFFECTS.md',
+];
 const SUPPORTED_SOURCES = ['zotero', 'obsidian', 'local', 'web', 'deepxiv', 'all'];
 const SOURCE_POLICY = {
   semantic_scholar: 'web',
@@ -24,6 +30,18 @@ const SOURCE_POLICY = {
 
 function withIndex(required) {
   return [INDEX_ARTIFACT, ...required.filter(item => item !== INDEX_ARTIFACT)];
+}
+
+function withDangerAutoAuditArtifacts(required) {
+  return [
+    ...required,
+    ...DANGER_AUTO_AUDIT_ARTIFACTS.filter(item => !required.includes(item)),
+  ];
+}
+
+function artifactsForConfig(command, config = {}) {
+  const required = [...command.artifacts.required];
+  return config.requireAuditArtifacts ? withDangerAutoAuditArtifacts(required) : required;
 }
 
 function refinementArtifactContract(required) {
@@ -224,7 +242,9 @@ function getResearchCommand(command) {
 
 module.exports = {
   DISCOVERY_COMMAND_KEYS,
+  DANGER_AUTO_AUDIT_ARTIFACTS,
   INDEX_ARTIFACT,
   RESEARCH_COMMANDS,
+  artifactsForConfig,
   getResearchCommand,
 };
