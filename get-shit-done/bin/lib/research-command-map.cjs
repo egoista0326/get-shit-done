@@ -121,7 +121,10 @@ const RESEARCH_COMMANDS = {
     defaultMode: 'insert',
     defaultPhaseTitle: 'Research review',
     defaultPhaseGoal: 'Review a research proposal with Auto/ARIS critique prompts while preserving GSD review and verification gates.',
-    artifacts: { required: withIndex(['research/review/REVIEW_REPORT.md']) },
+    artifacts: { required: withIndex([
+      'research/review/REVIEWS_RAW.md',
+      'research/review/REVIEW_REPORT.md',
+    ]) },
     evidence: { required: ['review'] },
     parameters: { review_difficulty: 'hard', max_review_rounds: 3 },
     sideEffects: ['external-reviewer-optional'],
@@ -135,6 +138,8 @@ const RESEARCH_COMMANDS = {
     defaultPhaseTitle: 'Research refinement',
     defaultPhaseGoal: 'Refine a research idea through bounded review iterations compiled into ordinary GSD tasks and evidence artifacts.',
     artifacts: { required: withIndex([
+      'research/literature/LITERATURE_EVIDENCE.md',
+      'research/ideas/IDEA_REPORT.md',
       'research/refine/REVIEW_EVIDENCE.md',
       'research/refine/REFINE_STATE.json',
       'research/refine/FINAL_PROPOSAL.md',
@@ -153,6 +158,7 @@ const RESEARCH_COMMANDS = {
     defaultPhaseGoal: 'Run literature, review, and refinement prompt packs as one ordinary GSD phase with plan-level decomposition.',
     artifacts: { required: withIndex([
       'research/literature/LITERATURE_EVIDENCE.md',
+      'research/ideas/IDEA_REPORT.md',
       'research/refine/REVIEW_EVIDENCE.md',
       'research/refine/REFINE_STATE.json',
       'research/refine/FINAL_PROPOSAL.md',
@@ -172,6 +178,7 @@ const RESEARCH_COMMANDS = {
     artifacts: { required: withIndex([
       'research/literature/LITERATURE_EVIDENCE.md',
       'research/ideas/IDEA_REPORT.md',
+      'research/review/REVIEWS_RAW.md',
       'research/review/REVIEW_REPORT.md',
     ]) },
     evidence: { required: ['literature', 'ideas', 'review'] },

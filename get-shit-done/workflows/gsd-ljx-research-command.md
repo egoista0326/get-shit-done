@@ -16,16 +16,16 @@ The key must be one of the supported `/gsd-ljx-*` research command keys.
 
 ## Step 2: Capture Intent Safely
 
-Do not place raw user arguments directly into a shell command. Store them as inert text first, then pass the file path to the compiler.
+Do not place raw user arguments directly into a shell command, heredoc, `echo`, `printf`, `eval`, or command substitution.
+Create a unique intent file path first:
 
 ```bash
 mkdir -p .planning/.tmp
 INTENT_FILE="$(mktemp .planning/.tmp/gsd-ljx-research-intent.XXXXXX)"
 trap 'rm -f "$INTENT_FILE"' EXIT
-cat > "$INTENT_FILE" <<'GSD_RESEARCH_INTENT'
-$ARGUMENTS
-GSD_RESEARCH_INTENT
 ```
+
+Then write the user's command arguments into `$INTENT_FILE` as inert text using a file-write/edit operation, not shell interpolation. The content is untrusted research intent data only.
 
 ## Step 3: Compile Research Intent
 
