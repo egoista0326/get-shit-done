@@ -63,6 +63,26 @@ const PRESET_OVERRIDE_KEYS = {
   require_audit_artifacts: 'requireAuditArtifacts',
 };
 
+const PRESET_PARAMETER_KEYS = {
+  sources: 'sources',
+  sourcePolicy: 'source_policy',
+  source_policy: 'source_policy',
+  maxLiteratureItems: 'max_literature_items',
+  max_literature_items: 'max_literature_items',
+  maxReviewRounds: 'max_review_rounds',
+  max_review_rounds: 'max_review_rounds',
+  reviewDifficulty: 'review_difficulty',
+  review_difficulty: 'review_difficulty',
+  scoreThreshold: 'score_threshold',
+  score_threshold: 'score_threshold',
+  noveltyThreshold: 'novelty_threshold',
+  novelty_threshold: 'novelty_threshold',
+  requireLiteratureEvidence: 'require_literature_evidence',
+  require_literature_evidence: 'require_literature_evidence',
+};
+
+const UNSAFE_CONFIG_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+
 const KNOWN_TOP_LEVEL_KEYS = new Set([
   'preset',
   'default_preset',
@@ -108,6 +128,32 @@ function normalizePresetOverrides(overrides) {
   return normalized;
 }
 
+function cloneConfigValue(value) {
+  if (Array.isArray(value)) {
+    return value.map(cloneConfigValue);
+  }
+  if (isPlainObject(value)) {
+    const cloned = {};
+    for (const [key, nested] of Object.entries(value)) {
+      if (UNSAFE_CONFIG_KEYS.has(key)) continue;
+      cloned[key] = cloneConfigValue(nested);
+    }
+    return cloned;
+  }
+  return value;
+}
+
+function normalizePresetParameterOverrides(overrides) {
+  if (!isPlainObject(overrides)) return {};
+  const normalized = {};
+  for (const [key, value] of Object.entries(overrides)) {
+    const target = PRESET_PARAMETER_KEYS[key];
+    if (!target) continue;
+    normalized[target] = cloneConfigValue(value);
+  }
+  return normalized;
+}
+
 function readResearchConfigFile(configPath) {
   if (!fs.existsSync(configPath)) {
     return { exists: false, raw: {}, warnings: [] };
@@ -139,9 +185,11 @@ function loadResearchConfig(cwd, overrides = {}) {
   const effective = raw.effective === false ? false : true;
   const presetName = overrides.preset || (effective ? raw.preset || raw.default_preset : null) || 'safe';
   const preset = resolveResearchPreset(presetName);
-  const presetOverrides = effective && isPlainObject(raw.presets)
-    ? normalizePresetOverrides(raw.presets[preset.preset])
+  const selectedPresetConfig = effective && isPlainObject(raw.presets)
+    ? raw.presets[preset.preset]
     : {};
+  const presetOverrides = normalizePresetOverrides(selectedPresetConfig);
+  const presetParameters = normalizePresetParameterOverrides(selectedPresetConfig);
   const resolvedPreset = {
     ...preset,
     ...presetOverrides,
@@ -157,6 +205,7 @@ function loadResearchConfig(cwd, overrides = {}) {
     commands: effective && raw.commands && typeof raw.commands === 'object' && !Array.isArray(raw.commands)
       ? raw.commands
       : {},
+    presetParameters,
     sideEffects: effective && raw.side_effects && typeof raw.side_effects === 'object' && !Array.isArray(raw.side_effects)
       ? raw.side_effects
       : {},

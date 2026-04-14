@@ -65,7 +65,12 @@ function compileResearchCommand(cwd, commandKey, options = {}) {
   const commandConfig = config.commands[command.key] && typeof config.commands[command.key] === 'object'
     ? config.commands[command.key]
     : {};
-  const parameters = mergeParameterObjects(command.parameters, commandConfig, options.parameters);
+  const parameters = mergeParameterObjects(
+    command.parameters,
+    config.presetParameters,
+    commandConfig,
+    options.parameters
+  );
   const phase = renderResearchPhase({ command, intent, mode, intentSafety });
   const researchFirst = mode === 'research-first';
 
