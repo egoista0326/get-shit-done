@@ -21,6 +21,12 @@ const discoveryCommands = [
   'research-pipeline',
 ];
 
+const repoRoot = path.join(__dirname, '..');
+
+function readRepoFile(relativePath) {
+  return fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+}
+
 describe('research discovery compiler contract', () => {
   test('declares all discovery and refinement command keys as data', () => {
     assert.deepStrictEqual(DISCOVERY_COMMAND_KEYS, discoveryCommands);
@@ -143,5 +149,30 @@ describe('research discovery compiler contract', () => {
     } finally {
       cleanup(tmp);
     }
+  });
+
+  test('discovery wrappers use /gsd-ljx-* names and route through shared workflow', () => {
+    for (const command of discoveryCommands) {
+      const entry = getResearchCommand(command);
+      const wrapperPath = path.join('commands', 'gsd', `${entry.publicCommand}.md`);
+      const content = readRepoFile(wrapperPath);
+
+      assert.match(entry.publicCommand, /^gsd-ljx-/);
+      assert.match(content, new RegExp(`research command key:\\s*${command}`, 'i'));
+      assert.match(content, /gsd-ljx-research-command\.md/);
+      assert.match(content, /\/gsd-ljx-/);
+      assert.doesNotMatch(content, /phase_type/);
+    }
+  });
+
+  test('shared research workflow preserves GSD lifecycle ownership boundaries', () => {
+    const content = readRepoFile('get-shit-done/workflows/gsd-ljx-research-command.md');
+
+    assert.match(content, /research compile/i);
+    assert.match(content, /gsd insert phase|gsd-insert-phase|phase insert/i);
+    assert.match(content, /Do not directly write `?ROADMAP\.md`?/i);
+    assert.match(content, /Do not directly write `?STATE\.md`?/i);
+    assert.match(content, /do not execute external side effects/i);
+    assert.doesNotMatch(content, /phase_type/);
   });
 });
