@@ -14,16 +14,17 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 
 /**
- * Recursively collect files matching the given extensions, excluding
- * CHANGELOG.md, node_modules/, .git/, and dist/.
+ * Recursively collect files matching the given extensions, excluding generated,
+ * dependency, VCS, and project-state directories.
  */
 function collectFiles(dir, extensions, results = []) {
-  const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', '.claude', '.worktrees']);
+  const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', '.claude', '.planning', '.worktrees']);
   let entries;
   try {
     entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -81,6 +82,23 @@ function isTestInput(filePath, line) {
 }
 
 describe('No stale /gsd: colon references (#1748)', () => {
+  test('collector ignores project planning metadata directories', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-stale-colon-'));
+
+    try {
+      fs.mkdirSync(path.join(tmpDir, '.planning', 'review'), { recursive: true });
+      fs.writeFileSync(path.join(tmpDir, '.planning', 'review', 'notes.md'), `Run /gsd${':'}next\n`);
+      fs.writeFileSync(path.join(tmpDir, 'source.md'), 'Use /gsd-next\n');
+
+      const files = collectFiles(tmpDir, new Set(['.md']))
+        .map((filePath) => path.relative(tmpDir, filePath).replace(/\\/g, '/'));
+
+      assert.deepEqual(files, ['source.md']);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
   test('all /gsd: references should be hyphenated except test inputs', () => {
     const extensions = new Set(['.md', '.js', '.cjs', '.ts', '.yml', '.sh', '.svg']);
     const files = collectFiles(ROOT, extensions);
