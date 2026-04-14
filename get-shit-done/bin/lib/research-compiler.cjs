@@ -11,6 +11,9 @@ const { getResearchCommand } = require('./research-command-map.cjs');
 const { getPromptPack } = require('./research-prompt-packs.cjs');
 const { renderResearchPhase } = require('./research-phase-render.cjs');
 
+const SUPPORTED_RESEARCH_MODES = ['insert', 'research-first'];
+const UNSAFE_PARAMETER_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+
 function isPlainObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value);
 }
@@ -20,9 +23,12 @@ function cloneParameterValue(value) {
     return [...value];
   }
   if (isPlainObject(value)) {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, nested]) => [key, cloneParameterValue(nested)])
-    );
+    const cloned = {};
+    for (const [key, nested] of Object.entries(value)) {
+      if (UNSAFE_PARAMETER_KEYS.has(key)) continue;
+      cloned[key] = cloneParameterValue(nested);
+    }
+    return cloned;
   }
   return value;
 }
@@ -32,6 +38,7 @@ function mergeParameterObjects(...sources) {
   for (const source of sources) {
     if (!isPlainObject(source)) continue;
     for (const [key, value] of Object.entries(source)) {
+      if (UNSAFE_PARAMETER_KEYS.has(key)) continue;
       merged[key] = isPlainObject(merged[key]) && isPlainObject(value)
         ? mergeParameterObjects(merged[key], value)
         : cloneParameterValue(value);
@@ -40,10 +47,18 @@ function mergeParameterObjects(...sources) {
   return merged;
 }
 
+function resolveResearchMode(mode) {
+  const normalized = String(mode || 'insert').trim();
+  if (!SUPPORTED_RESEARCH_MODES.includes(normalized)) {
+    throw new Error(`Unsupported research mode: ${normalized}`);
+  }
+  return normalized;
+}
+
 function compileResearchCommand(cwd, commandKey, options = {}) {
   const command = getResearchCommand(commandKey);
   const config = loadResearchConfig(cwd, { preset: options.preset });
-  const mode = options.mode || command.defaultMode || 'insert';
+  const mode = resolveResearchMode(options.mode || command.defaultMode || 'insert');
   const intent = sanitizeForPrompt(options.intent || '');
   const intentSafety = scanForInjection(intent, { strict: true });
   const promptPack = getPromptPack(command.promptPack);

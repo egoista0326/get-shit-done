@@ -117,7 +117,7 @@ function cmdResearchIndex(cwd, args, raw) {
   const dryRun = args.includes('--dry-run');
   const result = initResearchIndex(cwd, phaseId, command, { dryRun });
   const { content, ...json } = result;
-  output(json, raw);
+  output(dryRun ? result : json, raw);
 }
 
 module.exports = {

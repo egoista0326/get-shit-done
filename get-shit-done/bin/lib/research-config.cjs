@@ -47,6 +47,22 @@ const PRESET_DEFAULTS = {
   },
 };
 
+const PRESET_OVERRIDE_KEYS = {
+  effort: 'effort',
+  reviewDepth: 'reviewDepth',
+  review_depth: 'reviewDepth',
+  autoProceed: 'autoProceed',
+  auto_proceed: 'autoProceed',
+  humanCheckpoint: 'humanCheckpoint',
+  human_checkpoint: 'humanCheckpoint',
+  externalSideEffects: 'externalSideEffects',
+  external_side_effects: 'externalSideEffects',
+  allowQualityGateOverride: 'allowQualityGateOverride',
+  allow_quality_gate_override: 'allowQualityGateOverride',
+  requireAuditArtifacts: 'requireAuditArtifacts',
+  require_audit_artifacts: 'requireAuditArtifacts',
+};
+
 const KNOWN_TOP_LEVEL_KEYS = new Set([
   'preset',
   'default_preset',
@@ -75,6 +91,21 @@ function resolveResearchPreset(preset) {
     throw new Error(`Unsupported research preset: ${normalized}`);
   }
   return { ...PRESET_DEFAULTS[normalized] };
+}
+
+function isPlainObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function normalizePresetOverrides(overrides) {
+  if (!isPlainObject(overrides)) return {};
+  const normalized = {};
+  for (const [key, value] of Object.entries(overrides)) {
+    const target = PRESET_OVERRIDE_KEYS[key];
+    if (!target) continue;
+    normalized[target] = value;
+  }
+  return normalized;
 }
 
 function readResearchConfigFile(configPath) {
@@ -108,10 +139,18 @@ function loadResearchConfig(cwd, overrides = {}) {
   const effective = raw.effective === false ? false : true;
   const presetName = overrides.preset || (effective ? raw.preset || raw.default_preset : null) || 'safe';
   const preset = resolveResearchPreset(presetName);
+  const presetOverrides = effective && isPlainObject(raw.presets)
+    ? normalizePresetOverrides(raw.presets[preset.preset])
+    : {};
+  const resolvedPreset = {
+    ...preset,
+    ...presetOverrides,
+    preset: preset.preset,
+  };
 
   return {
-    ...preset,
-    depth: preset.effort,
+    ...resolvedPreset,
+    depth: resolvedPreset.effort,
     exists: loaded.exists,
     effective,
     configPath,
