@@ -11,6 +11,35 @@ const { getResearchCommand } = require('./research-command-map.cjs');
 const { getPromptPack } = require('./research-prompt-packs.cjs');
 const { renderResearchPhase } = require('./research-phase-render.cjs');
 
+function isPlainObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function cloneParameterValue(value) {
+  if (Array.isArray(value)) {
+    return [...value];
+  }
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nested]) => [key, cloneParameterValue(nested)])
+    );
+  }
+  return value;
+}
+
+function mergeParameterObjects(...sources) {
+  const merged = {};
+  for (const source of sources) {
+    if (!isPlainObject(source)) continue;
+    for (const [key, value] of Object.entries(source)) {
+      merged[key] = isPlainObject(merged[key]) && isPlainObject(value)
+        ? mergeParameterObjects(merged[key], value)
+        : cloneParameterValue(value);
+    }
+  }
+  return merged;
+}
+
 function compileResearchCommand(cwd, commandKey, options = {}) {
   const command = getResearchCommand(commandKey);
   const config = loadResearchConfig(cwd, { preset: options.preset });
@@ -21,11 +50,7 @@ function compileResearchCommand(cwd, commandKey, options = {}) {
   const commandConfig = config.commands[command.key] && typeof config.commands[command.key] === 'object'
     ? config.commands[command.key]
     : {};
-  const parameters = {
-    ...(command.parameters || {}),
-    ...commandConfig,
-    ...(options.parameters || {}),
-  };
+  const parameters = mergeParameterObjects(command.parameters, commandConfig, options.parameters);
   const phase = renderResearchPhase({ command, intent, mode, intentSafety });
   const researchFirst = mode === 'research-first';
 
@@ -52,6 +77,8 @@ function compileResearchCommand(cwd, commandKey, options = {}) {
       autoProceed: config.autoProceed,
       humanCheckpoint: config.humanCheckpoint,
       externalSideEffects: config.externalSideEffects,
+      allowQualityGateOverride: config.allowQualityGateOverride,
+      requireAuditArtifacts: config.requireAuditArtifacts,
       phase08BridgeOnly: true,
     },
     lifecycle: {
