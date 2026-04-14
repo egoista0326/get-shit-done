@@ -18,7 +18,7 @@ v2.0 is a framework-first rebuild. The old ljx-GSD line is archived as `pivoted_
 - [x] **Phase 04: Implementation Feasibility, Boundaries, And Repo Copy Strategy** - Research how the approved framework maps into concrete implementation surfaces, define boundaries, and prepare the clean implementation workspace.
 - [x] **Phase 05: Final Target Framework Review Loop** - Completed clean after final pre-implementation framework review and implementation-start decision.
 - [x] **Phase 06: Foundation From Upstream GSD** - Build the smallest runnable GSD base from upstream GSD reuse/copy.
-- [ ] **Phase 07: Core GSD Lifecycle Parity** - Preserve ordinary GSD lifecycle behavior before research integration. (plans complete; verification pending)
+- [x] **Phase 07: Core GSD Lifecycle Parity** - Preserve ordinary GSD lifecycle behavior before research integration. (completed 2026-04-14)
 - [ ] **Phase 08: Standalone Research Command Integration** - Expose Auto/ARIS capabilities as standalone `gsd` commands backed by ordinary GSD phases and artifact conventions.
 - [ ] **Phase 09: Scenario And Regression Harness** - Build scenario probes for engineering and research workflows.
 - [ ] **Phase 10: Cutover, Packaging, And Final Verification** - Prepare install, docs, migration/cutover, and final verification.
@@ -207,7 +207,7 @@ Plans:
 | 04. Implementation Feasibility, Boundaries, And Repo Copy Strategy | 3/3 | Completed | 2026-04-14 |
 | 05. Final Target Framework Review Loop | 3/3 | Completed | 2026-04-14 |
 | 06. Foundation From Upstream GSD | 3/3 | Completed | 2026-04-14 |
-| 07. Core GSD Lifecycle Parity | 3/3 | Verification Pending | - |
+| 07. Core GSD Lifecycle Parity | 3/3 | Completed | 2026-04-14 |
 | 08. Standalone Research Command Integration | 0/4 | Planned | - |
 | 09. Scenario And Regression Harness | 0/3 | Planned | - |
 | 10. Cutover, Packaging, And Final Verification | 0/3 | Planned | - |

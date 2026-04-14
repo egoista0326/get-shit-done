@@ -55,11 +55,11 @@ v2.0 rebuilds from a framework-first process. It does not continue the v1.4 ljx-
 
 ### Core GSD Parity
 
-- [ ] **CORE-01**: The new implementation preserves ordinary upstream GSD lifecycle behavior before research integration.
-- [ ] **CORE-02**: New project, new milestone, discuss, plan, execute, progress, next, pause/resume, code-review, code-review-fix, verify, workstreams/workspaces, roadmap mutation, and git behavior remain GSD-compatible.
-- [ ] **CORE-03**: Research integration does not change ordinary GSD phase schema or normal engineering workflows.
-- [ ] **CORE-04**: Authoritative state writes are serialized or protected against parallel overwrite races.
-- [ ] **CORE-05**: Canonical lifecycle state has a single writer per operation; subagents and helper commands route canonical updates through that owner and lock/atomic-write path.
+- [x] **CORE-01**: The new implementation preserves ordinary upstream GSD lifecycle behavior before research integration.
+- [x] **CORE-02**: New project, new milestone, discuss, plan, execute, progress, next, pause/resume, code-review, code-review-fix, verify, workstreams/workspaces, roadmap mutation, and git behavior remain GSD-compatible.
+- [x] **CORE-03**: Research integration does not change ordinary GSD phase schema or normal engineering workflows.
+- [x] **CORE-04**: Authoritative state writes are serialized or protected against parallel overwrite races.
+- [x] **CORE-05**: Canonical lifecycle state has a single writer per operation; subagents and helper commands route canonical updates through that owner and lock/atomic-write path.
 
 ### Research Command Integration
 
@@ -129,11 +129,11 @@ v2.0 rebuilds from a framework-first process. It does not continue the v1.4 ljx-
 | FREV-04 | Phase 05 | Completed |
 | IMPL-03 | Phase 06 | Completed |
 | IMPL-04 | Phase 05 | Completed |
-| CORE-01 | Phase 07 | Planned |
-| CORE-02 | Phase 07 | Planned |
-| CORE-03 | Phase 07 | Planned |
-| CORE-04 | Phase 07 | Planned |
-| CORE-05 | Phase 07 | Planned |
+| CORE-01 | Phase 07 | Completed |
+| CORE-02 | Phase 07 | Completed |
+| CORE-03 | Phase 07 | Completed |
+| CORE-04 | Phase 07 | Completed |
+| CORE-05 | Phase 07 | Completed |
 | RSCH-01 | Phase 08 | Planned |
 | RSCH-02 | Phase 08 | Planned |
 | RSCH-03 | Phase 08 | Planned |

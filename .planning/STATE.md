@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-current_phase: 07
-current_plan: 3
-status: verifying
-stopped_at: Phase 07 UAT closed with 2 passed and 3 skipped-unresolved checks; security gate pending
-last_updated: "2026-04-14T13:32:07Z"
-last_activity: 2026-04-14 -- Phase 07 UAT completed; security gate pending before transition
+current_phase: 08
+current_plan: Not started
+status: planning
+stopped_at: Phase 07 complete; ready to discuss/plan Phase 08
+last_updated: "2026-04-14T13:37:58.214Z"
+last_activity: 2026-04-14
 progress:
   total_phases: 10
   completed_phases: 7
@@ -23,19 +23,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-13)
 
 **Core value:** GSD should remain a reliable phase/milestone control plane while gaining research-native commands that produce evidence, artifacts, reviews, and papers without creating a second workflow system or changing the core phase schema.
-**Current focus:** Phase 07 — Core GSD Lifecycle Parity UAT closed with skipped verification debt; security gate pending before transition; Auto/ARIS implementation has not started
+**Current focus:** Phase 08 — Standalone Research Command Integration ready for discussion/planning. Phase 07 is complete with security verified and 3 skipped UAT checks recorded as verification debt.
 
 ## Current Position
 
-Phase: 07 (Core GSD Lifecycle Parity) — READY FOR VERIFICATION
-Plan: 3 of 3
-**Current Phase:** 07
-**Current Plan:** 3
-**Total Plans in Phase:** 3
-Status: Phase complete — ready for verification
-Last activity: 2026-04-14 -- Phase 07 UAT closed with skipped verification debt; security gate pending before transition
+Phase: 08 (Standalone Research Command Integration) — READY TO PLAN
+Plan: Not started
+**Current Phase:** 08
+**Current Plan:** Not started
+**Total Plans in Phase:** 0
+Status: Ready to plan Phase 08
+Last activity: 2026-04-14
 
-Progress: [████████████████████] 7/10 phases complete | Phase 07 3/3 plans complete | 22/22 roadmap plans summarized
+Progress: [████████████████████] 7/10 phases complete | Phase 08 not planned yet | 22/22 executed plans summarized
 
 ## Accumulated Context
 
@@ -99,9 +99,11 @@ Progress: [████████████████████] 7/10 ph
 - 07 readiness review fixed one roadmap coverage gap by adding explicit `code-review` and `code-review-fix` coverage to Phase 07; Round 2 and Round 3 had no confirmed findings.
 - Phase 07-01 added core lifecycle/planning parity probes and required no production GSD implementation changes.
 - Phase 07-02 added review/verify/workstream/workspace/git parity probes and required no production GSD implementation changes.
-- Phase 07-03 added an integrated core GSD parity scenario and final CORE/D decision review artifacts. Phase 07 passed at the plan level with no production GSD implementation changes and is ready for verification/UAT.
-- Phase 07 UAT recorded 2 passed checks and 3 user-skipped checks. `audit-uat` classifies the skipped checks as `skipped_unresolved` verification debt. No UAT issues were reported, but security enforcement remains enabled and no Phase 07 security artifact exists yet.
-- Auto/ARIS research skill implementation has not started. Upstream GSD `research-phase` remains baseline upstream lifecycle behavior, not new Auto/ARIS research command integration.
+- Phase 07-03 added an integrated core GSD parity scenario and final CORE/D decision review artifacts. Phase 07 passed at the plan level with no production GSD implementation changes.
+- Phase 07 UAT recorded 2 passed checks and 3 user-skipped checks. `audit-uat` classifies the skipped checks as `skipped_unresolved` verification debt; no UAT issues were reported.
+- Phase 07 security verification closed all 12 planned threats in `07-SECURITY.md` with `threats_open: 0`.
+- Phase 07 was transitioned complete on 2026-04-14. Current work is Phase 08 standalone research command integration.
+- Auto/ARIS research skill implementation has not started yet. Upstream GSD `research-phase` remains baseline upstream lifecycle behavior, not new Auto/ARIS research command integration.
 
 ### Archive Locations
 
@@ -114,8 +116,8 @@ Progress: [████████████████████] 7/10 ph
 
 ### Pending Todos
 
-- Run Phase 07 security review before transitioning to research overlay implementation.
-- Preserve ordinary GSD lifecycle behavior before implementing standalone research commands.
+- Discuss and plan Phase 08 standalone research command integration before implementing `/gsd-ljx-*` commands.
+- Preserve ordinary GSD lifecycle behavior while implementing standalone research commands.
 - Keep Auto/ARIS preservation framed as prompt obligations compiled into GSD, not as preservation of Auto/ARIS as a second framework.
 - Keep canonical `PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md`, and `STATE.md` writes serialized.
 - Use Phase 04 boundary outputs and the Phase 05 final decision as explicit inputs to Phase 06.
@@ -124,13 +126,14 @@ Progress: [████████████████████] 7/10 ph
 ### Blockers/Concerns
 
 - The current repository remains heavily dirty from historical work. It is no longer the implementation target and should remain planning/reference-only.
-- The clean workspace now has a committed and reviewed upstream GSD foundation, plan-level Phase 07 parity evidence, and a completed UAT file; next gate is Phase 07 security review before transition.
+- The clean workspace now has a committed and reviewed upstream GSD foundation and completed Phase 07 parity/security evidence; next risk is implementing Phase 08 research commands without violating GSD lifecycle ownership.
 - `npm ci` reported 3 upstream dependency audit vulnerabilities (2 moderate, 1 high); dependency remediation is deferred until it is explicitly in scope.
 - Upstream Codex E2E tests print `.claude` path warnings while still passing; treat as a compatibility review item for later foundation/parity work.
 - Existing GSD tooling may warn on non-upstream config keys in `.planning/config.json`; target research config is now separate at `.planning/research.config.json`.
 - Research integration must not use `phase_type` or typed phase routing, even if that appears convenient.
 - Standalone research commands must not turn Auto/ARIS root artifacts into a second authoritative control plane.
 - `idea-discovery` must not claim completion from context/state output alone; literature execution evidence is required.
+- Phase 07 has 3 skipped-unresolved UAT checks by user request; this is carried as verification debt visible via `/gsd-audit-uat`.
 
 ## Performance Metrics
 
@@ -142,6 +145,6 @@ Progress: [████████████████████] 7/10 ph
 
 ## Session Continuity
 
-Last session: 2026-04-14T13:32:07Z
-Stopped at: Phase 07 UAT closed with 2 passed and 3 skipped-unresolved checks; security gate pending
+Last session: 2026-04-14T13:38:00Z
+Stopped at: Phase 07 complete; ready to discuss/plan Phase 08
 Resume file: None
