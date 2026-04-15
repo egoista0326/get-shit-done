@@ -29,6 +29,8 @@ const forbiddenPackagePaths = [
 const expectedInstallSurfaces = {
   claudeGlobalSkill: 'skills/gsd-ljx-run-experiment/SKILL.md',
   claudeLocalCommand: '.claude/commands/gsd/ljx-run-experiment.md',
+  geminiGlobalCommand: 'commands/gsd/ljx-run-experiment.toml',
+  kiloGlobalCommand: 'command/gsd-ljx-run-experiment.md',
   clineLocalRules: '.clinerules',
 };
 
@@ -51,7 +53,7 @@ function makeTempRoot() {
 
 function sandboxEnv(tempRoot) {
   const xdgConfigHome = path.join(tempRoot, '.config');
-  return {
+  const env = {
     ...process.env,
     HOME: path.join(tempRoot, 'home'),
     XDG_CONFIG_HOME: xdgConfigHome,
@@ -62,8 +64,9 @@ function sandboxEnv(tempRoot) {
     OPENCODE_CONFIG_DIR: path.join(xdgConfigHome, 'opencode'),
     KILO_CONFIG_DIR: path.join(xdgConfigHome, 'kilo'),
     CLINE_CONFIG_DIR: path.join(tempRoot, 'home', '.cline'),
-    GSD_TEST_MODE: '1',
   };
+  delete env.GSD_TEST_MODE;
+  return env;
 }
 
 function runInstaller(tempRoot, args) {
@@ -208,10 +211,10 @@ describe('Phase 10 packaging self-containment', () => {
     assertExistsUnderTemp(tempRoot, path.join(home, '.codex', 'skills', 'gsd-ljx-run-experiment', 'SKILL.md'));
     assertExistsUnderTemp(tempRoot, path.join(home, '.codex', 'config.toml'));
     assertExistsUnderTemp(tempRoot, path.join(home, '.qwen', 'skills', 'gsd-ljx-run-experiment', 'SKILL.md'));
-    assertExistsUnderTemp(tempRoot, path.join(home, '.gemini', 'skills', 'gsd-ljx-run-experiment', 'SKILL.md'));
+    assertExistsUnderTemp(tempRoot, path.join(home, '.gemini', expectedInstallSurfaces.geminiGlobalCommand));
     assertExistsUnderTemp(tempRoot, path.join(home, '.gemini', 'hooks', 'gsd-check-update.js'));
     assertExistsUnderTemp(tempRoot, path.join(xdgConfigHome, 'opencode', 'command', 'gsd-ljx-run-experiment.md'));
-    assertExistsUnderTemp(tempRoot, path.join(xdgConfigHome, 'kilo', 'rules', 'gsd-ljx-run-experiment.md'));
+    assertExistsUnderTemp(tempRoot, path.join(xdgConfigHome, 'kilo', expectedInstallSurfaces.kiloGlobalCommand));
     assertExistsUnderTemp(tempRoot, path.join(localProject, expectedInstallSurfaces.clineLocalRules));
   });
 });
