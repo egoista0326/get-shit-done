@@ -116,7 +116,9 @@ Verify with:
 - Cline: GSD installs via `.clinerules` — verify by checking `.clinerules` exists
 
 > [!NOTE]
-> Claude Code 2.1.88+, Qwen Code, and Codex install as skills (`skills/gsd-*/SKILL.md`). Older Claude Code versions use `commands/gsd/`. Cline uses `.clinerules` for configuration. The installer handles all formats automatically.
+> Current cutover path details are tracked in [docs/CUTOVER.md](docs/CUTOVER.md).
+> Claude Code global installs use `~/.claude/skills/gsd-*/SKILL.md`. Claude Code local installs use `./.claude/commands/gsd/*.md`.
+> Qwen Code and Codex install as skills under their selected runtime config directory. Cline uses `.clinerules` for configuration. The installer handles all formats automatically.
 
 > [!TIP]
 > For source-based installs or environments where npm is unavailable, see **[docs/manual-update.md](docs/manual-update.md)**.

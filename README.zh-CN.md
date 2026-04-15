@@ -107,6 +107,9 @@ npx get-shit-done-cc@latest
 > [!TIP]
 > 基于源码安装或无法使用 npm 的环境，请参阅 **[docs/manual-update.md](docs/manual-update.md)**。
 
+> [!NOTE]
+> Current cutover/install path details are authoritative in README.md and docs/CUTOVER.md.
+
 ### 保持更新
 
 GSD 迭代很快，建议定期更新：

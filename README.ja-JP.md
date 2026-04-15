@@ -109,6 +109,9 @@ npx get-shit-done-cc@latest
 > [!TIP]
 > ソースベースのインストールやnpmが利用できない環境については、**[docs/manual-update.md](docs/manual-update.md)**を参照してください。
 
+> [!NOTE]
+> Current cutover/install path details are authoritative in README.md and docs/CUTOVER.md.
+
 ### 最新の状態を保つ
 
 GSDは急速に進化しています。定期的にアップデートしてください：

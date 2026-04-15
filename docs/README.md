@@ -20,6 +20,7 @@ Language versions: [English](README.md) · [Português (pt-BR)](pt-BR/README.md)
 
 ## Quick Links
 
+- **Cutover install paths:** [docs/CUTOVER.md](CUTOVER.md) records current cutover readiness notes. Claude Code global installs use `~/.claude/skills/gsd-*/SKILL.md`; Claude Code local installs use `./.claude/commands/gsd/*.md`.
 - **What's new in v1.32:** STATE.md consistency gates, `--to N` autonomous flag, research gate, verifier scope filtering, read-before-edit guard, 4 new runtimes (Trae, Kilo, Augment, Cline), context reduction, response language config — see [CHANGELOG](../CHANGELOG.md)
 - **Getting started:** [README](../README.md) → install → `/gsd-new-project`
 - **Full workflow walkthrough:** [User Guide](USER-GUIDE.md)

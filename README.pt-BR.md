@@ -107,6 +107,9 @@ Verifique com:
 > [!TIP]
 > Para instalação a partir do código-fonte ou ambientes sem npm, consulte **[docs/manual-update.md](docs/manual-update.md)**.
 
+> [!NOTE]
+> Current cutover/install path details are authoritative in README.md and docs/CUTOVER.md.
+
 ### Mantendo atualizado
 
 ```bash
