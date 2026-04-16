@@ -109,15 +109,15 @@ describe('core lifecycle command routing parity', () => {
     }
   });
 
-  test('workstreams command dispatches through gsd-tools instead of a second state owner', () => {
+  test('workstreams command dispatches through the imported GSD query surface', () => {
     expectFileContains('commands/gsd/workstreams.md', [
-      'gsd-tools.cjs',
-      'workstream list',
-      'workstream create',
-      'workstream status',
-      'workstream set',
-      'workstream progress',
-      'workstream complete',
+      'gsd-sdk query',
+      'workstream.list',
+      'workstream.create',
+      'workstream.status',
+      'workstream.set',
+      'workstream.progress',
+      'workstream.complete',
       'session-locally',
     ]);
   });
