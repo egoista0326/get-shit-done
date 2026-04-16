@@ -260,14 +260,23 @@ describe('Phase 09 engineering lifecycle scenario', () => {
     }
   });
 
-  test('blocking resume constraints remain visible to engineering scenario executors', () => {
-    const handoff = readRepoFile(
-      '.planning/phases/09-scenario-and-regression-harness/.continue-here.md'
-    );
+  test('release docs and command surfaces keep the engineering safeguards visible', () => {
+    const usageGuide = readRepoFile('docs/NEW-GSD-RESEARCH-SKILLS-USAGE.md');
+    const cutoverNotes = readRepoFile('docs/CUTOVER.md');
+    const toolsRouter = readRepoFile('get-shit-done/bin/gsd-tools.cjs');
 
-    assert.ok(handoff.includes('Do not reintroduce the old research helper/config/compiler route'));
-    assert.ok(handoff.includes('Do not trigger global installer side effects'));
-    assert.ok(handoff.includes('blocking'));
-    assert.ok(handoff.includes('Prevention Mechanism'));
+    assert.ok(
+      usageGuide.includes('helper/config/compiler') ||
+        (usageGuide.includes('helper') &&
+          usageGuide.includes('config') &&
+          usageGuide.includes('compiler')),
+      'research usage docs should preserve the no helper/config/compiler boundary'
+    );
+    assert.ok(
+      cutoverNotes.includes('temporary `HOME`') && cutoverNotes.includes('--config-dir'),
+      'cutover docs should keep installer probes isolated from live runtime directories'
+    );
+    assert.ok(!toolsRouter.includes('gsd-ljx'), 'gsd-tools must not route gsd-ljx commands');
+    assert.ok(!toolsRouter.includes('research-command'), 'gsd-tools must not restore the shared research compiler route');
   });
 });

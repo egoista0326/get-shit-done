@@ -322,9 +322,19 @@ describe('integrated GSD lifecycle scenario for Phase 08 readiness', () => {
     });
     assert.deepStrictEqual(unexpected, []);
 
-    const scenarioPlan = readRepoFile('.planning/phases/07-core-gsd-lifecycle-parity/07-03-PLAN.md');
-    assert.ok(scenarioPlan.includes('insert-phase'), 'Phase 08 integration path is documented as GSD phase insertion');
-    assert.ok(scenarioPlan.includes('not implemented here') || scenarioPlan.includes('not implementing Auto/ARIS'));
+    const usageGuide = readRepoFile('docs/NEW-GSD-RESEARCH-SKILLS-USAGE.md');
+    const referenceGuide = readRepoFile('docs/AUTO-RESEARCH-SKILLS-REFERENCE.md');
+    const releaseDocs = `${usageGuide}\n${referenceGuide}`;
+    assert.ok(
+      releaseDocs.includes('/gsd-add-phase') && releaseDocs.includes('/gsd-insert-phase'),
+      'release docs should document GSD phase creation as the research entry boundary'
+    );
+    assert.ok(
+      referenceGuide.includes('helper') &&
+        referenceGuide.includes('config') &&
+        referenceGuide.includes('compiler'),
+      'release docs should document that the overlay does not reintroduce an Auto/ARIS runtime'
+    );
   });
 
   test('production lifecycle surface still has no typed research routing or source-workspace dependency', () => {

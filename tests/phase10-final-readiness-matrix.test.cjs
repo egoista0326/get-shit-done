@@ -6,47 +6,18 @@ const path = require('node:path');
 const { describe, test } = require('node:test');
 
 const repoRoot = path.resolve(__dirname, '..');
-const phaseDir = path.join(
-  repoRoot,
-  '.planning',
-  'phases',
-  '10-cutover-packaging-and-final-verification'
-);
+const cutoverPath = path.join(repoRoot, 'docs', 'CUTOVER.md');
+const docsIndexPath = path.join(repoRoot, 'docs', 'README.md');
 
-const finalReadinessPath = path.join(phaseDir, '10-FINAL-READINESS.md');
-const reviewPath = path.join(phaseDir, '10-REVIEW.md');
-
-const finalReadinessRelative =
-  '.planning/phases/10-cutover-packaging-and-final-verification/10-FINAL-READINESS.md';
-const reviewRelative =
-  '.planning/phases/10-cutover-packaging-and-final-verification/10-REVIEW.md';
-
-const requiredCommands = [
-  'npm test',
-  'node --test tests/phase09-engineering-lifecycle-scenario.test.cjs tests/phase09-research-lifecycle-scenario.test.cjs tests/phase09-policy-migration-concurrency-scenario.test.cjs',
+const requiredCutoverText = [
+  'Status: readiness verification only',
+  'No version bump, npm publish, shipped claim, or @latest claim is authorized by this document.',
+  'Thin research sources remain commands/gsd/ljx-*.md and install as gsd-ljx-* skills.',
+  'npm run build:hooks',
   'npm pack --dry-run --json --ignore-scripts',
-  'node get-shit-done/bin/gsd-tools.cjs state validate',
-  'node get-shit-done/bin/gsd-tools.cjs validate health',
-  'node get-shit-done/bin/gsd-tools.cjs verify phase-completeness 10',
+  'temporary `HOME`',
+  '--config-dir',
 ];
-
-const requiredMatrixRows = [
-  'Package inventory',
-  'Generated install output',
-  'Hook build freshness',
-  'Docs alignment',
-  'Phase 09 scenarios',
-  'Full npm test',
-  'GSD state validation',
-  'GSD health validation',
-  'Phase completeness',
-  'Review gate evidence',
-  'Docs/generation evidence',
-  'Diff hygiene',
-];
-
-const noReleaseCaveat =
-  'No npm publish, package version bump, @latest claim, shipped claim, or public release claim was performed.';
 
 function readRequiredFile(filePath, label) {
   assert.ok(fs.existsSync(filePath), `${label} should exist`);
@@ -57,40 +28,30 @@ function assertIncludes(haystack, needle, label) {
   assert.ok(haystack.includes(needle), `${label} should contain exact text: ${needle}`);
 }
 
-function assertMatrixRow(documentText, rowLabel) {
-  const rowPattern = new RegExp(`\\|\\s*${rowLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\|`, 'i');
-  assert.match(documentText, rowPattern, `Final Readiness Matrix should include row: ${rowLabel}`);
-}
+describe('Phase 10 release readiness docs', () => {
+  test('CUTOVER.md records release-safe readiness gates without requiring planning artifacts', () => {
+    const cutover = readRequiredFile(cutoverPath, 'docs/CUTOVER.md');
 
-describe('Phase 10 final readiness matrix', () => {
-  test('10-FINAL-READINESS.md records the required final evidence matrix', () => {
-    const finalReadiness = readRequiredFile(finalReadinessPath, finalReadinessRelative);
-
-    for (const expected of [
-      '# Phase 10 Final Readiness',
-      'Final Readiness Matrix',
-      'Milestone Closure Decision',
-      noReleaseCaveat,
-    ]) {
-      assertIncludes(finalReadiness, expected, finalReadinessRelative);
+    for (const expected of requiredCutoverText) {
+      assertIncludes(cutover, expected, 'docs/CUTOVER.md');
     }
 
-    for (const rowLabel of requiredMatrixRows) {
-      assertMatrixRow(finalReadiness, rowLabel);
-    }
-
-    for (const command of requiredCommands) {
-      assertIncludes(finalReadiness, command, finalReadinessRelative);
-    }
+    assert.match(cutover, /## Install Surfaces\b/);
+    assert.match(cutover, /## Verification Gates\b/);
   });
 
-  test('10-REVIEW.md records a clean or not-clean review gate status', () => {
-    const review = readRequiredFile(reviewPath, reviewRelative);
+  test('docs index links the research reference and usage guides', () => {
+    const docsIndex = readRequiredFile(docsIndexPath, 'docs/README.md');
 
-    assert.match(
-      review,
-      /Status:\s*(?:clean|not-clean)\b/,
-      `${reviewRelative} should include Status: clean or Status: not-clean`
+    assertIncludes(
+      docsIndex,
+      'AUTO-RESEARCH-SKILLS-REFERENCE.md',
+      'docs/README.md'
+    );
+    assertIncludes(
+      docsIndex,
+      'NEW-GSD-RESEARCH-SKILLS-USAGE.md',
+      'docs/README.md'
     );
   });
 });
