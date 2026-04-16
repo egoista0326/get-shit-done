@@ -109,6 +109,9 @@ npx get-shit-done-cc@latest
 > [!TIP]
 > 소스 기반 설치 또는 npm을 사용할 수 없는 환경은 **[docs/manual-update.md](docs/manual-update.md)**를 참조하세요.
 
+> [!NOTE]
+> Current cutover/install path details are authoritative in README.md and docs/CUTOVER.md.
+
 ### 업데이트 유지
 
 GSD는 빠르게 발전합니다. 주기적으로 업데이트하세요:

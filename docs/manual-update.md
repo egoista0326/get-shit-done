@@ -13,8 +13,9 @@ Use this procedure when `npx get-shit-done-cc@latest` is unavailable — e.g. du
 # 1. Pull latest code
 git pull --rebase origin main
 
-# 2. Build the hooks dist (required — hooks/dist/ is generated, not checked in as source)
-node scripts/build-hooks.js
+# 2. Build the hooks dist (required because hooks/dist/ is source checkout build output)
+npm run build:hooks
+# Equivalent direct command: node scripts/build-hooks.js
 
 # 3. Run the installer directly
 node bin/install.js --claude --global
@@ -44,14 +45,24 @@ Replace `--claude` with the flag for your runtime:
 
 Use `--local` instead of `--global` for a project-scoped install.
 
-## What the installer replaces
+For verification probes, use `--config-dir` with a temporary path so installer output can be inspected without touching your live runtime config:
+
+```bash
+tmp_dir="$(mktemp -d)"
+node bin/install.js --claude --global --config-dir "$tmp_dir/.claude"
+```
+
+## Generated output paths
+
+The installer writes managed files under the target runtime config directory selected by `--global`, `--local`, runtime environment variables, or `--config-dir`.
 
 The installer performs a clean wipe-and-replace of GSD-managed directories only:
 
-- `~/.claude/get-shit-done/` — workflows, references, templates
-- `~/.claude/commands/gsd/` — slash commands
-- `~/.claude/agents/gsd-*.md` — GSD agents
-- `~/.claude/hooks/dist/` — compiled hooks
+- `get-shit-done/` under the target runtime config directory — workflows, references, templates
+- `skills/gsd-*/SKILL.md` under the target runtime config directory — GSD skills for global Claude Code 2.1.88+, Codex, Qwen Code, and other skill-based runtimes
+- `commands/gsd/` under the target runtime config directory — local Claude Code commands and command-based runtime output
+- `agents/gsd-*.md` under the target runtime config directory — GSD agents where supported
+- `hooks/` under the target runtime config directory — installed hooks. Hooks install to hooks/ under the target runtime config directory.
 
 **What is preserved:**
 - Custom agents not prefixed with `gsd-`

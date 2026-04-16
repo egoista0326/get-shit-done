@@ -116,10 +116,71 @@ Verify with:
 - Cline: GSD installs via `.clinerules` — verify by checking `.clinerules` exists
 
 > [!NOTE]
-> Claude Code 2.1.88+, Qwen Code, and Codex install as skills (`skills/gsd-*/SKILL.md`). Older Claude Code versions use `commands/gsd/`. Cline uses `.clinerules` for configuration. The installer handles all formats automatically.
+> Current cutover path details are tracked in [docs/CUTOVER.md](docs/CUTOVER.md).
+> Claude Code global installs use `~/.claude/skills/gsd-*/SKILL.md`. Claude Code local installs use `./.claude/commands/gsd/*.md`.
+> Qwen Code and Codex install as skills under their selected runtime config directory. Cline uses `.clinerules` for configuration. The installer handles all formats automatically.
 
 > [!TIP]
 > For source-based installs or environments where npm is unavailable, see **[docs/manual-update.md](docs/manual-update.md)**.
+
+### Research Skills Overlay
+
+This build includes a thin Auto Research overlay implemented as installable GSD skills. It does not add a second runtime, a research config file, helper compiler, or hidden automation layer. The source files live in `commands/gsd/ljx-*.md`; installers expose them as `gsd-ljx-*` skills or commands for the selected runtime.
+
+Use the normal installer:
+
+```bash
+npx get-shit-done-cc@latest
+```
+
+Then call the research commands from your runtime:
+
+```text
+/gsd-ljx-research-pipeline "your research direction"
+/gsd-ljx-idea-discovery "broad topic"
+/gsd-ljx-experiment-plan "refined proposal"
+/gsd-ljx-claim-gate "result-to-claim output"
+```
+
+Codex skill installs use the same names with `$` skill invocation, for example `$gsd-ljx-research-pipeline`.
+
+The overlay keeps GSD in charge of lifecycle state:
+
+- GSD still owns phases, planning, execution, review, verification, and `.planning/phases/<phase>/`.
+- Research skills add research-specific judgment: literature discipline, idea novelty, experiment planning, evidence audit, claim gating, paper planning, and rebuttal handling.
+- Research artifacts are phase-local under `.planning/phases/<phase>/research/`.
+- Code changes still go through `/gsd-plan-phase`, `/gsd-execute-phase`, `/gsd-code-review`, and `/gsd-verify-work`.
+- Public claims must pass `analyze -> audit -> result-to-claim -> claim-gate`; `RESULT_TO_CLAIM.md` alone is not enough.
+
+The main research entry points are:
+
+| Skill | Use it for |
+| --- | --- |
+| `/gsd-ljx-research-pipeline` | Full idea-to-experiment-to-claim lifecycle coordination. |
+| `/gsd-ljx-idea-discovery` | Literature, idea generation, novelty check, review, and refinement. |
+| `/gsd-ljx-experiment-plan` | Claim-driven formal experiment plan, tracker, claim map, and risk budget. |
+| `/gsd-ljx-experiment-bridge` | Turning experiment plans into GSD implementation tasks and authorized run instructions. |
+| `/gsd-ljx-analyze-results` | Transparent result tables, deltas, statistics, and next experiments. |
+| `/gsd-ljx-experiment-audit` | Evidence integrity checks before any public claim. |
+| `/gsd-ljx-result-to-claim` | Mapping results to supported, partial, unsupported, or failed claims. |
+| `/gsd-ljx-claim-gate` | Final `GO`, `NARROW`, `MORE_EVIDENCE`, or `NO_CLAIM` gate for paper/rebuttal/public text. |
+| `/gsd-ljx-auto-review-loop` | Bounded research review loop, max 30 rounds, exits after two consecutive clean rounds. |
+| `/gsd-ljx-paper-*` and `/gsd-ljx-rebuttal-*` | Paper and rebuttal work that stays tied to gated evidence. |
+
+Research parameters that used to belong to Auto Research config are now passed naturally in the command request and recorded in artifacts. For example:
+
+```text
+/gsd-ljx-auto-review-loop "review this phase, max 12 rounds, ignore minor wording"
+/gsd-ljx-experiment-plan "budget 8 GPU-hours, 3 seeds, primary metric F1"
+/gsd-ljx-novelty-check "treat novelty <7/10 as caution and <5/10 as abandon"
+```
+
+Hard safety rules remain fixed unless you edit the skill text: external resources require explicit authorization, claim-bearing text requires claim gate approval, and review loops cannot exceed the skill's hard cap.
+
+Detailed docs:
+
+- [Auto Research Skills Reference](docs/AUTO-RESEARCH-SKILLS-REFERENCE.md)
+- [New GSD Research Skills Usage](docs/NEW-GSD-RESEARCH-SKILLS-USAGE.md)
 
 ### Staying Updated
 

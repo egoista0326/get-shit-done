@@ -4063,6 +4063,28 @@ function restoreUserArtifacts(destDir, saved) {
 }
 
 /**
+ * Check whether two directory paths resolve to the same location.
+ * Used by local installs from the source checkout to avoid deleting source dirs.
+ */
+function isSameDirectory(firstDir, secondDir) {
+  function resolveDir(dir) {
+    const resolved = path.resolve(dir);
+    try {
+      return fs.realpathSync.native(resolved);
+    } catch {
+      return resolved;
+    }
+  }
+
+  const first = resolveDir(firstDir);
+  const second = resolveDir(secondDir);
+  if (process.platform === 'win32') {
+    return first.toLowerCase() === second.toLowerCase();
+  }
+  return first === second;
+}
+
+/**
  * Recursively copy directory, replacing paths in .md files
  * Deletes existing destDir first to remove orphaned files from previous versions
  * @param {string} srcDir - Source directory
@@ -4083,6 +4105,10 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand
   const isQwen = runtime === 'qwen';
   const isCline = runtime === 'cline';
   const dirName = getDirName(runtime);
+
+  if (isSameDirectory(srcDir, destDir)) {
+    return;
+  }
 
   // Clean install: remove existing destination to prevent orphaned files
   if (fs.existsSync(destDir)) {
@@ -4215,6 +4241,17 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand
       fs.copyFileSync(srcPath, destPath);
     }
   }
+}
+
+function listSlashCommands(srcDir, prefix = 'gsd') {
+  if (!fs.existsSync(srcDir)) {
+    return [];
+  }
+
+  return fs.readdirSync(srcDir, { withFileTypes: true })
+    .filter(entry => entry.isFile() && entry.name.endsWith('.md'))
+    .map(entry => `/${prefix}-${entry.name.replace(/\.md$/, '')}`)
+    .sort();
 }
 
 /**
@@ -5625,6 +5662,11 @@ function install(isGlobal, runtime = 'claude') {
   const savedGsdArtifacts = preserveUserArtifacts(skillDest, ['USER-PROFILE.md']);
   copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime, false, isGlobal);
   restoreUserArtifacts(skillDest, savedGsdArtifacts);
+  if (isCline && !isSameDirectory(targetDir, src)) {
+    const gsdSrc = path.join(src, 'commands', 'gsd');
+    const clineCommandsDest = path.join(skillDest, 'commands', 'gsd');
+    copyWithPathReplacement(gsdSrc, clineCommandsDest, pathPrefix, runtime, true, isGlobal);
+  }
   if (verifyInstalled(skillDest, 'get-shit-done')) {
     console.log(`  ${green}✓${reset} Installed get-shit-done`);
   } else {
@@ -5635,67 +5677,69 @@ function install(isGlobal, runtime = 'claude') {
   const agentsSrc = path.join(src, 'agents');
   if (fs.existsSync(agentsSrc)) {
     const agentsDest = path.join(targetDir, 'agents');
-    fs.mkdirSync(agentsDest, { recursive: true });
+    if (!isSameDirectory(agentsSrc, agentsDest)) {
+      fs.mkdirSync(agentsDest, { recursive: true });
 
-    // Remove old GSD agents (gsd-*.md) before copying new ones
-    if (fs.existsSync(agentsDest)) {
-      for (const file of fs.readdirSync(agentsDest)) {
-        if (file.startsWith('gsd-') && file.endsWith('.md')) {
-          fs.unlinkSync(path.join(agentsDest, file));
+      // Remove old GSD agents (gsd-*.md) before copying new ones
+      if (fs.existsSync(agentsDest)) {
+        for (const file of fs.readdirSync(agentsDest)) {
+          if (file.startsWith('gsd-') && file.endsWith('.md')) {
+            fs.unlinkSync(path.join(agentsDest, file));
+          }
         }
       }
-    }
 
-    // Copy new agents
-    const agentEntries = fs.readdirSync(agentsSrc, { withFileTypes: true });
-    for (const entry of agentEntries) {
-      if (entry.isFile() && entry.name.endsWith('.md')) {
-        let content = fs.readFileSync(path.join(agentsSrc, entry.name), 'utf8');
-        // Replace ~/.claude/ and $HOME/.claude/ as they are the source of truth in the repo
-        const dirRegex = /~\/\.claude\//g;
-        const homeDirRegex = /\$HOME\/\.claude\//g;
-        const bareDirRegex = /~\/\.claude\b/g;
-        const bareHomeDirRegex = /\$HOME\/\.claude\b/g;
-        const normalizedPathPrefix = pathPrefix.replace(/\/$/, '');
-        if (!isCopilot && !isAntigravity) {
-          content = content.replace(dirRegex, pathPrefix);
-          content = content.replace(homeDirRegex, pathPrefix);
-          content = content.replace(bareDirRegex, normalizedPathPrefix);
-          content = content.replace(bareHomeDirRegex, normalizedPathPrefix);
+      // Copy new agents
+      const agentEntries = fs.readdirSync(agentsSrc, { withFileTypes: true });
+      for (const entry of agentEntries) {
+        if (entry.isFile() && entry.name.endsWith('.md')) {
+          let content = fs.readFileSync(path.join(agentsSrc, entry.name), 'utf8');
+          // Replace ~/.claude/ and $HOME/.claude/ as they are the source of truth in the repo
+          const dirRegex = /~\/\.claude\//g;
+          const homeDirRegex = /\$HOME\/\.claude\//g;
+          const bareDirRegex = /~\/\.claude\b/g;
+          const bareHomeDirRegex = /\$HOME\/\.claude\b/g;
+          const normalizedPathPrefix = pathPrefix.replace(/\/$/, '');
+          if (!isCopilot && !isAntigravity) {
+            content = content.replace(dirRegex, pathPrefix);
+            content = content.replace(homeDirRegex, pathPrefix);
+            content = content.replace(bareDirRegex, normalizedPathPrefix);
+            content = content.replace(bareHomeDirRegex, normalizedPathPrefix);
+          }
+          content = processAttribution(content, getCommitAttribution(runtime));
+          // Convert frontmatter for runtime compatibility (agents need different handling)
+          if (isOpencode) {
+            content = convertClaudeToOpencodeFrontmatter(content, { isAgent: true });
+          } else if (isKilo) {
+            content = convertClaudeToKiloFrontmatter(content, { isAgent: true });
+          } else if (isGemini) {
+            content = convertClaudeToGeminiAgent(content);
+          } else if (isCodex) {
+            content = convertClaudeAgentToCodexAgent(content);
+          } else if (isCopilot) {
+            content = convertClaudeAgentToCopilotAgent(content, isGlobal);
+          } else if (isAntigravity) {
+            content = convertClaudeAgentToAntigravityAgent(content, isGlobal);
+          } else if (isCursor) {
+            content = convertClaudeAgentToCursorAgent(content);
+          } else if (isWindsurf) {
+            content = convertClaudeAgentToWindsurfAgent(content);
+          } else if (isAugment) {
+            content = convertClaudeAgentToAugmentAgent(content);
+          } else if (isTrae) {
+            content = convertClaudeAgentToTraeAgent(content);
+          } else if (isCodebuddy) {
+            content = convertClaudeAgentToCodebuddyAgent(content);
+          } else if (isCline) {
+            content = convertClaudeAgentToClineAgent(content);
+          } else if (isQwen) {
+            content = content.replace(/CLAUDE\.md/g, 'QWEN.md');
+            content = content.replace(/\bClaude Code\b/g, 'Qwen Code');
+            content = content.replace(/\.claude\//g, '.qwen/');
+          }
+          const destName = isCopilot ? entry.name.replace('.md', '.agent.md') : entry.name;
+          fs.writeFileSync(path.join(agentsDest, destName), content);
         }
-        content = processAttribution(content, getCommitAttribution(runtime));
-        // Convert frontmatter for runtime compatibility (agents need different handling)
-        if (isOpencode) {
-          content = convertClaudeToOpencodeFrontmatter(content, { isAgent: true });
-        } else if (isKilo) {
-          content = convertClaudeToKiloFrontmatter(content, { isAgent: true });
-        } else if (isGemini) {
-          content = convertClaudeToGeminiAgent(content);
-        } else if (isCodex) {
-          content = convertClaudeAgentToCodexAgent(content);
-        } else if (isCopilot) {
-          content = convertClaudeAgentToCopilotAgent(content, isGlobal);
-        } else if (isAntigravity) {
-          content = convertClaudeAgentToAntigravityAgent(content, isGlobal);
-        } else if (isCursor) {
-          content = convertClaudeAgentToCursorAgent(content);
-        } else if (isWindsurf) {
-          content = convertClaudeAgentToWindsurfAgent(content);
-        } else if (isAugment) {
-          content = convertClaudeAgentToAugmentAgent(content);
-        } else if (isTrae) {
-          content = convertClaudeAgentToTraeAgent(content);
-        } else if (isCodebuddy) {
-          content = convertClaudeAgentToCodebuddyAgent(content);
-        } else if (isCline) {
-          content = convertClaudeAgentToClineAgent(content);
-        } else if (isQwen) {
-          content = content.replace(/CLAUDE\.md/g, 'QWEN.md');
-          content = content.replace(/\bClaude Code\b/g, 'Qwen Code');
-          content = content.replace(/\.claude\//g, '.qwen/');
-        }
-        const destName = isCopilot ? entry.name.replace('.md', '.agent.md') : entry.name;
-        fs.writeFileSync(path.join(agentsDest, destName), content);
       }
     }
     if (verifyInstalled(agentsDest, 'agents')) {
@@ -5952,6 +5996,7 @@ function install(isGlobal, runtime = 'claude') {
   if (isCline) {
     // Cline uses .clinerules — generate a rules file with GSD system instructions
     const clinerulesDest = path.join(targetDir, '.clinerules');
+    const commandLines = listSlashCommands(path.join(src, 'commands', 'gsd')).map(command => `  - \`${command}\``);
     const clinerules = [
       '# GSD — Get Shit Done',
       '',
@@ -5959,10 +6004,15 @@ function install(isGlobal, runtime = 'claude') {
       '  the user runs a `/gsd-*` command.',
       '- GSD agents live in `agents/`. Use the matching agent when spawning subagents.',
       '- GSD tools are at `get-shit-done/bin/gsd-tools.cjs`. Run with `node`.',
+      '- GSD command source files are available under `get-shit-done/commands/gsd/`.',
       '- Planning artifacts live in `.planning/`. Never edit them outside a GSD workflow.',
       '- Do not apply GSD workflows unless the user explicitly asks for them.',
       '- When a GSD command triggers a deliverable (feature, fix, docs), offer the next',
       '  step to the user using Cline\'s ask_user tool after completing it.',
+      '',
+      '## Available Commands',
+      '',
+      ...commandLines,
     ].join('\n') + '\n';
     fs.writeFileSync(clinerulesDest, clinerules);
     console.log(`  ${green}✓${reset} Wrote .clinerules`);

@@ -14,12 +14,16 @@ Language versions: [English](README.md) · [Português (pt-BR)](pt-BR/README.md)
 | [Configuration Reference](CONFIGURATION.md) | All users | Full config schema, workflow toggles, model profiles, git branching |
 | [CLI Tools Reference](CLI-TOOLS.md) | Contributors, agent authors | `gsd-tools.cjs` programmatic API for workflows and agents |
 | [Agent Reference](AGENTS.md) | Contributors, advanced users | All 18 specialized agents — roles, tools, spawn patterns |
+| [Auto Research Skills Reference](AUTO-RESEARCH-SKILLS-REFERENCE.md) | Research users, contributors | Inventory, call graph, and human-readable explanation for the 25 `gsd-ljx-*` research skills |
+| [New GSD Research Skills Usage](NEW-GSD-RESEARCH-SKILLS-USAGE.md) | Research users | Practical workflows, artifact layout, claim gates, natural-language parameters, and safety boundaries |
 | [User Guide](USER-GUIDE.md) | All users | Workflow walkthroughs, troubleshooting, and recovery |
 | [Context Monitor](context-monitor.md) | All users | Context window monitoring hook architecture |
 | [Discuss Mode](workflow-discuss-mode.md) | All users | Assumptions vs interview mode for discuss-phase |
 
 ## Quick Links
 
+- **Cutover install paths:** [docs/CUTOVER.md](CUTOVER.md) records current cutover readiness notes. Claude Code global installs use `~/.claude/skills/gsd-*/SKILL.md`; Claude Code local installs use `./.claude/commands/gsd/*.md`.
+- **Research overlay:** [Auto Research Skills Reference](AUTO-RESEARCH-SKILLS-REFERENCE.md) and [New GSD Research Skills Usage](NEW-GSD-RESEARCH-SKILLS-USAGE.md) cover the new thin `gsd-ljx-*` skills.
 - **What's new in v1.32:** STATE.md consistency gates, `--to N` autonomous flag, research gate, verifier scope filtering, read-before-edit guard, 4 new runtimes (Trae, Kilo, Augment, Cline), context reduction, response language config — see [CHANGELOG](../CHANGELOG.md)
 - **Getting started:** [README](../README.md) → install → `/gsd-new-project`
 - **Full workflow walkthrough:** [User Guide](USER-GUIDE.md)
