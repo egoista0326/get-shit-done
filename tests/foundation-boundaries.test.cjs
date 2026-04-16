@@ -75,7 +75,7 @@ describe('foundation config boundary', () => {
   test('static config template does not introduce Auto/ARIS root research state', () => {
     const config = readJson('get-shit-done/templates/config.json');
 
-    assert.equal(Object.hasOwn(config, 'research'), false, 'root research config belongs in research.config.json, not config.json');
+    assert.equal(Object.hasOwn(config, 'research'), false, 'Auto/ARIS research config must not become root GSD config');
     assert.equal(Object.hasOwn(config, 'auto_research'), false, 'Auto/ARIS config must not become root GSD config');
     assert.equal(Object.hasOwn(config, 'aris'), false, 'ARIS config must not become root GSD config');
   });
@@ -86,7 +86,7 @@ describe('foundation config boundary', () => {
     assert.ok(VALID_CONFIG_KEYS.has('workflow.research'), 'upstream workflow.research must remain supported');
     assert.ok(VALID_CONFIG_KEYS.has('workflow.ai_integration_phase'), 'workflow.ai_integration_phase must remain supported');
     assert.equal(VALID_CONFIG_KEYS.has('research'), false, 'root research config key is forbidden');
-    assert.equal(VALID_CONFIG_KEYS.has('research.preset'), false, 'research config belongs in .planning/research.config.json');
+    assert.equal(VALID_CONFIG_KEYS.has('research.preset'), false, 'Auto/ARIS research preset config is not part of GSD config');
     assert.equal(VALID_CONFIG_KEYS.has('phase_type'), false, 'typed phase routing is forbidden');
     assert.equal(
       VALID_CONFIG_KEYS.has('code_review_requirements_by_phase_type'),

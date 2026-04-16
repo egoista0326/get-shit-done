@@ -1,21 +1,24 @@
 # Phase 08 Research: Standalone Research Command Integration
 
 Date: 2026-04-14
+Updated: 2026-04-15 after Phase 08.1 thin overlay rewrite
 Phase: 08-standalone-research-command-integration
 Scope: local codebase, local GSD planning artifacts, and upstream GSD compatibility surfaces. No web research was used because this phase is an internal architecture and implementation integration phase.
 
 ## Executive Summary
 
-Phase 08 should implement Auto/ARIS research capabilities as a thin GSD-facing command layer, not as a second lifecycle framework. The correct implementation shape is:
+Supersession note: the original research below evaluated a small helper/config/compiler route. That route is now abandoned. Phase 08.1 replaced it with ultra-thin installable Markdown command sources under `commands/gsd/ljx-*.md`, and 08-02/08-03 were reconciled onto that baseline.
 
-1. Public commands use the new `/gsd-ljx-*` prefix for searchability and to avoid name collision with upstream GSD commands.
-2. Each command compiles Auto/ARIS prompt intent, preset policy, artifact expectations, and evidence requirements into an ordinary GSD phase or ordinary GSD plan instructions.
-3. Canonical lifecycle mutation remains owned by existing GSD helpers such as phase insert, roadmap update, state update, and plan execution.
-4. Research-specific artifacts live under phase-local `research/` directories and are indexed by `research/RESEARCH_INDEX.md`.
-5. `.planning/research.config.json` is separate from `.planning/config.json`; the compiler reads it, normalizes it, and emits GSD-compatible instructions.
-6. Side-effect-capable capabilities such as GPU, W&B, SSH, PR, push, paid compute, and publication are represented as policy, bridge, and evidence requirements in Phase 08. Phase 08 should not actually run those external side effects from `/gsd-ljx-*` commands.
+Current implementation shape:
 
-The highest-risk implementation error is turning Auto/ARIS into a parallel state machine. The lowest-risk path is to add small CommonJS helper modules and Markdown command wrappers that reuse existing GSD command/workflow surfaces.
+1. Source files use `commands/gsd/ljx-*.md` with frontmatter `name: gsd:ljx-*`; installation converts them to standard `gsd-ljx-*` skills or commands.
+2. Each file is self-contained Markdown guidance: how to construct ordinary GSD phases/plans, what research artifacts to write, which quality dimensions matter, and what not to do.
+3. Canonical lifecycle mutation remains owned by existing GSD commands such as phase insertion, planning, execution, review, docs update, verification, and state update.
+4. Research-specific artifacts remain phase-local under `.planning/phases/<phase>/research/`.
+5. `.planning/research.config.json`, `research-*.cjs`, a research CLI dispatcher, and a shared `gsd-ljx-research-command.md` workflow are deliberately absent.
+6. Side-effect-capable capabilities such as GPU, W&B, SSH, PR, push, paid compute, publication, submission, and external uploads are represented as authorization-gated instructions only.
+
+The highest-risk implementation error remains turning Auto/ARIS into a parallel state machine. The current lowest-risk path is to keep the overlay as Markdown skills plus focused tests and final review evidence.
 
 ## Primary Local Sources
 
@@ -54,84 +57,77 @@ The highest-risk implementation error is turning Auto/ARIS into a parallel state
 
 Use the existing repository stack only:
 
-- Node.js CommonJS modules under `get-shit-done/bin/lib/*.cjs`.
-- Markdown command wrappers under `commands/gsd/*.md`.
-- Markdown workflow instructions under `get-shit-done/workflows/*.md`.
-- Existing CLI dispatcher in `get-shit-done/bin/gsd-tools.cjs`.
-- Existing helper patterns from `tests/helpers.cjs`, `node:test`, and `node:assert/strict`.
-- Existing path and prompt safety helpers from `get-shit-done/bin/lib/security.cjs`.
-- Existing planning lock and atomic write helpers from `get-shit-done/bin/lib/core.cjs`.
-- Existing GSD phase helpers from `get-shit-done/bin/lib/phase.cjs`.
+- Markdown command sources under `commands/gsd/ljx-*.md`.
+- Existing installer conversion from `commands/gsd/ljx-*.md` source files to installed `gsd-ljx-*` command/skill names.
+- Existing GSD lifecycle commands and workflows such as `/gsd-add-phase`, `/gsd-insert-phase`, `/gsd-discuss-phase`, `/gsd-plan-phase`, `/gsd-execute-phase`, `/gsd-code-review`, `/gsd-docs-update`, `/gsd-verify-work`, and `/gsd-validate-phase`.
+- Existing test stack from `node:test` and `node:assert/strict`.
+- Existing parity/foundation tests that verify no core lifecycle drift.
 
-Do not add runtime dependencies for Phase 08. The feature can be implemented with `fs`, `path`, existing helpers, Markdown generation, and tests.
+Do not add runtime dependencies for Phase 08. Do not add research helper modules, CLI subcommands, a shared research workflow, custom install relocation, or a research config file.
 
 ## Architecture Patterns
 
-### Pattern 1: Public Command Wrapper
+### Pattern 1: Public Markdown Command Source
 
-Every public research command should be a small wrapper in `commands/gsd/gsd-ljx-*.md`.
+Every public research command should be a self-contained Markdown source in `commands/gsd/ljx-*.md`.
 
-The wrapper should:
+The command source should:
 
-- Declare its research intent and accepted arguments.
-- Route to a shared workflow such as `get-shit-done/workflows/gsd-ljx-research-command.md`.
-- Name the canonical research command key, for example `idea-discovery` or `experiment-plan`.
+- Use frontmatter `name: gsd:ljx-*`.
+- Declare its objective and accepted arguments.
+- Include `<gsd_phase_construction>` instructions that route work through ordinary GSD phases, plans, reviews, docs, validation, and verification.
+- Include research instructions, required phase-local outputs, quality dimensions, and non-goals.
+- Use installed `/gsd-ljx-*` invocation names when handing off to another overlay command.
 - Avoid embedding a separate lifecycle state machine.
 
-The wrapper should not:
+The command source should not:
 
-- Directly rewrite `.planning/ROADMAP.md`.
-- Directly rewrite `.planning/STATE.md`.
+- Directly rewrite `.planning/ROADMAP.md` or `.planning/STATE.md`.
 - Create `phase_type` or typed phase routing metadata.
-- Execute GPU, W&B, SSH, paid compute, push, PR, publication, or destructive operations.
+- Route through a shared `gsd-ljx-research-command.md` workflow.
+- Depend on `research-*.cjs` helper modules or `gsd-tools research` subcommands.
+- Execute GPU, W&B, SSH, paid compute, push, PR, publication, submission, upload, or destructive external operations.
 
-### Pattern 2: Shared Research Compiler
+### Pattern 2: No Research Runtime
 
-Add a small compiler layer under `get-shit-done/bin/lib/`.
+Do not add a shared research compiler, command map, prompt-pack runtime, evidence parser, side-effect classifier, or research config loader.
 
-Recommended first modules:
+Preserve Auto/ARIS value as written obligations:
 
-- `research-config.cjs`: read `.planning/research.config.json`, apply defaults, normalize presets, and validate known keys.
-- `research-command-map.cjs`: declare supported command families, aliases, required evidence, artifact roots, side-effect policy, and default GSD insertion strategy.
-- `research-prompt-packs.cjs`: hold Auto/ARIS prompt fragments as data, not lifecycle behavior.
-- `research-compiler.cjs`: merge command intent, user arguments, preset policy, prompt pack, and artifact contract into a GSD-compatible compiled request.
-- `research-phase-render.cjs`: render compiled requests into ordinary phase titles, phase goals, plan guidance, and execution instructions.
-- `research-index.cjs`: create or update phase-local `research/RESEARCH_INDEX.md` as an artifact index, not lifecycle state.
+- novelty definitions and 0-10 scoring,
+- closest-prior-work comparison,
+- review caps and clean-round accounting,
+- experiment/audit/result/claim artifact expectations,
+- claim support and gate categories,
+- paper/rebuttal provenance and coverage rules,
+- explicit authorization boundaries.
 
-Recommended second-slice modules:
+### Pattern 3: Existing GSD Helper Surface
 
-- `research-evidence.cjs`: check phase-local research artifacts and evidence completeness.
-- `research-side-effects.cjs`: classify external side effects into allowed, requires authorization, bridge-only, or blocked states.
-
-Keep the modules plain and deterministic. The command map should be data-first so new command families can be added without scattering conditionals across workflows.
-
-### Pattern 3: CLI Helper Surface
-
-Add a bounded `research` subcommand group to `get-shit-done/bin/gsd-tools.cjs` instead of creating a standalone executable.
-
-Recommended subcommands:
+When a research command needs project lifecycle work, it should instruct use of existing GSD commands:
 
 ```text
-gsd-tools research compile <command> [freeform intent...] [--preset safe|auto|danger-auto] [--phase <id>] [--mode insert|research-first] [--dry-run]
-gsd-tools research index <phase-id> [--command <command>]
-gsd-tools research evidence-check <phase-id> [--command <command>]
+/gsd-add-phase
+/gsd-insert-phase
+/gsd-discuss-phase
+/gsd-plan-phase
+/gsd-execute-phase
+/gsd-code-review
+/gsd-docs-update
+/gsd-verify-work
+/gsd-validate-phase
 ```
 
-The first pass can support only what wrappers need. Avoid designing a broad research runtime.
+No Phase 08 command should introduce a new lifecycle helper or research dispatcher.
 
-The `compile` command should return deterministic JSON for tests and optionally Markdown for workflows. It should not mutate canonical GSD state unless the implementation explicitly delegates to existing GSD `phase insert` helpers.
+### Pattern 4: GSD-Owned Phase Construction
 
-### Pattern 4: GSD-Owned Phase Insertion
+Existing-roadmap invocation should use ordinary GSD phase construction. Current correct shape:
 
-Existing-roadmap invocation should insert work after the current phase by default. That insertion must go through GSD phase insertion semantics.
-
-Correct shape:
-
-1. `/gsd-ljx-idea-discovery ...` resolves command key and preset.
-2. Compiler renders a concise ordinary GSD phase goal and plan guidance.
-3. Workflow invokes or instructs the existing GSD insert phase path.
-4. The resulting phase has ordinary GSD numbering, ordinary PLAN files, ordinary execution, ordinary verification.
-5. Research artifacts remain phase-local under `research/`.
+1. A `/gsd-ljx-*` command explains what phase, plan, or artifact work is needed.
+2. The agent uses ordinary GSD phase or plan commands to create/update lifecycle artifacts.
+3. The resulting phase has ordinary GSD numbering, ordinary PLAN files, ordinary execution, ordinary verification.
+4. Research artifacts remain phase-local under `research/`.
 
 Research-first pipelines are different: when the whole project is created around research, phases should use normal integer numbering (`1`, `2`, `3`) rather than `.1`, `.2` inserted phase suffixes.
 
@@ -145,15 +141,16 @@ Reason:
 - GSD already has plan and task layers for fine-grained decomposition.
 - The user explicitly prefers mini-roadmap behavior at the phase level, with plan/task granularity inside.
 
-### Pattern 6: Policy Presets
+### Pattern 6: Policy Concepts Without Config
 
-Required presets:
+These concepts are preserved as Markdown instructions, not as `.planning/research.config.json`:
 
-- `safe`: default. Deep research/review, human discussion/checkpoint for hard decisions, no hard-gate bypass.
-- `auto`: deep research/review, autonomous ordinary progress, hard gates still block or require explicit authorized bridge handling.
-- `danger-auto`: deep research/review, maximum permission intent, hard gates may be represented as auto-approvable in policy. In Phase 08, this still means bridge/policy/evidence only for external side effects; the command layer must not actually run GPU, W&B, SSH, paid compute, push, PR, or publication.
+- Default to deep research/review.
+- Use human checkpoints for hard decisions when GSD or the user requires them.
+- Treat maximum-authority or auto-proceed language as policy intent only; it never grants external execution by itself.
+- Side-effect-capable commands require explicit authorization and evidence.
 
-All presets default to deep review and investigation. A shallow mode can exist later, but it is not the default and is not needed for Phase 08.
+A shallow mode can exist later, but it is not the default and is not needed for Phase 08.
 
 ### Pattern 7: Artifact Contracts
 
@@ -185,7 +182,7 @@ Do not hand-roll these things:
 - Project root discovery: reuse existing `--cwd`, `planningDir`, `planningPaths`, and workstream-aware helpers.
 - Path validation: reuse `validatePath`, `requireSafePath`, and phase-root containment checks.
 - Prompt sanitization: reuse `sanitizeForPrompt` and injection scanning where user text is embedded into generated prompts.
-- Config ownership: keep `.planning/config.json` for GSD and `.planning/research.config.json` for research overlay.
+- Config ownership: keep `.planning/config.json` for GSD and do not add a Phase 08 research config file.
 - Side-effect execution: classify and render policy/bridge instructions; do not implement actual GPU/W&B/SSH/paid/push/PR/publish execution in Phase 08.
 - Review process: reuse the agreed multi-dimensional review loop rather than relying on one self-review.
 
@@ -207,17 +204,17 @@ Correct implementation:
 GSD ROADMAP.md + GSD STATE.md + ordinary phase directories + phase-local research artifacts
 ```
 
-### Pitfall 2: Polluting `.planning/config.json`
+### Pitfall 2: Reintroducing Research Config
 
-The existing config validator intentionally rejects root `research` config ownership. Phase 08 should not add Auto/ARIS raw config to `.planning/config.json`.
+The existing config validator intentionally rejects root `research` config ownership. Phase 08 should not add Auto/ARIS raw config to `.planning/config.json`, and the thin overlay rewrite also should not restore a separate `.planning/research.config.json`.
 
 Correct implementation:
 
 ```text
-.planning/research.config.json
+Markdown command instructions + ordinary GSD plans + phase-local research artifacts
 ```
 
-The compiler may read both files, but it must treat `.planning/config.json` as upstream GSD-owned.
+Preset-like concepts are written into command guidance and plan decisions. There is no Phase 08 research config reader.
 
 ### Pitfall 3: Marking Idea Discovery Clean Without Literature Evidence
 
@@ -248,79 +245,68 @@ The user has explicitly required frequent review during Phase 08 implementation.
 
 ## Code Examples
 
-### Example: Command Map Entry
+### Example: Thin Command Source
 
-```js
-const COMMANDS = {
-  'idea-discovery': {
-    family: 'discovery',
-    publicCommand: 'gsd-ljx-idea-discovery',
-    defaultPhaseTitle: 'Research idea discovery',
-    defaultMode: 'insert',
-    evidence: [
-      'literature/LITERATURE_EVIDENCE.md',
-      'ideas/IDEA_REPORT.md',
-      'novelty/NOVELTY_REVIEW.md'
-    ],
-    sideEffects: ['network-literature-search'],
-    promptPack: 'ideaDiscoveryDeep'
-  }
-};
+```markdown
+---
+name: gsd:ljx-idea-discovery
+description: Generate research ideas from literature notes, novelty evidence, and user intent.
+argument-hint: "[topic or seed idea]"
+allowed-tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - Grep
+  - Task
+---
+
+<objective>
+Use ordinary GSD phase context to produce phase-local idea artifacts.
+</objective>
+
+<gsd_phase_construction>
+- Create or select an ordinary GSD phase with `/gsd-add-phase`, `/gsd-insert-phase`, or `/gsd-discuss-phase`.
+- Store outputs under `.planning/phases/<phase>/research/ideas/`.
+- Route substantial follow-up work through `/gsd-plan-phase <phase>`.
+</gsd_phase_construction>
+
+<required_outputs>
+- `research/ideas/IDEA_REPORT.md`
+- `research/novelty/NOVELTY_REVIEW.md`
+</required_outputs>
 ```
 
-### Example: Research Config Defaults
+### Example: Phase-Local Artifact Contract
 
-```json
-{
-  "preset": "safe",
-  "depth": "deep",
-  "reviewRounds": 3,
-  "autoReviewLoop": true,
-  "checkpoint": "human",
-  "literature": {
-    "sources": ["local", "web"],
-    "deepxiv": false
-  },
-  "sideEffects": {
-    "externalExecution": "bridge-only"
-  }
-}
+```text
+.planning/phases/<phase>/research/
+  literature/LITERATURE_EVIDENCE.md
+  ideas/IDEA_REPORT.md
+  novelty/NOVELTY_REVIEW.md
+  experiments/EXPERIMENT_PLAN.md
+  claims/RESULT_TO_CLAIM.md
+  claims/CLAIM_GATE.md
+  paper/PAPER_PLAN.md
 ```
 
-### Example: Compiler Output Shape
+The artifact contract is written in the command Markdown itself. It is not generated by a command map, config loader, prompt-pack registry, compiler output, or runtime helper.
 
-```json
-{
-  "command": "idea-discovery",
-  "publicCommand": "gsd-ljx-idea-discovery",
-  "preset": "safe",
-  "depth": "deep",
-  "mode": "insert",
-  "phase": {
-    "title": "Research idea discovery",
-    "goal": "Use Auto/ARIS idea-discovery prompts inside an ordinary GSD phase while requiring literature and novelty evidence."
-  },
-  "artifacts": {
-    "index": "research/RESEARCH_INDEX.md",
-    "required": [
-      "research/literature/LITERATURE_EVIDENCE.md",
-      "research/ideas/IDEA_REPORT.md",
-      "research/novelty/NOVELTY_REVIEW.md"
-    ]
-  },
-  "gates": {
-    "humanCheckpoint": true,
-    "externalSideEffects": "bridge-only"
-  }
-}
+### Example: Claim Gate Handoff
+
+```text
+1. `/gsd-ljx-analyze-results` records metrics and caveats.
+2. `/gsd-ljx-experiment-audit` records evidence integrity.
+3. `/gsd-ljx-result-to-claim` classifies support as yes, partial, no, or unsupported.
+4. `/gsd-ljx-claim-gate` decides GO, NARROW, MORE_EVIDENCE, or NO_CLAIM.
+5. Paper, rebuttal, release, or public-summary work may only use the gated claim.
 ```
 
-### Example: Side-Effect Policy Result
+### Example: Side-Effect Boundary Note
 
 ```json
 {
   "requested": ["wandb", "ssh", "gpu", "push"],
-  "preset": "danger-auto",
   "phase08Behavior": "bridge-only",
   "actualExecutionAllowedByThisCommand": false,
   "requiredEvidence": [
@@ -336,46 +322,45 @@ const COMMANDS = {
 
 Phase 08 needs validation at four layers.
 
-### Layer 1: Unit Contract Tests
+### Layer 1: Thin Overlay Contract Tests
 
-Focused unit tests should cover:
+Focused tests should cover:
 
-- research config defaults and preset normalization,
-- unknown research config keys and safe warnings,
-- command map coverage,
-- compiler output shape,
-- prompt-pack inclusion,
-- artifact contract inclusion,
-- side-effect policy classification,
-- evidence-check incomplete and complete states.
+- 25 `commands/gsd/ljx-*.md` source files exist,
+- each source uses `name: gsd:ljx-*`,
+- old `commands/gsd/gsd-ljx-*.md` source wrappers are absent,
+- old `get-shit-done/bin/lib/research-*.cjs` runtime files are absent,
+- `.planning/research.config.json` and shared research workflow are absent,
+- command docs preserve required research semantics,
+- side-effect-capable command docs require explicit authorization.
 
 Suggested files:
 
-- `tests/research-config.test.cjs`
-- `tests/research-compiler-discovery.test.cjs`
-- `tests/research-compiler-experiment.test.cjs`
-- `tests/research-compiler-paper.test.cjs`
-- `tests/research-side-effects.test.cjs`
+- `tests/research-thin-overlay.test.cjs`
+- `tests/bug-1736-local-install-commands.test.cjs`
+- `tests/core-lifecycle-planning-parity.test.cjs`
+- `tests/core-gsd-parity-scenario.test.cjs`
+- `tests/foundation-boundaries.test.cjs`
 
-### Layer 2: Wrapper and Workflow Tests
+### Layer 2: Installer and Command Surface Tests
 
-Wrapper tests should cover:
+Installer and command surface tests should cover:
 
 - every `/gsd-ljx-*` command file exists,
-- every wrapper routes to the shared research workflow,
-- every wrapper declares the intended command key,
-- wrapper names do not collide with upstream GSD commands,
+- `ljx-*.md` local command sources are not already prefixed,
+- global skill conversion produces `gsd-ljx-*` names without double prefixing,
+- command bodies use installed `/gsd-ljx-*` handoffs rather than bare names,
+- source names do not collide with upstream GSD commands,
 - upstream `commands/gsd/research-phase.md` remains unchanged in role.
 
 ### Layer 3: Lifecycle Integration Tests
 
 Lifecycle tests should cover:
 
-- existing-roadmap mode compiles to ordinary GSD phase insertion intent,
-- research-first mode compiles to integer roadmap planning intent,
+- research commands point users to ordinary GSD phase and plan construction,
 - no generated canonical schema includes `phase_type`,
-- no compiler path directly rewrites `ROADMAP.md` or `STATE.md`,
-- phase-local `research/RESEARCH_INDEX.md` can be initialized without becoming state.
+- no research runtime path directly rewrites `ROADMAP.md` or `STATE.md`,
+- phase-local research artifacts do not become lifecycle state.
 
 ### Layer 4: Review and Parity Gates
 
@@ -397,22 +382,21 @@ Review lanes:
 
 Loop rule:
 
-- cap: 10 rounds per meaningful implementation slice unless the user changes it,
+- cap: 30 rounds for the final Phase 08 review unless the user changes it,
 - early stop: two consecutive clean rounds,
 - blocking findings: confirmed P0/P1/P2 findings block progress,
 - main agent must second-pass confirm subagent findings before code changes.
 
 ## Implementation Feasibility
 
-The plan is feasible because Phase 08 can be implemented as additive surfaces:
+The plan is feasible because Phase 08 can be implemented as additive Markdown surfaces:
 
-- new Markdown command wrappers,
-- one shared Markdown workflow,
-- new CommonJS helper modules under `get-shit-done/bin/lib/`,
-- a bounded `research` command group in `gsd-tools.cjs`,
+- self-contained Markdown command sources,
+- existing installer conversion,
+- existing GSD lifecycle commands,
 - focused `node:test` coverage.
 
-No required feature forces a GSD core redesign. The only likely shared-file edits are the `gsd-tools.cjs` dispatcher and perhaps tests. These are controlled, small, and compatible with future upstream sync if isolated to a new research command group.
+No required feature forces a GSD core redesign. The intended production changes are command docs and tests only.
 
 ## Recommended Plan Breakdown
 

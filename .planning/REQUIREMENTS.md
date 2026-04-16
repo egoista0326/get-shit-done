@@ -63,23 +63,23 @@ v2.0 rebuilds from a framework-first process. It does not continue the v1.4 ljx-
 
 ### Research Command Integration
 
-- [ ] **RSCH-01**: Auto/ARIS-style idea discovery is available through a standalone `gsd` command and produces traceable evidence artifacts before completion.
-- [ ] **RSCH-02**: Literature, novelty, and refinement workflows preserve Auto/ARIS evidence and review depth while using GSD artifact/state/git discipline.
-- [ ] **RSCH-03**: Experiment planning, execution bridge, audit, and result analysis preserve Auto/ARIS capability without launching expensive/external services without policy-compliant confirmation.
-- [ ] **RSCH-04**: Review loop, result-to-claim, claim gate, ablation, paper, and rebuttal workflows preserve Auto/ARIS quality gates and provenance.
-- [ ] **RSCH-05**: Research commands write normal GSD artifacts plus research-specific evidence files; they do not rely on `phase_type`.
-- [ ] **RSCH-06**: Research commands do not create a second state root or treat root Auto artifacts as authoritative control state.
-- [ ] **RSCH-07**: Authoritative research command outputs live under `.planning/phases/<phase>/research/`; root Auto artifacts are import/export mirrors only until adopted.
-- [ ] **RSCH-08**: `idea-discovery` cannot complete from context/state/idea-report output alone; it requires retained literature retrieval/reading evidence.
-- [ ] **RSCH-09**: `AUTO_PROCEED`, `HUMAN_CHECKPOINT`, review-loop stop predicates, reviewer backend fallback, and external-service policy follow one canonical precedence contract.
+- [x] **RSCH-01**: Auto/ARIS-style idea discovery is available through a standalone `gsd` command and produces traceable evidence artifacts before completion.
+- [x] **RSCH-02**: Literature, novelty, and refinement workflows preserve Auto/ARIS evidence and review depth while using GSD artifact/state/git discipline.
+- [x] **RSCH-03**: Experiment planning, execution bridge, audit, and result analysis preserve Auto/ARIS capability without launching expensive/external services without policy-compliant confirmation.
+- [x] **RSCH-04**: Review loop, result-to-claim, claim gate, ablation, paper, and rebuttal workflows preserve Auto/ARIS quality gates and provenance.
+- [x] **RSCH-05**: Research commands write normal GSD artifacts plus research-specific evidence files; they do not rely on `phase_type`.
+- [x] **RSCH-06**: Research commands do not create a second state root or treat root Auto artifacts as authoritative control state.
+- [x] **RSCH-07**: Authoritative research command outputs live under `.planning/phases/<phase>/research/`; root Auto artifacts are import/export mirrors only until adopted.
+- [x] **RSCH-08**: `idea-discovery` cannot complete from context/state/idea-report output alone; it requires retained literature retrieval/reading evidence.
+- [x] **RSCH-09**: `AUTO_PROCEED`, `HUMAN_CHECKPOINT`, review-loop stop predicates, reviewer backend fallback, and external-service policy follow one canonical precedence contract.
 
 ### Scenario And Cutover
 
-- [ ] **SCEN-01**: Scenario harness covers engineering lifecycle end-to-end.
-- [ ] **SCEN-02**: Scenario harness covers research lifecycle from idea to paper.
-- [ ] **SCEN-03**: Scenario harness covers autoProceed/stop-boundary behavior, checkpoint precedence, reviewer backend fallback, safe/autonomous config, external-service confirmation matrix, pause/resume, workstreams/workspaces, migration, and concurrent write prevention.
-- [ ] **CUT-01**: Packaging and install output are self-contained and do not require globally installed upstream GSD or Auto/ARIS.
-- [ ] **CUT-02**: Final verification requires tests, scenario probes, review gates, docs, generated output, and state artifacts to agree before any shipped claim.
+- [x] **SCEN-01**: Scenario harness covers engineering lifecycle end-to-end.
+- [x] **SCEN-02**: Scenario harness covers research lifecycle from idea to paper.
+- [x] **SCEN-03**: Scenario harness covers autoProceed/stop-boundary behavior, checkpoint precedence, reviewer backend fallback, safe/autonomous config, external-service confirmation matrix, pause/resume, workstreams/workspaces, migration, and concurrent write prevention.
+- [x] **CUT-01**: Packaging and install output are self-contained and do not require globally installed upstream GSD or Auto/ARIS.
+- [x] **CUT-02**: Final verification requires tests, scenario probes, review gates, docs, generated output, and state artifacts to agree before any shipped claim.
 
 ## Future Requirements
 
@@ -134,20 +134,20 @@ v2.0 rebuilds from a framework-first process. It does not continue the v1.4 ljx-
 | CORE-03 | Phase 07 | Completed |
 | CORE-04 | Phase 07 | Completed |
 | CORE-05 | Phase 07 | Completed |
-| RSCH-01 | Phase 08 | Planned |
-| RSCH-02 | Phase 08 | Planned |
-| RSCH-03 | Phase 08 | Planned |
-| RSCH-04 | Phase 08 | Planned |
-| RSCH-05 | Phase 08 | Planned |
-| RSCH-06 | Phase 08 | Planned |
-| RSCH-07 | Phase 08 | Planned |
-| RSCH-08 | Phase 08 | Planned |
-| RSCH-09 | Phase 08 | Planned |
-| SCEN-01 | Phase 09 | Planned |
-| SCEN-02 | Phase 09 | Planned |
-| SCEN-03 | Phase 09 | Planned |
-| CUT-01 | Phase 10 | Planned |
-| CUT-02 | Phase 10 | Planned |
+| RSCH-01 | Phase 08 | Completed |
+| RSCH-02 | Phase 08 | Completed |
+| RSCH-03 | Phase 08 | Completed |
+| RSCH-04 | Phase 08 | Completed |
+| RSCH-05 | Phase 08 | Completed |
+| RSCH-06 | Phase 08 | Completed |
+| RSCH-07 | Phase 08 | Completed |
+| RSCH-08 | Phase 08 | Completed |
+| RSCH-09 | Phase 08 | Completed |
+| SCEN-01 | Phase 09 | Completed |
+| SCEN-02 | Phase 09 | Completed |
+| SCEN-03 | Phase 09 | Completed |
+| CUT-01 | Phase 10 | Completed |
+| CUT-02 | Phase 10 | Completed |
 
 ---
 *Requirements defined: 2026-04-13*

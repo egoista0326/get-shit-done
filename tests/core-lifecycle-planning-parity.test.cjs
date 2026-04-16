@@ -70,6 +70,10 @@ function assertNoPhase08ControlPlane(content, label) {
   assert.deepStrictEqual(hits, []);
 }
 
+function legacySharedResearchWorkflowPattern() {
+  return new RegExp(`${['gsd', 'ljx', 'research', 'command'].join('-')}\\.md`);
+}
+
 function writeLifecycleFixture(tmpDir) {
   fs.writeFileSync(
     path.join(tmpDir, '.planning', 'ROADMAP.md'),
@@ -144,7 +148,7 @@ describe('core lifecycle command surface', () => {
     }
   });
 
-  test('Auto/ARIS research command families remain prefixed and lifecycle-routed', () => {
+  test('Auto/ARIS research command families use thin ljx sources and GSD lifecycle ownership', () => {
     const commandFiles = listCommandFiles();
     const unexpectedUnprefixed = commandFiles.filter(file => {
       if (file === 'research-phase.md') {
@@ -152,14 +156,43 @@ describe('core lifecycle command surface', () => {
       }
       return forbiddenUnprefixedResearchCommandPatterns.some(pattern => pattern.test(file));
     });
-    const ljxCommands = commandFiles.filter(file => file.startsWith('gsd-ljx-'));
+    const expectedThinSources = [
+      'ljx-ablation-planner.md',
+      'ljx-analyze-results.md',
+      'ljx-auto-review-loop.md',
+      'ljx-experiment-audit.md',
+      'ljx-experiment-bridge.md',
+      'ljx-experiment-plan.md',
+      'ljx-claim-gate.md',
+      'ljx-idea-creator.md',
+      'ljx-idea-discovery.md',
+      'ljx-monitor-experiment.md',
+      'ljx-novelty-check.md',
+      'ljx-paper-compile.md',
+      'ljx-paper-improve.md',
+      'ljx-paper-plan.md',
+      'ljx-paper-write.md',
+      'ljx-rebuttal-draft.md',
+      'ljx-rebuttal-plan.md',
+      'ljx-research-lit.md',
+      'ljx-research-pipeline.md',
+      'ljx-research-refine-pipeline.md',
+      'ljx-research-refine.md',
+      'ljx-research-review.md',
+      'ljx-result-to-claim.md',
+      'ljx-run-experiment.md',
+      'ljx-training-check.md',
+    ];
 
     assert.deepStrictEqual(unexpectedUnprefixed, []);
+    assert.deepStrictEqual(commandFiles.filter(file => file.startsWith('gsd-ljx-')), []);
     assert.ok(commandFiles.includes('research-phase.md'), 'upstream GSD research-phase remains allowed baseline behavior');
 
-    for (const file of ljxCommands) {
+    for (const file of expectedThinSources) {
+      assert.ok(commandFiles.includes(file), `${file} should exist`);
       const command = readUtf8(`commands/gsd/${file}`);
-      assert.match(command, /gsd-ljx-research-command\.md/, `${file} should route to shared research workflow`);
+      assert.match(command, new RegExp(`^name:\\s+gsd:${file.replace(/\.md$/, '')}$`, 'm'));
+      assert.doesNotMatch(command, legacySharedResearchWorkflowPattern(), `${file} should not route to a shared research workflow`);
       assertNoPhase08ControlPlane(command, file);
     }
   });

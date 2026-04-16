@@ -1,47 +1,48 @@
 # Phase 08 Validation Architecture
 
 Phase: 08-standalone-research-command-integration
-Date: 2026-04-14
-Status: planned
-Nyquist compliant: yes, if each plan implements its listed tests before or alongside code changes.
+Date: 2026-04-15
+Status: updated for thin Markdown overlay
+Nyquist compliant: yes, if final review verifies command coverage, GSD lifecycle ownership, side-effect boundaries, and old-route absence.
 
 ## Validation Goal
 
-Validate that `/gsd-ljx-*` research commands preserve Auto/ARIS research semantics while using GSD as the only lifecycle and control-plane framework.
+Validate that installable `/gsd-ljx-*` research skills preserve Auto/ARIS research semantics while using GSD as the only lifecycle and control-plane framework.
 
 A clean Phase 08 is not defined by command files existing. It is defined by these properties:
 
-- commands compile into ordinary GSD phases, plans, tasks, prompts, and phase-local artifacts;
+- `commands/gsd/ljx-*.md` source files install as ordinary `gsd-ljx-*` skills without custom relocation;
+- command instructions direct users back to ordinary GSD phases, plans, tasks, reviews, verification, and phase-local artifacts;
 - GSD owns roadmap, state, phase insertion, planning, execution, and verification;
-- Auto/ARIS owns prompt packs, presets, artifact expectations, evidence contracts, and side-effect policy classification;
-- no second roadmap, second state machine, `phase_type`, typed phase routing, or raw Auto/ARIS config is added to `.planning/config.json`;
-- external side effects remain policy/bridge/evidence-only in Phase 08.
+- Auto/ARIS semantics are preserved as prompt obligations, quality dimensions, artifact expectations, and review gates;
+- no second roadmap, second state machine, `phase_type`, typed phase routing, helper compiler, command map, research config, or raw Auto/ARIS config is added;
+- external side effects remain explicit-authorization instructions only in Phase 08.
 
 ## Test Matrix
 
 | Requirement | Validation Method | Planned Test Or Artifact |
 |-------------|-------------------|--------------------------|
-| RSCH-01 | Command wrapper and compiler tests | `tests/research-compiler-discovery.test.cjs`, wrapper checks for `/gsd-ljx-research-lit`, `/gsd-ljx-idea-discovery`, `/gsd-ljx-idea-creator`, `/gsd-ljx-novelty-check` |
-| RSCH-02 | Refinement command and evidence tests | `tests/research-compiler-discovery.test.cjs`, refinement prompt-pack checks, `research/refine/REFINE_STATE.json` contract checks |
-| RSCH-03 | Experiment command and bridge tests | `tests/research-compiler-experiment.test.cjs`, `tests/research-side-effects.test.cjs` |
-| RSCH-04 | Result, claim, paper, rebuttal, ablation tests | `tests/research-compiler-experiment.test.cjs`, `tests/research-compiler-paper.test.cjs` |
-| RSCH-05 | Preset/config tests | `tests/research-config.test.cjs`, config fixture tests for safe, auto, danger-auto |
-| RSCH-06 | Artifact and index tests | `tests/research-artifacts.test.cjs`, `research/RESEARCH_INDEX.md` initialization checks |
-| RSCH-07 | Side-effect policy tests | `tests/research-side-effects.test.cjs`, bridge-only assertions |
-| RSCH-08 | Literature evidence completeness tests | `tests/research-evidence.test.cjs`, negative idea-discovery completion case |
-| RSCH-09 | GSD lifecycle integration and no-core-drift tests | `tests/research-lifecycle-integration.test.cjs`, Phase 08 review artifacts, final parity report |
+| RSCH-01 | Thin command surface tests | `tests/research-thin-overlay.test.cjs`, command frontmatter, old-route absence |
+| RSCH-02 | Refinement semantics tests | `tests/research-thin-overlay.test.cjs`, refinement/review artifact and raw-review assertions |
+| RSCH-03 | Experiment command tests | `tests/research-thin-overlay.test.cjs`, explicit authorization and external-resource assertions |
+| RSCH-04 | Result, claim, paper, rebuttal, ablation tests | `tests/research-thin-overlay.test.cjs`, claim-gate and paper/rebuttal semantic assertions |
+| RSCH-05 | No research config route | `tests/research-thin-overlay.test.cjs`, `.planning/research.config.json` and helper absence |
+| RSCH-06 | Artifact contract review | final parity report plus command file assertions for phase-local artifact paths |
+| RSCH-07 | Side-effect boundary review | final security report plus explicit authorization assertions |
+| RSCH-08 | Literature evidence completeness tests | `tests/research-thin-overlay.test.cjs`, literature/search/read/novelty guidance assertions |
+| RSCH-09 | GSD lifecycle integration and no-core-drift tests | `tests/core-lifecycle-planning-parity.test.cjs`, `tests/core-gsd-parity-scenario.test.cjs`, Phase 08 final review artifacts |
 
 ## Negative Tests
 
-Required negative tests:
+Required negative tests and checks:
 
-1. Missing literature evidence prevents `idea-discovery` from being clean.
-2. `.planning/config.json` containing raw root `research` config remains invalid or rejected by GSD config validation.
-3. `danger-auto` still does not execute GPU, W&B, SSH, paid compute, push, PR, publication, or destructive operations in Phase 08.
-4. Compiler output does not contain `phase_type`.
-5. Compiler output does not write `ROADMAP.md` or `STATE.md` directly.
-6. `RESEARCH_INDEX.md` is treated as artifact index, not lifecycle state.
-7. New command names use `/gsd-ljx-*` and do not collide with upstream GSD command names.
+1. Old `commands/gsd/gsd-ljx-*.md` source wrappers do not exist.
+2. Old `get-shit-done/bin/lib/research-*.cjs` runtime files do not exist.
+3. `.planning/research.config.json` does not exist.
+4. `gsd-tools.cjs` has no `research` dispatcher route.
+5. Thin command bodies do not hand off to bare command names; installed handoffs use `/gsd-ljx-*`.
+6. Commands and production files do not introduce `phase_type` or typed phase routing.
+7. Side-effect-capable commands do not claim GPU, W&B, SSH, paid compute, push, PR, publication, submission, or external upload execution.
 
 ## Review Loop Gate
 
@@ -56,7 +57,7 @@ Required lanes:
 
 Rules:
 
-- cap: 10 rounds per slice;
+- cap: 30 rounds for final Phase 08 review;
 - early stop: two consecutive clean rounds;
 - main agent second-pass confirms subagent findings before applying fixes;
 - confirmed P0/P1/P2 findings block progress;
@@ -66,7 +67,7 @@ Rules:
 
 Phase 08 can be considered complete only if:
 
-- all focused research tests pass;
+- all focused thin overlay tests pass;
 - relevant existing GSD parity tests still pass;
 - `npm test` passes or any residual upstream-only failure is explicitly documented;
 - `node get-shit-done/bin/gsd-tools.cjs validate health --cwd "$PWD"` is healthy;

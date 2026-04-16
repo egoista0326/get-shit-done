@@ -2,18 +2,19 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-current_phase: 08
-current_plan: 2
-status: executing
-stopped_at: Phase 08 08-01 complete after two clean review rounds; ready to execute 08-02
-last_updated: "2026-04-14T18:08:41.000+02:00"
-last_activity: 2026-04-14 -- Phase 08 08-01 completed after 16 review rounds with Round 15 and Round 16 clean
+current_phase: 10
+current_plan: Complete
+status: complete
+stopped_at: Phase 10 complete
+paused_at: v2.0 milestone complete
+last_updated: "2026-04-15T20:34:25.918Z"
+last_activity: 2026-04-15
 progress:
-  total_phases: 10
-  completed_phases: 7
-  total_plans: 26
-  completed_plans: 23
-  percent: 88
+  total_phases: 11
+  completed_phases: 11
+  total_plans: 35
+  completed_plans: 35
+  percent: 100
 ---
 
 # Project State
@@ -23,19 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-13)
 
 **Core value:** GSD should remain a reliable phase/milestone control plane while gaining research-native commands that produce evidence, artifacts, reviews, and papers without creating a second workflow system or changing the core phase schema.
-**Current focus:** Phase 08 — standalone-research-command-integration
+**Current focus:** v2.0 milestone complete — all planned phases executed and verified
 
 ## Current Position
 
-Phase: 08 (standalone-research-command-integration) — EXECUTING
-Plan: 2 of 4
-**Current Phase:** 08
-**Current Plan:** 2
-**Total Plans in Phase:** 4
-Status: Executing Phase 08
-Last activity: 2026-04-14 -- Phase 08 08-01 completed after 16 review rounds with Round 15 and Round 16 clean
+Phase: 10 (cutover-packaging-and-final-verification) — COMPLETE
+Plan: 3 of 3
+**Current Phase:** 10
+**Current Plan:** Complete
+**Total Plans in Phase:** 3
+**Status:** Complete
+**Paused At:** v2.0 milestone complete
+Last activity: 2026-04-15
 
-Progress: [████████████████████] 7/10 phases complete | Phase 08 executing plan 2/4 | 23/26 plans completed
+Progress: [████████████████████] 11/11 phases complete | Phase 10 complete | 35/35 completed plans in executed phases
 
 ## Accumulated Context
 
@@ -57,15 +59,16 @@ Progress: [████████████████████] 7/10 ph
 - Phase 01 framework construction is not a single pass: it requires one subagent build round, three subagent review rounds, and one main-agent final check.
 - If subagent capacity is insufficient, missing build/review lanes must be run in later batches; the main agent must not perform the missing subagent duties.
 - Review rules and the final framework review loop remain separate phases.
-- GSD remains the complete underlying framework; Auto/ARIS is only a prompt/orchestration overlay that compiles research semantics into GSD-owned phases, plans, context, artifacts, and gates.
+- GSD remains the complete underlying framework; Auto/ARIS is only a prompt/orchestration overlay expressed through thin Markdown command sources and GSD-owned phases, plans, context, artifacts, and gates.
 - Auto/ARIS must not introduce its own authoritative framework, docs hierarchy, lifecycle state, phase schema, roadmap owner, or file system.
-- Target architecture is `Research Command Compiler under GSD lifecycle ownership`.
-- Research commands compile Auto/ARIS prompt packs, config, artifact contracts, and gate semantics into ordinary GSD phase/context/plan inputs.
+- Historical pre-08.1 target architecture `Research Command Compiler under GSD lifecycle ownership` is superseded for Phase 08 implementation.
+- Current Phase 08 architecture is `Thin installable Markdown research overlay under GSD lifecycle ownership`.
+- Research commands preserve Auto/ARIS prompt obligations, artifact contracts, quality dimensions, and gate semantics as Markdown instructions that route work into ordinary GSD phase/context/plan inputs.
 - Default research command behavior is one inserted phase with plan-level decomposition; multiple phases are reserved for real work-mode boundaries.
 - Research-first pipeline roadmaps use ordinary integer phases rather than decimal insertion.
-- `.planning/research.config.json` is separate from `.planning/config.json`.
-- Presets are `safe`, `auto`, and `danger-auto`; default is `safe`; all default to deep research and deep review.
-- `danger-auto` may use available authorized capabilities, but missing credentials, skipped required operations, unknown side effects, or overridden gates block clean completion.
+- `.planning/research.config.json` is superseded for Phase 08 and must not be restored without a new explicit phase decision.
+- Preset-like concepts such as safe/auto/danger-auto are preserved only as written policy intent where useful; there is no Phase 08 research config runtime.
+- Maximum-authority or auto-proceed language never grants external execution by itself; missing credentials, skipped required operations, unknown side effects, or overridden gates block clean completion.
 - Review rules are derived from historical failures and require findings to cite rule id, severity, evidence, and historical failure family.
 - P0/P1/P2 accepted findings block clean review rounds by default.
 - The final framework review matrix and parser/accounting rules must be stable before clean-round counting starts.
@@ -103,9 +106,20 @@ Progress: [████████████████████] 7/10 ph
 - Phase 07 UAT recorded 2 passed checks and 3 user-skipped checks. `audit-uat` classifies the skipped checks as `skipped_unresolved` verification debt; no UAT issues were reported.
 - Phase 07 security verification closed all 12 planned threats in `07-SECURITY.md` with `threats_open: 0`.
 - Phase 07 was transitioned complete on 2026-04-14. Current work is Phase 08 standalone research command integration.
-- Auto/ARIS research skill implementation has not started yet. Upstream GSD `research-phase` remains baseline upstream lifecycle behavior, not new Auto/ARIS research command integration.
-- [Phase 08]: Phase 08 discussion locked the /gsd-ljx thin research compiler approach, bridge-only external side effects, RESEARCH_INDEX.md-first evidence ledger, separate research.config.json presets, and frequent multi-subagent review with main-agent confirmation.
-- [Phase 08-01]: Discovery/literature/novelty/refinement `/gsd-ljx-*` command family is implemented as a thin research compiler under GSD lifecycle ownership. The review cap was increased to 20; execution stopped early after Round 15 and Round 16 both returned clean across lifecycle, research semantics, security, and maintainability lanes. No accepted P0/P1/P2 findings remain open.
+- Auto/ARIS research skill implementation is now a thin Markdown overlay. Upstream GSD `research-phase` remains baseline upstream lifecycle behavior, not a replacement for the new overlay commands.
+- [Phase 08]: Phase 08 initially discussed a /gsd-ljx thin research compiler approach, bridge-only external side effects, RESEARCH_INDEX.md-first evidence ledger, separate research.config.json presets, and frequent multi-subagent review with main-agent confirmation. The compiler/config portion is superseded by Phase 08.1.
+- [Phase 08-01]: The earlier discovery/literature/novelty/refinement compiler-route implementation is superseded by Phase 08.1 and is no longer the implementation baseline.
+- [Phase 08.1]: User rejected the helper/config/compiler/evidence-gate route after repeated review churn. New direction: rewrite the whole Auto/ARIS research integration, including 08-01 and 08-02 scope, as an ultra-thin installable Markdown skill overlay. Do not build helper modules, do not use `.planning/research.config.json`, and retain only research-native semantics GSD does not already cover, such as review round limits, novelty definitions/scores, reviewer dimensions, claim support, and artifact expectations.
+- [Phase 08.1 execute]: The superseded route was removed from production code/tests, `.planning/research.config.json` was deleted locally, and 18 `commands/gsd/ljx-*.md` thin source files carried the initial core research overlay. Tests validate old-route absence, preserved research semantics, lifecycle parity, and normal installer conversion to `gsd-ljx-*` skill names.
+- [Phase 08.1 review]: A 20-round-capped multi-lane review ended after Round 4. Rounds 1 and 2 found confirmed normal-workflow issues and were fixed; Rounds 3 and 4 were clean across packaging, GSD syntax, and Auto/ARIS capability-preservation lanes.
+- [Phase 08-02/08-03 reconciliation]: The remaining Phase 08 old compiler-route plans were rewritten onto the Phase 08.1 thin overlay baseline. The command surface now has 25 thin Markdown sources, adding explicit claim-gate plus paper planning, paper writing, paper compile, bounded paper improvement, rebuttal planning, and rebuttal drafting.
+- [Phase 08-04 final review]: The final thin overlay parity/security/lifecycle review closed clean after Round 9 and Round 10. Confirmed fixes covered claim-gate routing for pipeline, standalone result-to-claim, paper planning, and rebuttal drafting; authorization boundaries for monitor/training/paper/rebuttal; removal of active helper/config/compiler guidance; and installer compatibility for 25 `commands/gsd/ljx-*.md` sources.
+- [Phase 10-cutover-packaging-and-final-verification]: Installer CLI probes must not set GSD_TEST_MODE because that disables bin/install.js main execution.
+- [Phase 10-cutover-packaging-and-final-verification]: Gemini and Kilo packaging assertions follow existing supported install surfaces: Gemini TOML commands/hooks and Kilo flat command output.
+
+### Roadmap Evolution
+
+- Phase 08.1 inserted after Phase 08: Rewrite Auto ARIS research integration as thin installable skill overlay (URGENT)
 
 ### Archive Locations
 
@@ -118,9 +132,9 @@ Progress: [████████████████████] 7/10 ph
 
 ### Pending Todos
 
-- Execute Phase 08 plan 08-02 for experiment/audit/result/claim command family.
+- Phase 10 cutover, packaging, and final verification is complete.
 - Preserve ordinary GSD lifecycle behavior while implementing standalone research commands.
-- Keep Auto/ARIS preservation framed as prompt obligations compiled into GSD, not as preservation of Auto/ARIS as a second framework.
+- Keep Auto/ARIS preservation framed as prompt/skill obligations executed through GSD, not as preservation of Auto/ARIS as a second framework or custom compiler.
 - Keep canonical `PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md`, and `STATE.md` writes serialized.
 - Use Phase 04 boundary outputs and the Phase 05 final decision as explicit inputs to Phase 06.
 - Treat `/Users/lijiaxin/Downloads/new-gsd-implementation-workspace-20260414-012813` as the only allowed implementation base until a later decision says otherwise.
@@ -128,13 +142,15 @@ Progress: [████████████████████] 7/10 ph
 ### Blockers/Concerns
 
 - The current repository remains heavily dirty from historical work. It is no longer the implementation target and should remain planning/reference-only.
-- The clean workspace now has a committed and reviewed upstream GSD foundation and completed Phase 07 parity/security evidence; next risk is implementing Phase 08 research commands without violating GSD lifecycle ownership.
+- The clean workspace now has a reviewed upstream GSD foundation, completed Phase 07 parity/security evidence, completed Phase 08 thin overlay command coverage, completed Phase 09 scenario/regression coverage, and completed Phase 10 cutover/package/readiness evidence.
 - `npm ci` reported 3 upstream dependency audit vulnerabilities (2 moderate, 1 high); dependency remediation is deferred until it is explicitly in scope.
 - Upstream Codex E2E tests print `.claude` path warnings while still passing; treat as a compatibility review item for later foundation/parity work.
-- Existing GSD tooling may warn on non-upstream config keys in `.planning/config.json`; target research config is now separate at `.planning/research.config.json`.
+- Existing GSD tooling may warn on non-upstream config keys in `.planning/config.json`; the new Phase 08.1 direction should avoid adding a separate Auto/ARIS research config path.
 - Research integration must not use `phase_type` or typed phase routing, even if that appears convenient.
 - Standalone research commands must not turn Auto/ARIS root artifacts into a second authoritative control plane.
 - `idea-discovery` must not claim completion from context/state output alone; literature execution evidence is required.
+- Phase 08 implementation files are dirty because the aborted helper/config/compiler route was replaced by the thin overlay. Do not reintroduce the old route; treat future work as Phase 09 scenario/regression coverage unless a new explicit phase reopens research runtime scope.
+- Phase 08.1 removed the local `.planning/research.config.json` artifact. Future research integration work should not restore config-driven research behavior unless a new explicit phase reopens that architecture.
 - Phase 07 has 3 skipped-unresolved UAT checks by user request; this is carried as verification debt visible via `/gsd-audit-uat`.
 
 ## Performance Metrics
@@ -145,9 +161,13 @@ Progress: [████████████████████] 7/10 ph
 | Phase 07 P02 | 15 min | 2 tasks | 1 files |
 | Phase 07 P03 | 30 min | 2 tasks | 3 files |
 | Phase 08 P01 | 16-round reviewed execution | 4 tasks + 16 review rounds | research overlay modules, commands, workflow, tests |
+| Phase 08.1 P01-P03 | thin overlay rewrite | cleanup + 18 Markdown sources + tests/progress | commands, tests, GSD state |
+| Phase 08 P02-P03 | thin overlay reconciliation | claim-gate + paper/rebuttal supplement | commands, tests, GSD state |
+| Phase 08 P04 | final review closure | 10 review rounds, 2 consecutive clean rounds | review, security, parity, summary |
+| Phase 10-cutover-packaging-and-final-verification P01 | 6min | 2 tasks | 1 files |
 
 ## Session Continuity
 
-Last session: 2026-04-14T18:08:41.000+02:00
-Stopped at: Phase 08 08-01 complete after two clean review rounds; ready to execute 08-02
-Resume file: .planning/phases/08-standalone-research-command-integration/08-01-SUMMARY.md
+Last session: 2026-04-15T20:34:25.918Z
+Stopped at: Phase 10 complete
+Resume file: None

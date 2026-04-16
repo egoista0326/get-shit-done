@@ -93,4 +93,30 @@ describe('#1736: local Claude install populates .claude/commands/gsd/', () => {
       '.claude/commands/gsd/quick.md must exist after local install'
     );
   });
+
+  test('local install deploys thin ljx source commands under .claude/commands/gsd/', (t) => {
+    const origCwd = process.cwd();
+    t.after(() => { process.chdir(origCwd); });
+    process.chdir(tmpDir);
+    install(false, 'claude');
+
+    const commandsDir = path.join(tmpDir, '.claude', 'commands', 'gsd');
+    assert.ok(fs.existsSync(path.join(commandsDir, 'ljx-run-experiment.md')));
+    assert.ok(!fs.existsSync(path.join(commandsDir, 'gsd-ljx-run-experiment.md')));
+  });
+
+  test('thin ljx sources convert to standard gsd-ljx global skills without custom relocation', () => {
+    const gsdSrc = path.join(__dirname, '..', 'commands', 'gsd');
+    const skillsDir = path.join(tmpDir, 'claude-skills');
+
+    copyCommandsAsClaudeSkills(gsdSrc, skillsDir, 'gsd', '~/.claude/', 'claude', true);
+
+    const skillPath = path.join(skillsDir, 'gsd-ljx-run-experiment', 'SKILL.md');
+    assert.ok(fs.existsSync(skillPath), 'ljx-run-experiment.md should convert to gsd-ljx-run-experiment skill');
+    assert.ok(!fs.existsSync(path.join(skillsDir, 'gsd-gsd-ljx-run-experiment')));
+
+    const content = fs.readFileSync(skillPath, 'utf8');
+    assert.match(content, /^name:\s+gsd-ljx-run-experiment$/m);
+    assert.match(content, /Prepare and launch an authorized experiment run/);
+  });
 });

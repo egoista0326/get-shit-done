@@ -2,7 +2,7 @@
  * Phase 07-03 integrated scenario probe.
  *
  * This is a smoke/contract scenario for the GSD lifecycle surfaces that the
- * future /gsd-ljx-* research overlay should call. It intentionally does not
+ * future gsd-ljx installed research overlay should call. It intentionally does not
  * implement Auto/ARIS commands or a research-specific control plane.
  */
 
@@ -160,6 +160,10 @@ function listGsdCommandFiles() {
     .sort();
 }
 
+function legacySharedResearchWorkflowName() {
+  return `${['gsd', 'ljx', 'research', 'command'].join('-')}.md`;
+}
+
 afterEach(() => {
   while (tmpProjects.length > 0) {
     cleanup(tmpProjects.pop());
@@ -257,25 +261,45 @@ describe('integrated GSD lifecycle scenario for Phase 08 readiness', () => {
     assert.deepStrictEqual(healthData.errors, []);
   });
 
-  test('scenario boundary keeps Phase 08 command family prefixed and lifecycle-routed', () => {
+  test('scenario boundary keeps Phase 08 command family thin and lifecycle-owned', () => {
     const commandFiles = listGsdCommandFiles();
-    const overlayCommands = commandFiles.filter(file => /^gsd-ljx-/.test(file)).sort();
+    const overlayCommands = commandFiles.filter(file => /^ljx-/.test(file)).sort();
     const expectedMinimumOverlayCommands = [
-      'gsd-ljx-idea-creator.md',
-      'gsd-ljx-idea-discovery.md',
-      'gsd-ljx-novelty-check.md',
-      'gsd-ljx-research-lit.md',
-      'gsd-ljx-research-pipeline.md',
-      'gsd-ljx-research-refine-pipeline.md',
-      'gsd-ljx-research-refine.md',
-      'gsd-ljx-research-review.md',
+      'ljx-ablation-planner.md',
+      'ljx-analyze-results.md',
+      'ljx-auto-review-loop.md',
+      'ljx-claim-gate.md',
+      'ljx-experiment-audit.md',
+      'ljx-experiment-bridge.md',
+      'ljx-experiment-plan.md',
+      'ljx-idea-creator.md',
+      'ljx-idea-discovery.md',
+      'ljx-monitor-experiment.md',
+      'ljx-novelty-check.md',
+      'ljx-paper-compile.md',
+      'ljx-paper-improve.md',
+      'ljx-paper-plan.md',
+      'ljx-paper-write.md',
+      'ljx-rebuttal-draft.md',
+      'ljx-rebuttal-plan.md',
+      'ljx-research-lit.md',
+      'ljx-research-pipeline.md',
+      'ljx-research-refine-pipeline.md',
+      'ljx-research-refine.md',
+      'ljx-research-review.md',
+      'ljx-result-to-claim.md',
+      'ljx-run-experiment.md',
+      'ljx-training-check.md',
     ];
     for (const expected of expectedMinimumOverlayCommands) {
       assert.ok(overlayCommands.includes(expected), `${expected} should be present`);
     }
+    assert.deepStrictEqual(commandFiles.filter(file => /^gsd-ljx-/.test(file)), []);
     for (const file of overlayCommands) {
       const content = readRepoFile(path.join('commands', 'gsd', file));
-      assert.ok(content.includes('gsd-ljx-research-command.md'), `${file} must route through shared GSD lifecycle workflow`);
+      assert.match(content, new RegExp(`^name:\\s+gsd:${file.replace(/\.md$/, '')}$`, 'm'));
+      assert.ok(content.includes('<gsd_phase_construction>'), `${file} must carry GSD phase construction guidance`);
+      assert.ok(!content.includes(legacySharedResearchWorkflowName()), `${file} must not route through a shared compiler workflow`);
     }
 
     const forbiddenCommandPatterns = [

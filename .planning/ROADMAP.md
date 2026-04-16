@@ -19,9 +19,9 @@ v2.0 is a framework-first rebuild. The old ljx-GSD line is archived as `pivoted_
 - [x] **Phase 05: Final Target Framework Review Loop** - Completed clean after final pre-implementation framework review and implementation-start decision.
 - [x] **Phase 06: Foundation From Upstream GSD** - Build the smallest runnable GSD base from upstream GSD reuse/copy.
 - [x] **Phase 07: Core GSD Lifecycle Parity** - Preserve ordinary GSD lifecycle behavior before research integration. (completed 2026-04-14)
-- [ ] **Phase 08: Standalone Research Command Integration** - Expose Auto/ARIS capabilities as standalone `gsd` commands backed by ordinary GSD phases and artifact conventions.
-- [ ] **Phase 09: Scenario And Regression Harness** - Build scenario probes for engineering and research workflows.
-- [ ] **Phase 10: Cutover, Packaging, And Final Verification** - Prepare install, docs, migration/cutover, and final verification.
+- [x] **Phase 08: Standalone Research Command Integration** - Expose Auto/ARIS capabilities as standalone `gsd` commands backed by ordinary GSD phases and artifact conventions. (completed 2026-04-15)
+- [x] **Phase 09: Scenario And Regression Harness** - Build scenario probes for engineering and research workflows. (completed 2026-04-15)
+- [x] **Phase 10: Cutover, Packaging, And Final Verification** - Prepare install, docs, migration/cutover, and final verification. (completed 2026-04-15)
 
 ## Phase Details
 
@@ -161,9 +161,27 @@ Plans:
 
 Plans:
 - [x] 08-01: Implement discovery/literature/novelty/refinement command family
-- [ ] 08-02: Implement experiment/audit/result/claim command family
-- [ ] 08-03: Implement paper/rebuttal/ablation command family
-- [ ] 08-04: Run research command parity and lifecycle integration review
+- [x] 08-02: Reconcile experiment/audit/result/claim command family onto thin overlay
+- [x] 08-03: Implement paper/rebuttal command family as thin overlay supplement
+- [x] 08-04: Run thin overlay parity, security, and lifecycle integration review
+
+### Phase 08.1: Rewrite Auto ARIS research integration as thin installable skill overlay (INSERTED)
+
+**Goal:** Replace the failed helper/config/compiler research integration route with an ultra-thin Auto/ARIS research overlay made of installable Markdown command/skill files that execute through ordinary GSD phase workflows.
+**Requirements**: [RSCH-01, RSCH-02, RSCH-03, RSCH-04, RSCH-05, RSCH-06, RSCH-07, RSCH-08, RSCH-09]
+**Depends on:** Phase 08
+**Success Criteria** (what must be TRUE):
+  1. 08-01 and 08-02 helper/config/compiler/evidence-gate implementation work is treated as superseded and is removed or replaced by the thin overlay plan.
+  2. Auto/ARIS research capabilities are represented as self-contained installable Markdown command/skill files, not JS helper modules or a custom research compiler.
+  3. The implementation does not use `.planning/research.config.json`, command-map helpers, research evidence parsers, side-effect checkers, or custom install relocation logic.
+  4. The Markdown files preserve research-native semantics GSD does not already cover, including review round limits, novelty definitions and scores, reviewer dimensions, claim support categories, audit dimensions, and expected research artifacts.
+  5. The overlay uses existing GSD lifecycle and installer/conversion paths, and keeps canonical phase planning, execution, review, verification, and state ownership inside ordinary GSD.
+**Plans:** 4/4 plans complete
+
+Plans:
+- [x] 08.1-01: Remove superseded helper/config/compiler research route
+- [x] 08.1-02: Add thin Markdown research overlay and tests
+- [x] 08.1-03: Update GSD progress summaries and state
 
 ### Phase 09: Scenario And Regression Harness
 
@@ -177,9 +195,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 09-01: Build engineering lifecycle scenario harness
-- [ ] 09-02: Build research lifecycle scenario harness
-- [ ] 09-03: Build config/migration/concurrency scenario probes
+- [x] 09-01: Build engineering lifecycle scenario harness
+- [x] 09-02: Build research lifecycle scenario harness
+- [x] 09-03: Build config/migration/concurrency scenario probes
 
 ### Phase 10: Cutover, Packaging, And Final Verification
 
@@ -193,9 +211,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 10-01: Prepare packaging and install self-containment
-- [ ] 10-02: Write migration/cutover docs and release notes
-- [ ] 10-03: Run final verification and milestone closure decision
+- [x] 10-01: Prepare packaging and install self-containment
+- [x] 10-02: Write migration/cutover docs and release notes
+- [x] 10-03: Run final verification and milestone closure decision
 
 ## Progress
 
@@ -208,6 +226,6 @@ Plans:
 | 05. Final Target Framework Review Loop | 3/3 | Completed | 2026-04-14 |
 | 06. Foundation From Upstream GSD | 3/3 | Completed | 2026-04-14 |
 | 07. Core GSD Lifecycle Parity | 3/3 | Completed | 2026-04-14 |
-| 08. Standalone Research Command Integration | 0/4 | Planned | - |
-| 09. Scenario And Regression Harness | 0/3 | Planned | - |
-| 10. Cutover, Packaging, And Final Verification | 0/3 | Planned | - |
+| 08. Standalone Research Command Integration | 4/4 | Complete   | 2026-04-15 |
+| 09. Scenario And Regression Harness | 3/3 | Complete    | 2026-04-15 |
+| 10. Cutover, Packaging, And Final Verification | 3/3 | Complete    | 2026-04-15 |

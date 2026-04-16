@@ -8,6 +8,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const repoRoot = path.join(__dirname, '..');
+const commandsDir = path.join(repoRoot, 'commands', 'gsd');
 
 const expectedHooks = [
   'gsd-check-update.js',
@@ -41,6 +42,13 @@ function runNpmPackDryRun() {
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   return JSON.parse(raw)[0].files.map(file => file.path).sort();
+}
+
+function expectedResearchCommands() {
+  return fs.readdirSync(commandsDir)
+    .filter(file => /^ljx-[a-z0-9-]+\.md$/.test(file))
+    .map(file => file.replace(/\.md$/, ''))
+    .sort();
 }
 
 function fileExists(relativePath) {
@@ -112,12 +120,13 @@ describe('Phase 10 packaging self-containment', () => {
       'bin/install.js',
       'package.json',
       'scripts/build-hooks.js',
-      'commands/gsd/ljx-research-pipeline.md',
-      'commands/gsd/ljx-claim-gate.md',
-      'commands/gsd/ljx-run-experiment.md',
       'get-shit-done/bin/gsd-tools.cjs',
     ]) {
       assert.ok(files.includes(requiredPath), `package should include ${requiredPath}`);
+    }
+
+    for (const command of expectedResearchCommands()) {
+      assert.ok(files.includes(`commands/gsd/${command}.md`), `package should include commands/gsd/${command}.md`);
     }
 
     assert.ok(files.some(file => /^agents\/gsd-[^/]+\.md$/.test(file)), 'package should include at least one agents/gsd-*.md file');
@@ -191,6 +200,7 @@ describe('Phase 10 packaging self-containment', () => {
     runInstaller(tempRoot, ['--gemini', '--global', '--config-dir', path.join(home, '.gemini')]);
     runInstaller(tempRoot, ['--opencode', '--global', '--config-dir', path.join(xdgConfigHome, 'opencode')]);
     runInstaller(tempRoot, ['--kilo', '--global', '--config-dir', path.join(xdgConfigHome, 'kilo')]);
+    runInstaller(tempRoot, ['--cline', '--global', '--config-dir', path.join(home, '.cline')]);
 
     execFileSync(process.execPath, [path.join(repoRoot, 'bin', 'install.js'), '--claude', '--local'], {
       cwd: localProject,
@@ -216,5 +226,30 @@ describe('Phase 10 packaging self-containment', () => {
     assertExistsUnderTemp(tempRoot, path.join(xdgConfigHome, 'opencode', 'command', 'gsd-ljx-run-experiment.md'));
     assertExistsUnderTemp(tempRoot, path.join(xdgConfigHome, 'kilo', expectedInstallSurfaces.kiloGlobalCommand));
     assertExistsUnderTemp(tempRoot, path.join(localProject, expectedInstallSurfaces.clineLocalRules));
+    const clinerules = fs.readFileSync(path.join(localProject, expectedInstallSurfaces.clineLocalRules), 'utf8');
+    assertExistsUnderTemp(tempRoot, path.join(home, '.cline', '.clinerules'));
+    const globalClinerules = fs.readFileSync(path.join(home, '.cline', '.clinerules'), 'utf8');
+
+    for (const command of expectedResearchCommands()) {
+      assertExistsUnderTemp(tempRoot, path.join(claudeDir, 'skills', `gsd-${command}`, 'SKILL.md'));
+      assertExistsUnderTemp(tempRoot, path.join(localProject, '.claude', 'commands', 'gsd', `${command}.md`));
+      assertExistsUnderTemp(tempRoot, path.join(home, '.codex', 'skills', `gsd-${command}`, 'SKILL.md'));
+      assertExistsUnderTemp(tempRoot, path.join(home, '.qwen', 'skills', `gsd-${command}`, 'SKILL.md'));
+      assertExistsUnderTemp(tempRoot, path.join(home, '.gemini', 'commands', 'gsd', `${command}.toml`));
+      assertExistsUnderTemp(tempRoot, path.join(xdgConfigHome, 'opencode', 'command', `gsd-${command}.md`));
+      assertExistsUnderTemp(tempRoot, path.join(xdgConfigHome, 'kilo', 'command', `gsd-${command}.md`));
+      assertExistsUnderTemp(tempRoot, path.join(localProject, 'get-shit-done', 'commands', 'gsd', `${command}.md`));
+      assert.ok(clinerules.includes(`/gsd-${command}`), `.clinerules should expose /gsd-${command}`);
+      assertExistsUnderTemp(tempRoot, path.join(home, '.cline', 'get-shit-done', 'commands', 'gsd', `${command}.md`));
+      assert.ok(globalClinerules.includes(`/gsd-${command}`), `global .clinerules should expose /gsd-${command}`);
+    }
+  });
+
+  test('installer guards source directories from same-root local installs', () => {
+    const installer = fs.readFileSync(path.join(repoRoot, 'bin', 'install.js'), 'utf8');
+
+    assert.match(installer, /function isSameDirectory/, 'installer should define same-directory guard');
+    assert.match(installer, /isSameDirectory\(srcDir, destDir\)/, 'copyWithPathReplacement should skip same source and destination');
+    assert.match(installer, /isSameDirectory\(agentsSrc, agentsDest\)/, 'agent copy should skip same source and destination');
   });
 });
