@@ -113,7 +113,11 @@ User-facing entry points. Each file contains YAML frontmatter (name, description
 - **Copilot:** Slash commands (`/gsd-command-name`)
 - **Antigravity:** Skills
 
+<<<<<<< HEAD
 **Total commands:** 99
+=======
+**Total commands:** 80
+>>>>>>> upstream/main
 
 ### Workflows (`get-shit-done/workflows/*.md`)
 
@@ -124,7 +128,7 @@ Orchestration logic that commands reference. Contains the step-by-step process i
 - State update patterns
 - Error handling and recovery
 
-**Total workflows:** 71
+**Total workflows:** 77
 
 ### Agents (`agents/*.md`)
 
@@ -413,7 +417,7 @@ UI-SPEC.md (per phase) ───────────────────
 ├── get-shit-done/
 │   ├── bin/gsd-tools.cjs           # CLI utility
 │   ├── bin/lib/*.cjs               # 19 domain modules
-│   ├── workflows/*.md              # 71 workflow definitions
+│   ├── workflows/*.md              # 77 workflow definitions
 │   ├── references/*.md             # 35 shared reference docs
 │   └── templates/                  # Planning artifact templates
 ├── agents/*.md                     # 31 agent definitions
