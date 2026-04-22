@@ -13,7 +13,7 @@ Parse the command arguments:
 - First argument: integer phase number to insert after
 - Remaining arguments: phase description
 
-Example: `/gsd-insert-phase 72 Fix critical auth bug`
+Example: `/gsd:insert-phase 72 Fix critical auth bug`
 -> after = 72
 -> description = "Fix critical auth bug"
 
@@ -21,8 +21,8 @@ If arguments missing:
 
 ```
 ERROR: Both phase number and description required
-Usage: /gsd-insert-phase <after> <description>
-Example: /gsd-insert-phase 72 Fix critical auth bug
+Usage: /gsd:insert-phase <after> <description>
+Example: /gsd:insert-phase 72 Fix critical auth bug
 ```
 
 Exit.
@@ -66,7 +66,11 @@ Extract from result: `phase_number`, `after_phase`, `name`, `slug`, `directory`.
 Update STATE.md to reflect the inserted phase:
 
 1. Read `.planning/STATE.md`
-2. Under "## Accumulated Context" → "### Roadmap Evolution" add entry:
+2. Update STATE.md's next-phase pointers to the newly inserted phase `{decimal_phase}`:
+   - Update structured field(s) used by tooling (e.g. `current_phase:`) to `{decimal_phase}`.
+   - Update human-readable recommendation text (e.g. `## Current Phase`, `Next recommended run:`) to `{decimal_phase}`.
+   - If multiple pointer locations exist, update all of them in the same edit.
+3. Under "## Accumulated Context" → "### Roadmap Evolution" add entry:
    ```
    - Phase {decimal_phase} inserted after Phase {after_phase}: {description} (URGENT)
    ```
@@ -95,7 +99,7 @@ Project state updated: .planning/STATE.md
 
 `/clear` then:
 
-`/gsd-plan-phase {decimal_phase}`
+`/gsd:plan-phase {decimal_phase}`
 
 ---
 
@@ -111,11 +115,11 @@ Project state updated: .planning/STATE.md
 
 <anti_patterns>
 
-- Don't use this for planned work at end of milestone (use /gsd-add-phase)
+- Don't use this for planned work at end of milestone (use /gsd:add-phase)
 - Don't insert before Phase 1 (decimal 0.1 makes no sense)
 - Don't renumber existing phases
 - Don't modify the target phase content
-- Don't create plans yet (that's /gsd-plan-phase)
+- Don't create plans yet (that's /gsd:plan-phase)
 - Don't commit changes (user decides when to commit)
 </anti_patterns>
 

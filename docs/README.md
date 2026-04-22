@@ -9,8 +9,8 @@ Language versions: [English](README.md) · [Português (pt-BR)](pt-BR/README.md)
 | Document | Audience | Description |
 |----------|----------|-------------|
 | [Architecture](ARCHITECTURE.md) | Contributors, advanced users | System architecture, agent model, data flow, and internal design |
-| [Feature Reference](FEATURES.md) | All users | Complete feature and function documentation with requirements |
-| [Command Reference](COMMANDS.md) | All users | Every command with syntax, flags, options, and examples |
+| [Feature Reference](FEATURES.md) | All users | Feature narratives and requirements for released features (see [CHANGELOG](../CHANGELOG.md) for latest additions) |
+| [Command Reference](COMMANDS.md) | All users | Stable commands with syntax, flags, options, and examples |
 | [Configuration Reference](CONFIGURATION.md) | All users | Full config schema, workflow toggles, model profiles, git branching |
 | [CLI Tools Reference](CLI-TOOLS.md) | Contributors, agent authors | `gsd-tools.cjs` programmatic API for workflows and agents |
 | [Agent Reference](AGENTS.md) | Contributors, advanced users | All 18 specialized agents — roles, tools, spawn patterns |
@@ -22,6 +22,7 @@ Language versions: [English](README.md) · [Português (pt-BR)](pt-BR/README.md)
 
 ## Quick Links
 
+<<<<<<< HEAD
 - **Cutover install paths:** [docs/CUTOVER.md](CUTOVER.md) records current cutover readiness notes. Claude Code global installs use `~/.claude/skills/gsd-*/SKILL.md`; Claude Code local installs use `./.claude/commands/gsd/*.md`.
 - **Research overlay:** [Auto Research Skills Reference](AUTO-RESEARCH-SKILLS-REFERENCE.md) and [New GSD Research Skills Usage](NEW-GSD-RESEARCH-SKILLS-USAGE.md) cover the new thin `gsd-ljx-*` skills.
 - **What's new in v1.32:** STATE.md consistency gates, `--to N` autonomous flag, research gate, verifier scope filtering, read-before-edit guard, 4 new runtimes (Trae, Kilo, Augment, Cline), context reduction, response language config — see [CHANGELOG](../CHANGELOG.md)

@@ -13,13 +13,21 @@ Ensure config exists and load current state:
 
 ```bash
 gsd-sdk query config-ensure-section
-GSD_CONFIG_PATH=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-path)
 INIT=$(gsd-sdk query state.load)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
+# `state.load` returns STATE frontmatter JSON from the SDK — it does not include `config_path`. Orchestrators may set `GSD_CONFIG_PATH` from init phase-op JSON; otherwise resolve the same path gsd-tools uses for flat vs active workstream (#2282).
+if [[ -z "${GSD_CONFIG_PATH:-}" ]]; then
+  if [[ -f .planning/active-workstream ]]; then
+    WS=$(tr -d '\n\r' < .planning/active-workstream)
+    GSD_CONFIG_PATH=".planning/workstreams/${WS}/config.json"
+  else
+    GSD_CONFIG_PATH=".planning/config.json"
+  fi
+fi
 ```
 
-Creates config.json (at the workstream-aware path) with defaults if missing and loads current config values.
-Store `$GSD_CONFIG_PATH` — all subsequent reads and writes use this path, not the hardcoded `.planning/config.json`, so active-workstream installs write to the correct location (#2282).
+Creates `config.json` (at the resolved path) with defaults if missing. `INIT` still holds `state.load` output for any step that needs STATE fields.
+Store `$GSD_CONFIG_PATH` — all subsequent reads and writes use this path, not a hardcoded `.planning/config.json`, so active-workstream installs target the correct file (#2282).
 </step>
 
 <step name="read_current">
@@ -33,7 +41,7 @@ Parse current values (default to `true` if not present):
 - `workflow.verifier` — spawn verifier during execute-phase
 - `workflow.nyquist_validation` — validation architecture research during plan-phase (default: true if absent)
 - `workflow.ui_phase` — generate UI-SPEC.md design contracts for frontend phases (default: true if absent)
-- `workflow.ui_safety_gate` — prompt to run /gsd-ui-phase before planning frontend phases (default: true if absent)
+- `workflow.ui_safety_gate` — prompt to run /gsd:ui-phase before planning frontend phases (default: true if absent)
 - `workflow.ai_integration_phase` — framework selection + eval strategy for AI phases (default: true if absent)
 - `model_profile` — which model each agent uses (default: `balanced`)
 - `git.branching_strategy` — branching approach (default: `"none"`)
@@ -43,6 +51,17 @@ Parse current values (default to `true` if not present):
 <step name="present_settings">
 
 **Text mode (`workflow.text_mode: true` in config or `--text` flag):** Set `TEXT_MODE=true` if `--text` is present in `$ARGUMENTS` OR `text_mode` from init JSON is `true`. When TEXT_MODE is active, replace every `AskUserQuestion` call with a plain-text numbered list and ask the user to type their choice number. This is required for non-Claude runtimes (OpenAI Codex, Gemini CLI, etc.) where `AskUserQuestion` is not available.
+
+**Non-Claude runtime note:** If `TEXT_MODE` is active (i.e. the runtime is non-Claude), prepend the following notice before the model profile question:
+
+```
+Note: Quality, Balanced, and Budget profiles select Claude model tiers (Opus/Sonnet/Haiku).
+On non-Claude runtimes (Codex, Gemini CLI, etc.) these profiles have no effect on actual
+model selection — GSD agents will use the runtime's default model.
+Choose "Inherit" to use the session model for all agents, or configure model_overrides
+manually in .planning/config.json to target specific models for this runtime.
+```
+
 Use AskUserQuestion with current values pre-selected:
 
 ```
@@ -52,10 +71,10 @@ AskUserQuestion([
     header: "Model",
     multiSelect: false,
     options: [
-      { label: "Quality", description: "Opus everywhere except verification (highest cost)" },
-      { label: "Balanced (Recommended)", description: "Opus for planning, Sonnet for research/execution/verification" },
-      { label: "Budget", description: "Sonnet for writing, Haiku for research/verification (lowest cost)" },
-      { label: "Inherit", description: "Use current session model for all agents (best for OpenRouter, local models, or runtime model switching)" }
+      { label: "Quality", description: "Opus everywhere except verification (highest cost) — Claude only" },
+      { label: "Balanced (Recommended)", description: "Opus for planning, Sonnet for research/execution/verification — Claude only" },
+      { label: "Budget", description: "Sonnet for writing, Haiku for research/verification (lowest cost) — Claude only" },
+      { label: "Inherit", description: "Use current session model for all agents (required for non-Claude runtimes: Codex, Gemini CLI, OpenRouter, local models)" }
     ]
   },
   {
@@ -115,11 +134,11 @@ AskUserQuestion([
     ]
   },
   {
-    question: "Enable UI Safety Gate? (prompts to run /gsd-ui-phase before planning frontend phases)",
+    question: "Enable UI Safety Gate? (prompts to run /gsd:ui-phase before planning frontend phases)",
     header: "UI Gate",
     multiSelect: false,
     options: [
-      { label: "Yes (Recommended)", description: "plan-phase asks to run /gsd-ui-phase first when frontend indicators detected." },
+      { label: "Yes (Recommended)", description: "plan-phase asks to run /gsd:ui-phase first when frontend indicators detected." },
       { label: "No", description: "No prompt — plan-phase proceeds without UI-SPEC check." }
     ]
   },
@@ -166,7 +185,7 @@ AskUserQuestion([
     multiSelect: false,
     options: [
       { label: "No (Recommended)", description: "Run smart discuss before each phase — surfaces gray areas and captures decisions." },
-      { label: "Yes", description: "Skip discuss in /gsd-autonomous — chain directly to plan. Best for backend/pipeline work where phase descriptions are the spec." }
+      { label: "Yes", description: "Skip discuss in /gsd:autonomous — chain directly to plan. Best for backend/pipeline work where phase descriptions are the spec." }
     ]
   },
   {
@@ -290,13 +309,13 @@ Display:
 | Context Warnings     | {On/Off} |
 | Saved as Defaults    | {Yes/No} |
 
-These settings apply to future /gsd-plan-phase and /gsd-execute-phase runs.
+These settings apply to future /gsd:plan-phase and /gsd:execute-phase runs.
 
 Quick commands:
-- /gsd-set-profile <profile> — switch model profile
-- /gsd-plan-phase --research — force research
-- /gsd-plan-phase --skip-research — skip research
-- /gsd-plan-phase --skip-verify — skip plan check
+- /gsd:set-profile <profile> — switch model profile
+- /gsd:plan-phase --research — force research
+- /gsd:plan-phase --skip-research — skip research
+- /gsd:plan-phase --skip-verify — skip plan check
 ```
 </step>
 
