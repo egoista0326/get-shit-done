@@ -150,6 +150,82 @@ describe('replaceInCurrentMilestone', () => {
     expect(before).toContain('3 plans'); // old milestone untouched
     expect(after).toContain('4 plans'); // current milestone updated
   });
+
+  it('replaces only in current milestone when older milestones are wrapped in <details>', async () => {
+    const { replaceInCurrentMilestone } = await import('./phase-lifecycle.js');
+    const content = [
+      '# Roadmap',
+      '',
+      '<details>',
+      '<summary>✅ v1.18 (shipped)</summary>',
+      '',
+      '### Phase 1: Old Phase',
+      '',
+      '- [ ] Phase 1: Old Phase',
+      '',
+      '</details>',
+      '',
+      '<details>',
+      '<summary>✅ v1.19 (shipped)</summary>',
+      '',
+      '### Phase 2: Another Old Phase',
+      '',
+      '</details>',
+      '',
+      '## Current Milestone: v1.20',
+      '',
+      '- [ ] Phase 3: Current work',
+      '',
+      '### Phase 3: Current work',
+      '',
+      '**Plans:** 0/2 plans',
+      '',
+    ].join('\n');
+
+    const pattern = /\*\*Plans:\*\* [^\n]+/;
+    const result = replaceInCurrentMilestone(content, pattern, '**Plans:** 2/2 plans complete');
+
+    // Should update Phase 3's Plans line (current milestone)
+    expect(result).toContain('**Plans:** 2/2 plans complete');
+    // Should NOT touch v1.18 or v1.19 sections
+    expect(result).toContain('✅ v1.18');
+    expect(result).toContain('✅ v1.19');
+  });
+
+  it('replaces inside active milestone when it is wrapped in a <details> block', async () => {
+    const { replaceInCurrentMilestone } = await import('./phase-lifecycle.js');
+    // Scenario: active milestone is collapsed in <details> (e.g. user collapsed it)
+    const content = [
+      '# Roadmap',
+      '',
+      '<details>',
+      '<summary>✅ v1.18 (shipped)</summary>',
+      '',
+      '### Phase 1: Old Phase',
+      '',
+      '**Plans:** 1/1 plans',
+      '',
+      '</details>',
+      '',
+      '<details>',
+      '<summary>🚧 v1.19 in-progress</summary>',
+      '',
+      '### Phase 2: Current Work',
+      '',
+      '**Plans:** 1/2 plans',
+      '',
+      '</details>',
+      '',
+    ].join('\n');
+
+    const pattern = /\*\*Plans:\*\* [^\n]+/g;
+    const result = replaceInCurrentMilestone(content, pattern, '**Plans:** 2/2 plans complete');
+
+    // The replacement should happen somewhere in the content (not silently dropped)
+    expect(result).toContain('**Plans:** 2/2 plans complete');
+    // v1.18 old plans line should remain untouched
+    expect(result).toContain('**Plans:** 1/1 plans');
+  });
 });
 
 // ─── readModifyWriteRoadmapMd ───────────────────────────────────────────
