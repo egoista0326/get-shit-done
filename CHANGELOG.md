@@ -4,7 +4,164 @@ All notable changes to GSD will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased](https://github.com/gsd-build/get-shit-done/compare/v1.37.1...HEAD)
+## [Unreleased](https://github.com/gsd-build/get-shit-done/compare/v1.38.5...HEAD)
+
+### Added
+- `--minimal` install flag (alias `--core-only`) writes only the main-loop core skills
+  (`new-project`, `discuss-phase`, `plan-phase`, `execute-phase`, `help`, `update`) and
+  zero `gsd-*` subagents. Cuts cold-start system-prompt overhead from ~12k tokens to
+  ~700, useful for local LLMs with 32K–128K context (Sonnet 4.6 / Opus 4.7 don't need
+  it). Re-run `gsd update` without `--minimal` to expand to the full surface. The
+  install manifest now records `mode: "minimal" | "full"`. (#2762)
+- **`/gsd-edit-phase` command** — modify any field of an existing phase in ROADMAP.md
+  without changing its number or position. Supports `--force` to skip the confirmation
+  diff, validates `depends_on` references, and updates STATE.md on write. (#2617)
+- **Post-merge build & test gate** — execute-phase step 5.6 now runs in both parallel
+  and serial mode. Adds a build gate that auto-detects the build command from
+  `workflow.build_command` config, then falls back to Xcode (`.xcodeproj`), Makefile,
+  Justfile, Cargo, Go, Python, or npm. Xcode/iOS projects run `xcodebuild build` and
+  `xcodebuild test` automatically. (#2720)
+- **Extended runtime model profiles** — RUNTIME_PROFILE_MAP now covers `gemini`,
+  `qwen`, `opencode`, and `copilot` runtimes with full three-tier (fast/balanced/opus)
+  model mappings. Group B runtimes (kilo, cline, cursor, windsurf, augment, trae,
+  codebuddy, antigravity) fall through to the existing unknown-runtime fallback. (#2612)
+- **Workstream config inheritance** — when `GSD_WORKSTREAM` is set, the root
+  `.planning/config.json` is loaded first and deep-merged with the workstream config
+  (workstream wins on conflict). Explicit `null` in a workstream config now correctly
+  overrides a root value. (#2714)
+
+### Fixed
+- **Codex install no longer corrupts existing `~/.codex/config.toml`** — the installer
+  now defensively strips legacy `[agents]` (single-bracket) and `[[agents]]` (sequence)
+  blocks regardless of GSD marker presence (both invalid in current Codex schema), emits
+  the GSD-managed hook in the user's preferred shape (`[[hooks.<Event>]]` namespaced AoT
+  if any user hook uses it, otherwise top-level `[[hooks]]`), migrates legacy
+  `[hooks.<Event>]` to namespaced AoT, and atomically writes via temp-file +
+  `renameSync`. A strict TOML parser validates the post-write bytes against the Codex
+  schema and rejects duplicate keys, repeated table headers, trailing bytes after
+  values, and unsupported value types. Both pre-write helper failures and write-time
+  failures restore the pre-install snapshot and abort with a clear error rather than
+  warn-and-continue. (#2760)
+- **Codex `[[agents]]` reverted to `[agents.<name>]` struct format** — the sequence
+  format introduced in #2645 is rejected by codex-cli 0.124.0 with "invalid type:
+  sequence, expected struct AgentsToml". Reverted to struct format which is correct for
+  0.120.0+. The self-healing stripper handles both formats for configs written by prior
+  GSD versions. (#2727)
+- **Codex legacy `[hooks]` map format auto-migrated** — Codex 0.124.0 requires
+  `[[hooks]]` array-of-tables; old GSD installs that wrote `[hooks.shell]` map-style
+  now self-heal on the next `gsd install --codex`. (#2637)
+- **`gsd-sdk` PATH verification tightened** — installer now probes for an executable
+  `gsd-sdk` shim on PATH after confirming `sdk/dist/cli.js` is present, and attempts
+  to materialize one via symlink at `~/.local/bin/gsd-sdk` when absent. Only prints
+  `✓ GSD SDK ready` when the probe succeeds. (#2775, #2777)
+- **USER-PROFILE.md no longer triggers false "locally modified" warning** — the file
+  was both preserved across reinstalls and tracked in `gsd-file-manifest.json`, causing
+  the stale-hash diff to fire on every profile refresh. `USER_OWNED_ARTIFACTS` is now a
+  single source of truth used by both the preserve and manifest write paths. (#2771)
+- **All `gsd-sdk query` handlers now respect `--ws`** — 18+ handlers accepted
+  `_workstream` but never forwarded it to `planningPaths`/`loadConfig`. Workstream now
+  scopes path resolution correctly in `initNewProject`, `configGet`, `configSet`,
+  `commit`, `validateHealth`, and all other handlers. (#2731)
+- **`resolveModel` threads workstream** — config-query `resolveModel` ignored
+  `_workstream` unlike `configGet`/`configPath`, so different workstreams with different
+  `model_profile` settings would get the root profile instead of their own. (#2742)
+- **`parseMustHavesBlock` quoted strings** — fully-quoted truths containing `:` (e.g.
+  `"App-side UUIDv4: generated locally"`) fell into the kv-parse branch, the regex
+  failed, and `current` stayed as `{}`, crashing `annotate-dependencies` with
+  `TypeError: t.trim is not a function`. Fixed in both `frontmatter.cjs` and
+  `roadmap.cjs`. (#2757, #2734)
+- **`gsd state complete-phase` subcommand** — was missing; unknown subcommands fell
+  through to `cmdStateLoad`. Now updates `Status`, `Last Activity`, and
+  `Current Position` to `COMPLETE`. (#2735)
+- **Non-string `depends_on` values preserved** — numeric YAML scalars and kv-shaped
+  truths were silently dropped by `annotate-dependencies` via an early `typeof t !==
+  'string'` skip. A `coerceTruthToString` helper now coerces numbers/booleans and
+  extracts a string field from object-shaped items. (#2770)
+- **Worktree isolation scoped to submodule-touching plans** — the previous guard
+  unconditionally set `USE_WORKTREES=false` when `.gitmodules` existed. Now parses
+  submodule paths and intersects per-plan `files_modified`; only plans that touch a
+  submodule path skip worktree isolation. (#2772)
+- **Worktree cleanup uses inclusion filter** — the exclusion-based cleanup
+  (`grep -v "$(pwd)$"`) failed in multi-workspace and cross-drive Windows setups,
+  destroying the workspace's `.git` pointer. Cleanup now targets only
+  `.claude/worktrees/agent-*` paths, which agent-spawned worktrees always use. (#2774)
+- **`Requirements:` header variants all parse correctly** — both `**Requirements:**`
+  (colon inside bold) and `**Requirements**:` (colon outside bold) now match in
+  `extractReqIds` and the `phase complete` traceability sweep. (#2769)
+- **`gsd-sdk query commit` paths passed via `--files`** — 81 invocations across 50
+  files were passing paths positionally, which appended them to the commit subject and
+  triggered the wholesale-stage fallback. All sites updated. (#2767)
+- **Phase detection in bullet/bold ROADMAP formats** — `phaseAdd`'s regex only matched
+  heading format (`## Phase N:`), missing bullet checklist and bold entries. Broadened
+  to all three formats with filesystem fallback on zero matches. (#2726)
+- **Plan-line overwrite when `**Plans:**` is empty** — `\s*` after `**Plans:**`
+  matched newlines, causing `[^\n]+` to consume the first plan checkbox. Replaced with
+  `[ \t]*` (horizontal whitespace only) and added section-boundary lookahead. (#2728)
+- **Phase-lifecycle `<details>`-wrapped active milestone** — `replaceInCurrentMilestone`
+  silently dropped replacements when the active milestone was itself inside a `<details>`
+  block (the after-slice was empty). Falls back to locating the last complete
+  `<details>…</details>` span. (#2641)
+- **Phase-lifecycle project-code-prefixed directory names** — filesystem fallback regex
+  `/^(\d+)-/` missed directories like `CK-45-foundation`. Updated to
+  `/^(?:[A-Z][A-Z0-9]*-)?(\d+)-/i`.
+- **`roadmap.update-plan-progress` regex** — `\s*` crossing newlines shared the same
+  corruption vector as `planCountPattern`; replaced with `[ \t]*` plus section-boundary
+  lookahead.
+- **`replaceInCurrentMilestone` fast-path guard** — the `after.trim().length > 0`
+  check incorrectly triggered when `after` contained only footer text, returning
+  unchanged content instead of falling through to the slow path.
+- **`graphify` CLI updated to subcommand form** — `graphify . --update` was removed in
+  v0.4.x in favour of `graphify update .`. Version detection now tries
+  `graphify --version` before falling back to the Python importlib query. (#2732)
+- **LM Studio model identity validated in review workflow** — captures the full API
+  response and compares the top-level `.model` field against `LM_STUDIO_MODEL`, emitting
+  a warning when the served model differs. Empty-content responses no longer write error
+  text into the review temp file (same fix applied to llama.cpp). (#2721)
+- **SDK `globalDefaults` preserved for nested config keys** — `workflow`, `git`,
+  `hooks`, `agent_skills`, and `features` sections were missing the `globalDefaults`
+  spread at the correct precedence level, silently dropping user values from
+  `~/.gsd/defaults.json`. (#2673)
+- **`MODEL_ALIAS_MAP` updated to `claude-opus-4-7`** — both `MODEL_ALIAS_MAP` and
+  `RUNTIME_PROFILE_MAP.claude.opus` were pinned to `claude-opus-4-6`. (#2733)
+- **Orchestrators wait for subagents before continuing** — 26 GSD workflow files now
+  include an explicit `ORCHESTRATOR RULE` blockquote immediately after every `Task()`
+  spawn, preventing the Codex parallel-work anti-pattern where the parent continues
+  reading files and producing conflicting output. (#2729)
+
+### Performance
+- **`discuss-phase` lazy file loading** — entry-point `@file` directives replaced with
+  on-demand `Read()` calls gated behind mode routing. Tokens loaded at skill entry drop
+  from ~13k to near zero; only the branch actually invoked is loaded. (#2606)
+
+## [1.38.5] - 2026-04-25
+
+### Fixed
+- SDK executor agents now write SUMMARY.md to `.planning/phases/{phase}/` instead of the project root — `phaseDir` is threaded from PhaseRunner through to the executor prompt's completion instructions
+
+## [1.38.4] - 2026-04-25
+
+### Fixed
+- **SDK uses full installed agent/workflow prompts** — The SDK was bundling stripped-down copies of agent definitions (~17% of the real content), missing critical instructions like plan file naming conventions, scope reduction rules, and discovery protocols. The SDK now loads the complete installed agents at runtime and resolves `@`-file references instead of stripping them.
+- **SDK executor receives actual plan content** — `executeSinglePlan` was passing `null` to the prompt builder instead of the parsed plan file. The executor now loads, parses, and passes the full plan (tasks, objectives, verification criteria) to the prompt.
+- **SDK verification checks VERIFICATION.md, not just session exit code** — A verify session that wrote `status: gaps_found` to VERIFICATION.md was treated as "passed" because the session itself didn't crash. The gap-closure retry loop now reads the actual verification status from disk.
+- **SDK plan ID derivation for bare PLAN.md files** — Plans named `PLAN.md` (instead of `01-01-PLAN.md`) produced an empty-string ID, causing downstream execution issues.
+- **SDK headless discuss mode prevents interactive tool calls** — The self-discuss step loaded the full interactive workflow prompt, causing the agent to invoke `AskUserQuestion` and `Skill()` in headless mode. A mandatory headless override is now prepended to prevent interactive tool usage.
+
+### Removed
+- Deleted 13 bundled SDK prompt files (`sdk/prompts/agents/`, `sdk/prompts/workflows/`) that were maintained as stripped-down copies and had drifted from the real agents.
+
+### Enhancement: richer architecture docs from `/gsd-map-codebase` (#2500)
+
+`/gsd-map-codebase` (arch focus) now produces a `.planning/codebase/ARCHITECTURE.md` with the same richness as the research version created at project creation:
+
+- **ASCII system overview diagram** — component boxes and request-flow arrows, generated from actual codebase analysis
+- **Component responsibility table** — Component / Responsibility / File columns for at-a-glance orientation
+- **Data flow traces** — Primary request path and secondary flows with numbered steps and code references (`file:line`)
+- **Architectural constraints** — Threading model, global state inventory, circular import chains
+- **Anti-patterns** — Codebase-specific patterns to avoid, with the correct alternative
+- **`<!-- refreshed: {date} -->`** marker at the top so users can see when the doc was last generated
+
+Running `/gsd-map-codebase` or `/gsd-scan --focus arch` after a major refactor now produces an up-to-date architectural reference that includes the visual diagrams previously only available in the (non-refreshable) research version.
 
 ### SDK query layer — Phase 3 (what you get)
 
@@ -28,7 +185,16 @@ If you use GSD **as a workflow**—milestones, phases, `.planning/` artifacts, b
 
 ### Fixed
 
+- **End-of-phase routing suggestions now use `/gsd-<cmd>` (not the retired `/gsd:<cmd>`)** — All user-visible command suggestions in workflows (`execute-phase.md`, `transition.md`), tool output (`profile-output.cjs`, `init.cjs`), references, and templates have been updated from `/gsd:<cmd>` to `/gsd-<cmd>`, matching the Claude Code skill directory name and the user-typed slash-command format. Internal `Skill(skill="gsd:<cmd>")` calls (no leading slash) are preserved unchanged — those resolve by frontmatter `name:` not directory name. The namespace test (`bug-2543-gsd-slash-namespace.test.cjs`) has been updated to enforce the current invariant. Closes #2697.
+
+- **`gsd-sdk query` now resolves parent `.planning/` root in multi-repo (`sub_repos`) workspaces** — when invoked from inside a `sub_repos`-listed child repo (e.g. `workspace/app/`), the SDK now walks up to the parent workspace that owns `.planning/`, matching the legacy `gsd-tools.cjs` `findProjectRoot` behavior. Previously `gsd-sdk query init.new-milestone` reported `project_exists: false` from the sub-repo, while `gsd-tools.cjs` resolved the parent root correctly. Resolution happens once in `cli.ts` before dispatch; if `projectDir` already owns `.planning/` (including explicit `--project-dir`), the walk is a no-op. Ported as `findProjectRoot` in `sdk/src/query/helpers.ts` with the same detection order (own `.planning/` wins, then parent `sub_repos` match, then legacy `multiRepo: true`, then `.git` heuristic), capped at 10 parent levels and never crossing `$HOME`. Closes #2623.
 - **Shell hooks falsely flagged as stale on every session** — `gsd-phase-boundary.sh`, `gsd-session-state.sh`, and `gsd-validate-commit.sh` now ship with a `# gsd-hook-version: {{GSD_VERSION}}` header; the installer substitutes `{{GSD_VERSION}}` in `.sh` hooks the same way it does for `.js` hooks; and the stale-hook detector in `gsd-check-update.js` now matches bash `#` comment syntax in addition to JS `//` syntax. All three changes are required together — neither the regex fix alone nor the install fix alone is sufficient to resolve the false positive (#2136, #2206, #2209, #2210, #2212)
+
+## [1.38.2] - 2026-04-19
+
+### Fixed
+- **SDK decoupled from build-from-source install** — replaces the fragile `tsc` + `npm install -g ./sdk` dance on user machines with a prebuilt `sdk/dist/` shipped inside the parent `get-shit-done-cc` tarball. The `gsd-sdk` CLI is now a `bin/gsd-sdk.js` shim in the parent package that resolves `sdk/dist/cli.js` and invokes it via `node`, so npm chmods the bin entry from the tarball (not from a secondary local install) and PATH/exec-bit issues cannot occur. Repurposes `installSdkIfNeeded()` in `bin/install.js` to only verify `sdk/dist/cli.js` exists and fix its execute bit (non-fatal); deletes `resolveGsdSdk()`, `detectShellRc()`, `emitSdkFatal()` and the source-build/global-install logic (162 lines removed). `release.yml` now runs `npm run build:sdk` before publish in both rc and finalize jobs, so every published tarball contains fresh SDK dist. `sdk/package.json` `prepublishOnly` is the final safety net (`rm -rf dist && tsc && chmod +x dist/cli.js`). `install-smoke.yml` adds an `smoke-unpacked` variant that installs from the unpacked dir with the exec bit stripped, so this class of regression cannot ship again. Closes #2441 and #2453.
+- **`--sdk` flag semantics changed** — previously forced a rebuild of the SDK from source; now verifies the bundled `sdk/dist/` is resolvable. Users who were invoking `get-shit-done-cc --sdk` as a "force rebuild" no longer need it — the SDK ships prebuilt.
 
 ### Added
 - **`/gsd-ingest-docs` command** — Scan a repo containing mixed ADRs, PRDs, SPECs, and DOCs and bootstrap or merge the full `.planning/` setup from them in a single pass. Parallel classification (`gsd-doc-classifier`), synthesis with precedence rules and cycle detection (`gsd-doc-synthesizer`), three-bucket conflicts report (`INGEST-CONFLICTS.md`: auto-resolved, competing-variants, unresolved-blockers), and hard-block on LOCKED-vs-LOCKED ADR contradictions in both new and merge modes. Supports directory-convention discovery and `--manifest <file>` YAML override with per-doc precedence. v1 caps at 50 docs per invocation; `--resolve interactive` is reserved. Extracts shared conflict-detection contract into `references/doc-conflict-engine.md` which `/gsd-import` now also consumes (#2387)
@@ -2368,7 +2534,9 @@ Technical implementation details for Phase 2 appear in the **Changed** section b
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/gsd-build/get-shit-done/compare/v1.37.1...HEAD
+[Unreleased]: https://github.com/gsd-build/get-shit-done/compare/v1.38.4...HEAD
+[1.38.4]: https://github.com/gsd-build/get-shit-done/compare/v1.38.2...v1.38.4
+[1.38.2]: https://github.com/gsd-build/get-shit-done/compare/v1.37.1...v1.38.2
 [1.37.1]: https://github.com/gsd-build/get-shit-done/compare/v1.37.0...v1.37.1
 [1.37.0]: https://github.com/gsd-build/get-shit-done/compare/v1.36.0...v1.37.0
 [1.36.0]: https://github.com/gsd-build/get-shit-done/releases/tag/v1.36.0

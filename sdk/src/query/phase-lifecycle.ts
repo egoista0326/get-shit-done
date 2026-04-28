@@ -85,6 +85,12 @@ function generateSlugInternal(text: string): string {
  * If no `</details>` blocks exist, replaces in the entire content.
  * Otherwise, only replaces in content after the last `</details>` close tag.
  *
+ * Edge case: when the active milestone is itself wrapped in a `<details>` block
+ * (e.g. collapsed before it is fully shipped), the last `</details>` belongs to
+ * the active milestone and the `after` slice is empty. In that case the function
+ * falls back to searching the full content with all complete `<details>` blocks
+ * stripped, so archived milestones are never touched.
+ *
  * @param content - Full ROADMAP.md content
  * @param pattern - Regex or string pattern to match
  * @param replacement - Replacement string
@@ -102,7 +108,41 @@ export function replaceInCurrentMilestone(
   const offset = lastDetailsClose + '</details>'.length;
   const before = content.slice(0, offset);
   const after = content.slice(offset);
-  return before + after.replace(pattern, replacement);
+
+  // Fast path: the current milestone is not inside a <details> block — the
+  // pattern lives in the plain text after the last </details>.
+  const replacedAfter = after.replace(pattern, replacement);
+  if (replacedAfter !== after) {
+    return before + replacedAfter;
+  }
+
+  // Slow path: the active milestone is inside the last <details> block.
+  // Strip every complete <details>…</details> block except the last one, then
+  // apply the replacement inside that last block while leaving the stripped
+  // (archived) blocks untouched.
+  //
+  // Strategy:
+  //   1. Collect all complete <details>…</details> spans.
+  //   2. Replace only inside the LAST span; leave earlier spans unchanged.
+  const detailsBlockRe = /<details>[\s\S]*?<\/details>/gi;
+  const spans: { start: number; end: number; text: string }[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = detailsBlockRe.exec(content)) !== null) {
+    spans.push({ start: m.index, end: m.index + m[0].length, text: m[0] });
+  }
+
+  if (spans.length === 0) {
+    // No complete blocks found — fall back to full-content replace.
+    return content.replace(pattern, replacement);
+  }
+
+  const lastSpan = spans[spans.length - 1];
+  const updatedLastBlock = lastSpan.text.replace(pattern, replacement);
+  return (
+    content.slice(0, lastSpan.start) +
+    updatedLastBlock +
+    content.slice(lastSpan.end)
+  );
 }
 
 // ─── readModifyWriteRoadmapMd ───────────────────────────────────────────
@@ -191,13 +231,34 @@ export const phaseAdd: QueryHandler = async (args, projectDir, workstream) => {
     } else {
       // Sequential mode: find highest integer phase number (in current milestone only)
       // Skip 999.x backlog phases — they live outside the active sequence
-      const phasePattern = /#{2,4}\s*Phase\s+(\d+)[A-Z]?(?:\.\d+)*:/gi;
+      // Matches heading (## Phase N:), bullet checklist (- [x] Phase N:), and bold (**Phase N:**)
+      const phasePattern = /(?:^|\n)\s*(?:[-*]\s*(?:\[[x ]\]\s*)?|#{2,4}\s*|\*{1,2}\s*)Phase\s+(\d+)[A-Z]?(?:\.\d+)*:/gi;
       let maxPhase = 0;
       let m: RegExpExecArray | null;
       while ((m = phasePattern.exec(content)) !== null) {
         const num = parseInt(m[1], 10);
         if (num >= 999) continue; // backlog phases use 999.x numbering
         if (num > maxPhase) maxPhase = num;
+      }
+
+      // Belt-and-suspenders: if ROADMAP scan found nothing, fall back to scanning
+      // .planning/phases/ directory names as the canonical source of truth
+      if (maxPhase === 0) {
+        const phasesDir = planningPaths(projectDir, workstream).phases;
+        try {
+          const entries = await readdir(phasesDir, { withFileTypes: true });
+          for (const entry of entries) {
+            if (!entry.isDirectory()) continue;
+            const dirMatch = /^(?:[A-Z][A-Z0-9]*-)?(\d+)[A-Z]?(?:\.\d+)*-/i.exec(entry.name);
+            if (dirMatch) {
+              const num = parseInt(dirMatch[1], 10);
+              if (num >= 999) continue;
+              if (num > maxPhase) maxPhase = num;
+            }
+          }
+        } catch {
+          // phases dir may not exist yet — leave maxPhase as 0
+        }
       }
 
       newPhaseId = maxPhase + 1;
@@ -1194,7 +1255,7 @@ export const phaseComplete: QueryHandler = async (args, projectDir, workstream) 
 
       // Update plan count in phase section
       const planCountPattern = new RegExp(
-        `(#{2,4}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
+        `(#{2,4}\\s*Phase\\s+${phaseEscaped}(?:(?!\\n#{2,4})[\\s\\S])*?\\*\\*Plans:\\*\\*[ \\t]*)[^\\n]+`,
         'i',
       );
       roadmapContent = replaceInCurrentMilestone(
@@ -1256,12 +1317,31 @@ export const phaseComplete: QueryHandler = async (args, projectDir, workstream) 
   let nextPhaseNum: string | null = null;
   let nextPhaseName: string | null = null;
   let isLastPhase = true;
+  // Tracks whether the completed phase belongs to the primary milestone in STATE.md.
+  // When false (parallel-milestone case, Bug #2676), the milestone filter is bypassed
+  // for next-phase detection so phases from the same secondary milestone are visible.
+  let completedPhaseInPrimaryMilestone = true;
 
   try {
     const isDirInMilestone = await getMilestonePhaseFilter(projectDir, workstream);
     const entries = await readdir(paths.phases, { withFileTypes: true });
-    const dirs = entries.filter(e => e.isDirectory()).map(e => e.name)
-      .filter(isDirInMilestone)
+    const allDirs = entries.filter(e => e.isDirectory()).map(e => e.name);
+
+    // Guard: if the completed phase's directory is not in the current-milestone filter
+    // set, the filter was built from a different (primary) milestone in STATE.md.
+    // In that case skip the filter so we can find the true next phase on disk.
+    // This handles parallel-milestone workflows where STATE.md's `milestone:` field
+    // points at the primary milestone but the phase being completed belongs to a
+    // secondary in-flight milestone. (Bug #2676)
+    const completedDirInFilter = allDirs.some((d) => {
+      const dm = d.match(/^(\d+[A-Z]?(?:\.\d+)*)-?/i);
+      return dm && comparePhaseNum(dm[1], phaseNum) === 0 && isDirInMilestone(d);
+    });
+    completedPhaseInPrimaryMilestone = completedDirInFilter;
+    const effectiveFilter = completedDirInFilter ? isDirInMilestone : (_d: string) => true;
+
+    const dirs = allDirs
+      .filter(effectiveFilter)
       .sort((a, b) => comparePhaseNum(a, b));
 
     for (const dir of dirs) {
@@ -1277,11 +1357,16 @@ export const phaseComplete: QueryHandler = async (args, projectDir, workstream) 
     }
   } catch { /* intentionally empty */ }
 
-  // Fallback: check ROADMAP.md for phases not yet scaffolded
+  // Fallback: check ROADMAP.md for phases not yet scaffolded.
+  // When the completed phase is from a parallel (non-primary) milestone, scan the
+  // full ROADMAP rather than the primary-milestone slice so 41.3 is visible when
+  // completing 41.2 for a secondary milestone. (Bug #2676)
   if (isLastPhase && existsSync(paths.roadmap)) {
     try {
       const roadmapContent = await readFile(paths.roadmap, 'utf-8');
-      const roadmapForPhases = await extractCurrentMilestone(roadmapContent, projectDir);
+      const roadmapForPhases = completedPhaseInPrimaryMilestone
+        ? await extractCurrentMilestone(roadmapContent, projectDir)
+        : roadmapContent;
       const phasePattern = /#{2,4}\s*Phase\s+(\d+[A-Z]?(?:\.\d+)*)\s*:\s*([^\n]+)/gi;
       let pm: RegExpExecArray | null;
       while ((pm = phasePattern.exec(roadmapForPhases)) !== null) {

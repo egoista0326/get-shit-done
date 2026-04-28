@@ -26,7 +26,7 @@ if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 Parse JSON for: `milestone_version`, `milestone_name`, `phase_count`, `completed_count`, `in_progress_count`, `phases`, `recommended_actions`, `all_complete`, `waiting_signal`, `manager_flags`, and the optional trio `queued_milestone_version`, `queued_milestone_name`, `queued_phases` (added in SDK fix `2495-2496-2497` — may be absent on older SDK versions, treat missing as empty).
 
 `manager_flags` contains per-step passthrough flags from config:
-- `manager_flags.discuss` — appended to `/gsd:discuss-phase` args (e.g. `"--auto --analyze"`)
+- `manager_flags.discuss` — appended to `/gsd-discuss-phase` args (e.g. `"--auto --analyze"`)
 - `manager_flags.plan` — appended to plan agent init command
 - `manager_flags.execute` — appended to execute agent init command
 
@@ -135,8 +135,8 @@ If `all_complete` is true:
 ╚══════════════════════════════════════════════════════════════╝
 
 All {phase_count} phases done. Ready for final steps:
-  → /gsd:verify-work — run acceptance testing
-  → /gsd:complete-milestone — archive and wrap up
+  → /gsd-verify-work — run acceptance testing
+  → /gsd-complete-milestone — archive and wrap up
 ```
 
 
@@ -263,6 +263,8 @@ Important: You are running in the background. Do NOT use AskUserQuestion — mak
 )
 ```
 
+> **ORCHESTRATOR RULE — CODEX RUNTIME**: After calling Task() above with `run_in_background=true`, do NOT do any planning work for this phase independently. Return to the dashboard immediately and wait for the background agent to report back. Only resume planning-related work when the subagent result is available.
+
 Display:
 
 ```
@@ -294,6 +296,8 @@ This delegates to the full execute-phase pipeline including local patches, branc
 Important: You are running in the background. Do NOT use AskUserQuestion — make autonomous decisions. Do NOT use --no-verify on git commits — let pre-commit hooks run normally. If you hit a permission error, file lock, or any access issue, do NOT work around it — let it fail and write the error to STATE.md as a blocker so the manager can surface it with resolution guidance."
 )
 ```
+
+> **ORCHESTRATOR RULE — CODEX RUNTIME**: After calling Task() above with `run_in_background=true`, do NOT do any execution work for this phase independently. Return to the dashboard immediately and wait for the background agent to report back. Only resume execution-related work when the subagent result is available.
 
 Display:
 
@@ -359,11 +363,11 @@ Display final status with progress bar:
  {milestone_version} — {milestone_name}
  {PROGRESS_BAR} {progress_pct}%  ({completed_count}/{phase_count} phases)
 
- Resume anytime: /gsd:manager
+ Resume anytime: /gsd-manager
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Note:** Any background agents still running will continue to completion. Their results will be visible on next `/gsd:manager` or `/gsd:progress` invocation.
+**Note:** Any background agents still running will continue to completion. Their results will be visible on next `/gsd-manager` or `/gsd-progress` invocation.
 
 </step>
 

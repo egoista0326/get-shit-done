@@ -122,7 +122,7 @@ De-duplicate the union (a file matched by multiple patterns is one doc).
 ```
 GSD > Discovered {N} docs, which exceeds the v1 cap of 50.
       Use --manifest to narrow the set to ≤ 50 files, or run
-      /gsd:ingest-docs again with a narrower <path>.
+      /gsd-ingest-docs again with a narrower <path>.
 ```
 
 Exit without proceeding.
@@ -195,6 +195,8 @@ Task({
 })
 ```
 
+> **ORCHESTRATOR RULE — CODEX RUNTIME**: After calling Task() above, stop working on this task immediately. Do not read or synthesize any classified documents independently while the subagent is active. Wait for the subagent to return its result. This prevents duplicate work, conflicting edits, and wasted context. Only resume when the subagent result is available.
+
 The synthesizer writes:
 - `.planning/intel/decisions.md`, `.planning/intel/requirements.md`, `.planning/intel/constraints.md`, `.planning/intel/context.md`
 - `.planning/intel/SYNTHESIS.md`
@@ -261,6 +263,8 @@ Task({
 })
 ```
 
+> **ORCHESTRATOR RULE — CODEX RUNTIME**: After calling Task() above, stop working on this task immediately. Do not read more intel files, write planning artifacts, or create ROADMAP.md independently while the subagent is active. Wait for the subagent to return its result. This prevents duplicate work, conflicting edits, and wasted context. Only resume when the subagent result is available.
+
 </step>
 
 <step name="route_merge_mode">
@@ -285,7 +289,7 @@ Preview the merge diff to the user and gate via approve-revise-abort before writ
 Commit the ingest results:
 
 ```bash
-gsd-sdk query commit "docs: ingest {N} docs from {SCAN_PATH} (#2387)" \
+gsd-sdk query commit "docs: ingest {N} docs from {SCAN_PATH} (#2387)" --files \
   .planning/PROJECT.md \
   .planning/REQUIREMENTS.md \
   .planning/ROADMAP.md \
@@ -309,7 +313,7 @@ Show:
 - Docs ingested (count + type breakdown)
 - Decisions locked, requirements created, constraints captured
 - Conflict report path (`.planning/INGEST-CONFLICTS.md`)
-- Next step: `/gsd:plan-phase 1` (new mode) or `/gsd:plan-phase N` (merge, pointing at the first newly-added phase)
+- Next step: `/gsd-plan-phase 1` (new mode) or `/gsd-plan-phase N` (merge, pointing at the first newly-added phase)
 
 </step>
 

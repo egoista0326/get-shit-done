@@ -54,7 +54,7 @@ Full roster at `agents/gsd-*.md`. The "Primary doc" column flags whether [`docs/
 
 ---
 
-## Commands (83 shipped)
+## Commands (86 shipped)
 
 Full roster at `commands/gsd/*.md`. The groupings below mirror `docs/COMMANDS.md` section order; each row carries the command name, a one-line role derived from the command's frontmatter `description:`, and a link to the source file. `tests/command-count-sync.test.cjs` locks the count against the filesystem.
 
@@ -92,6 +92,7 @@ Full roster at `commands/gsd/*.md`. The groupings below mirror `docs/COMMANDS.md
 | Command | Role | Source |
 |---------|------|--------|
 | `/gsd-add-phase` | Add phase to end of current milestone in roadmap. | [commands/gsd/add-phase.md](../commands/gsd/add-phase.md) |
+| `/gsd-edit-phase` | Edit any field of an existing roadmap phase in place, preserving number and position. | [commands/gsd/edit-phase.md](../commands/gsd/edit-phase.md) |
 | `/gsd-insert-phase` | Insert urgent work as decimal phase (e.g., 72.1) between existing phases. | [commands/gsd/insert-phase.md](../commands/gsd/insert-phase.md) |
 | `/gsd-remove-phase` | Remove a future phase from roadmap and renumber subsequent phases. | [commands/gsd/remove-phase.md](../commands/gsd/remove-phase.md) |
 | `/gsd-add-tests` | Generate tests for a completed phase based on UAT criteria and implementation. | [commands/gsd/add-tests.md](../commands/gsd/add-tests.md) |
@@ -163,6 +164,8 @@ Full roster at `commands/gsd/*.md`. The groupings below mirror `docs/COMMANDS.md
 | `/gsd-sketch-wrap-up` | Package sketch design findings into a persistent project skill for future build conversations. | [commands/gsd/sketch-wrap-up.md](../commands/gsd/sketch-wrap-up.md) |
 | `/gsd-profile-user` | Generate developer behavioral profile and Claude-discoverable artifacts. | [commands/gsd/profile-user.md](../commands/gsd/profile-user.md) |
 | `/gsd-settings` | Configure GSD workflow toggles and model profile. | [commands/gsd/settings.md](../commands/gsd/settings.md) |
+| `/gsd-settings-advanced` | Power-user configuration — plan bounce, timeouts, branch templates, cross-AI execution, runtime knobs. | [commands/gsd/settings-advanced.md](../commands/gsd/settings-advanced.md) |
+| `/gsd-settings-integrations` | Configure third-party API keys, code-review CLI routing, and agent-skill injection. | [commands/gsd/settings-integrations.md](../commands/gsd/settings-integrations.md) |
 | `/gsd-set-profile` | Switch model profile for GSD agents (quality/balanced/budget/inherit). | [commands/gsd/set-profile.md](../commands/gsd/set-profile.md) |
 | `/gsd-pr-branch` | Create a clean PR branch by filtering out `.planning/` commits. | [commands/gsd/pr-branch.md](../commands/gsd/pr-branch.md) |
 | `/gsd-sync-skills` | Sync managed GSD skill directories across runtime roots for multi-runtime users. | [commands/gsd/sync-skills.md](../commands/gsd/sync-skills.md) |
@@ -173,7 +176,7 @@ Full roster at `commands/gsd/*.md`. The groupings below mirror `docs/COMMANDS.md
 
 ---
 
-## Workflows (81 shipped)
+## Workflows (84 shipped)
 
 Full roster at `get-shit-done/workflows/*.md`. Workflows are thin orchestrators that commands reference internally; most are not read directly by end users. Rows below map each workflow file to its role (derived from the `<purpose>` block) and, where applicable, to the command that invokes it.
 
@@ -200,6 +203,7 @@ Full roster at `get-shit-done/workflows/*.md`. Workflows are thin orchestrators 
 | `discuss-phase.md` | Extract implementation decisions through iterative gray-area discussion. | `/gsd-discuss-phase` |
 | `do.md` | Route freeform text from the user to the best matching GSD command. | `/gsd-do` |
 | `docs-update.md` | Generate, update, and verify canonical and hand-written project documentation. | `/gsd-docs-update` |
+| `edit-phase.md` | Edit any field of an existing phase in ROADMAP.md in place, preserving number and position. | `/gsd-edit-phase` |
 | `eval-review.md` | Retroactive audit of an implemented AI phase's evaluation coverage. | `/gsd-eval-review` |
 | `execute-phase.md` | Execute all plans in a phase using wave-based parallel execution. | `/gsd-execute-phase` |
 | `execute-plan.md` | Execute a phase prompt (PLAN.md) and create the outcome summary (SUMMARY.md). | `execute-phase.md` (per-plan subagent) |
@@ -243,6 +247,8 @@ Full roster at `get-shit-done/workflows/*.md`. Workflows are thin orchestrators 
 | `secure-phase.md` | Retroactive threat-mitigation audit for a completed phase. | `/gsd-secure-phase` |
 | `session-report.md` | Session report — token usage, work summary, outcomes. | `/gsd-session-report` |
 | `settings.md` | Configure GSD workflow toggles and model profile. | `/gsd-settings`, `/gsd-set-profile` |
+| `settings-advanced.md` | Configure GSD power-user knobs — plan bounce, timeouts, branch templates, cross-AI execution, runtime knobs. | `/gsd-settings-advanced` |
+| `settings-integrations.md` | Configure third-party API keys (Brave/Firecrawl/Exa), `review.models.<cli>` CLI routing, and `agent_skills.<agent-type>` injection with masked (`****<last-4>`) display. | `/gsd-settings-integrations` |
 | `ship.md` | Create PR, run review, and prepare for merge after verification. | `/gsd-ship` |
 | `sketch.md` | Explore design directions through throwaway HTML mockups with 2-3 variants per sketch. | `/gsd-sketch` |
 | `sketch-wrap-up.md` | Curate sketch findings and package them as a persistent `sketch-findings-[project]` skill. | `/gsd-sketch-wrap-up` |
@@ -265,7 +271,7 @@ Full roster at `get-shit-done/workflows/*.md`. Workflows are thin orchestrators 
 
 ---
 
-## References (50 shipped)
+## References (51 shipped)
 
 Full roster at `get-shit-done/references/*.md`. References are shared knowledge documents that workflows and agents `@-reference`. The groupings below match [`docs/ARCHITECTURE.md`](ARCHITECTURE.md#references-get-shit-donereferencesmd) — core, workflow, thinking-model clusters, and the modular planner decomposition.
 
@@ -299,6 +305,7 @@ Full roster at `get-shit-done/references/*.md`. References are shared knowledge 
 | `continuation-format.md` | Session continuation/resume format. |
 | `domain-probes.md` | Domain-specific probing questions for discuss-phase. |
 | `gate-prompts.md` | Gate/checkpoint prompt templates. |
+| `scout-codebase.md` | Phase-type→codebase-map selection table for discuss-phase scout step (extracted via #2551). |
 | `revision-loop.md` | Plan revision iteration patterns. |
 | `universal-anti-patterns.md` | Universal anti-patterns to detect and avoid. |
 | `artifact-types.md` | Planning artifact type definitions. |
@@ -350,11 +357,11 @@ The `gsd-planner` agent is decomposed into a core agent plus reference modules t
 | `planner-revision.md` | Plan revision patterns for iterative refinement. |
 | `planner-source-audit.md` | Planner source-audit and authority-limit rules. |
 
-> **Subdirectory:** `get-shit-done/references/few-shot-examples/` contains additional few-shot examples (`plan-checker.md`, `verifier.md`) that are referenced from specific agents. These are not counted in the 50 top-level references.
+> **Subdirectory:** `get-shit-done/references/few-shot-examples/` contains additional few-shot examples (`plan-checker.md`, `verifier.md`) that are referenced from specific agents. These are not counted in the 51 top-level references.
 
 ---
 
-## CLI Modules (26 shipped)
+## CLI Modules (31 shipped)
 
 Full listing: `get-shit-done/bin/lib/*.cjs`.
 
@@ -366,11 +373,15 @@ Full listing: `get-shit-done/bin/lib/*.cjs`.
 | `config-schema.cjs` | Single source of truth for `VALID_CONFIG_KEYS` and dynamic key patterns; imported by both the validator and the config-schema-docs parity test |
 | `config.cjs` | `config.json` read/write, section initialization; imports validator from `config-schema.cjs` |
 | `core.cjs` | Error handling, output formatting, shared utilities, runtime fallbacks |
+| `decisions.cjs` | Shared parser for CONTEXT.md `<decisions>` blocks (D-NN entries); used by `gap-checker.cjs` and intended for #2492 plan/verify decision gates |
 | `docs.cjs` | Docs-update workflow init, Markdown scanning, monorepo detection |
+| `drift.cjs` | Post-execute codebase structural drift detector (#2003): classifies file changes into new-dir/barrel/migration/route categories and round-trips `last_mapped_commit` frontmatter |
 | `frontmatter.cjs` | YAML frontmatter CRUD operations |
+| `gap-checker.cjs` | Post-planning gap analysis (#2493): unified REQUIREMENTS.md + CONTEXT.md decisions vs PLAN.md coverage report (`gsd-tools gap-analysis`) |
 | `graphify.cjs` | Knowledge-graph build/query/status/diff for `/gsd-graphify` |
 | `gsd2-import.cjs` | External-plan ingest for `/gsd-from-gsd2` |
 | `init.cjs` | Compound context loading for each workflow type |
+| `install-profiles.cjs` | Install profile allowlist + skill staging for `--minimal` install (#2762); single source of truth for which `gsd-*` skills/agents land in runtime config dirs |
 | `intel.cjs` | Codebase intel store backing `/gsd-intel` and `gsd-intel-updater` |
 | `learnings.cjs` | Cross-phase learnings extraction for `/gsd-extract-learnings` |
 | `milestone.cjs` | Milestone archival, requirements marking |
@@ -380,6 +391,7 @@ Full listing: `get-shit-done/bin/lib/*.cjs`.
 | `profile-pipeline.cjs` | User behavioral profiling data pipeline, session file scanning |
 | `roadmap.cjs` | ROADMAP.md parsing, phase extraction, plan progress |
 | `schema-detect.cjs` | Schema-drift detection for ORM patterns (Prisma, Drizzle, etc.) |
+| `secrets.cjs` | Secret-config masking convention (`****<last-4>`) for integration keys managed by `/gsd-settings-integrations` — keeps plaintext out of `config-set` output |
 | `security.cjs` | Path traversal prevention, prompt injection detection, safe JSON/shell helpers |
 | `state.cjs` | STATE.md parsing, updating, progression, metrics |
 | `template.cjs` | Template selection and filling with variable substitution |
